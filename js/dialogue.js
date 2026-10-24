@@ -30,8 +30,18 @@ export function setPortrait(src) {
   if (img) img.src = src;
 }
 
+function stripDuplicateName(line) {
+  const nameEl = document.getElementById("dialogueName");
+  const steed = nameEl?.textContent?.trim();
+  if (!steed) return line;
+  const prefix = `${steed}:`;
+  if (line.startsWith(prefix)) return line.slice(prefix.length).trim();
+  if (line.startsWith(`${steed} `)) return line.slice(steed.length).trim();
+  return line;
+}
+
 export function say(lines, done) {
-  queue = [...lines];
+  queue = lines.map(stripDuplicateName);
   onDone = done || null;
   document.getElementById("dialogueBox")?.classList.remove("hidden");
   showNext();

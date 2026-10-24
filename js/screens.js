@@ -7,7 +7,7 @@ import { say, setSteedName, setPortrait, hideDialogue } from "./dialogue.js";
 import { iconFood, icons } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
-import { guest, ladyTitle, saveState, state } from "./state.js";
+import { guest, questOfTitle, letterSalutation, resetState, saveState, state } from "./state.js";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A peasant classic with a royal taste" },
@@ -108,8 +108,9 @@ function hide(el) {
 }
 
 function initTitle() {
-  const titleEl = document.getElementById("titleQuestName");
-  if (titleEl) titleEl.textContent = ladyTitle(guest);
+  document.querySelectorAll("[data-lady]").forEach((el) => {
+    el.textContent = questOfTitle();
+  });
 
   $("btnNewGame")?.addEventListener("click", () => {
     setSoundOn(true);
@@ -215,8 +216,6 @@ function initSteed() {
   });
 
   $("btnSteedNext")?.addEventListener("click", () => navigate("sheet"));
-
-  onEnterSteed();
 }
 
 function pickSteed(name) {
@@ -229,9 +228,8 @@ function pickSteed(name) {
 export function onEnterSteed() {
   setPortrait("assets/images/horse-idle.webp");
   setSteedName(state.steedName);
-  const n = guest.isLady ? guest.formal : guest.display;
   say([
-    `*soft neigh* Oh! You must be ${ladyTitle(guest)}. I've heard SO much about you.`,
+    `*soft neigh* Oh! You must be ${questOfTitle()}. I've heard SO much about you.`,
     `I'm your steed for this quest. Before we ride… may I have a head scratch? It's tradition.`,
   ]);
 }
@@ -298,7 +296,7 @@ function initRating() {
   const spring = () => {
     slider.value = "10";
     $("ratingValue").textContent = "10";
-    cap.textContent = caption(last);
+    cap.textContent = caption(10);
     slider.classList.add("boing");
     setTimeout(() => slider.classList.remove("boing"), 500);
     if (!bonusShown) {
@@ -352,21 +350,31 @@ function initJournal() {
   });
 }
 
+const YES_SCALE_MAX = 1.3;
+
 function initDragon() {
   const btnNo = $("btnNo");
   const btnYes = $("btnYes");
+  const arena = $("dateButtons");
   const hp = $("dragonHp");
   let hpVal = 100;
 
   function resetNo() {
     yesScale = 1;
     noScale = 1;
-    btnNo.style.position = "";
-    btnNo.style.left = "";
-    btnNo.style.top = "";
+    hpVal = 100;
+    if (hp) hp.style.width = "100%";
+    btnNo.style.position = "absolute";
+    btnNo.style.width = "auto";
+    btnNo.style.left = "52%";
+    btnNo.style.top = "76px";
     btnNo.style.transform = "";
     btnYes.style.transform = "";
     btnNo.textContent = NO_LABELS[0];
+    hide($("realNoLink"));
+    hide($("yesToast"));
+    $("dragonScene")?.classList.remove("dragon-win");
+    if ($("dragonImg")) $("dragonImg").src = "assets/images/dragon-doubt.webp";
   }
 
   function dodge(e) {
@@ -376,25 +384,62 @@ function initDragon() {
     hpVal = Math.min(100, hpVal + 5);
     if (hp) hp.style.width = hpVal + "%";
     saveState();
-    noScale *= 0.85;
-    yesScale *= 1.2;
+    noScale = Math.max(0.55, noScale * 0.88);
+    yesScale = Math.min(YES_SCALE_MAX, yesScale * 1.12);
     const i = Math.min(state.noAttempts, NO_LABELS.length) - 1;
     btnNo.textContent = (NO_LABELS[i] || "nay").replace("{steed}", state.steedName);
-    const rect = btnNo.getBoundingClientRect();
-    const x = 12 + Math.random() * (window.innerWidth - rect.width - 24);
-    const y = 120 + Math.random() * (window.innerHeight * 0.35);
-    btnNo.style.position = "fixed";
-    btnNo.style.left = x + "px";
-    btnNo.style.top = y + "px";
-    btnNo.style.transform = `scale(${noScale})`;
+
     btnYes.style.transform = `scale(${yesScale})`;
-    if (state.noAttempts >= 7) show($("realNoLink"));
+    btnNo.style.transform = `scale(${noScale})`;
+    void btnYes.offsetHeight;
+
+    const pad = 10;
+    const arenaW = arena?.clientWidth || 300;
+    const arenaH = arena?.clientHeight || 220;
+    const arenaRect = arena.getBoundingClientRect();
+    const yesRect = btnYes.getBoundingClientRect();
+    const yesBottom = yesRect.bottom - arenaRect.top;
+    const noW = btnNo.offsetWidth * noScale;
+    const noH = btnNo.offsetHeight * noScale;
+    const minY = yesBottom + pad;
+    const maxY = Math.max(minY, arenaH - noH - pad);
+    const maxX = Math.max(pad, arenaW - noW - pad);
+    let x = pad;
+    let y = minY;
+    for (let t = 0; t < 24; t++) {
+      x = pad + Math.random() * Math.max(0, maxX - pad);
+      y = minY + Math.random() * Math.max(0, maxY - minY);
+      const noLeft = x;
+      const noRight = x + noW;
+      const noTop = y;
+      const noBottom = y + noH;
+      const yesLeft = yesRect.left - arenaRect.left;
+      const yesRight = yesRect.right - arenaRect.left;
+      const yesTop = yesRect.top - arenaRect.top;
+      const yesBottomLocal = yesRect.bottom - arenaRect.top;
+      const overlaps =
+        noLeft < yesRight + pad &&
+        noRight > yesLeft - pad &&
+        noTop < yesBottomLocal + pad &&
+        noBottom > yesTop - pad;
+      if (!overlaps) break;
+    }
+
+    btnNo.style.position = "absolute";
+    btnNo.style.left = `${x}px`;
+    btnNo.style.top = `${y}px`;
+
+    if (state.noAttempts >= 7) {
+      show($("realNoLink"));
+      $("realNoLink")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
     if (state.noAttempts >= 3) unlock("stubborn");
   }
 
   btnNo?.addEventListener("pointerdown", dodge, { passive: false });
   btnYes?.addEventListener("click", () => {
     state.secondDate = "yes";
+    state.honestNo = false;
     saveState();
     $("dragonScene")?.classList.add("dragon-win");
     $("dragonImg").src = "assets/images/dragon-befriended.webp";
@@ -407,7 +452,12 @@ function initDragon() {
     setTimeout(() => navigate("tavern"), 1400);
   });
 
-  $("realNoLink")?.addEventListener("click", () => navigate("honest-no"));
+  $("realNoLink")?.addEventListener("click", () => {
+    state.honestNo = true;
+    state.secondDate = "no";
+    saveState();
+    navigate("honest-no");
+  });
   resetNo();
 }
 
@@ -417,7 +467,7 @@ function initHonest() {
     saveState();
     navigate("tavern");
   });
-  onEnterHonest = () => say([`${state.steedName}: That's okay. Thank you for being honest. 🤍`]);
+  onEnterHonest = () => say([`That's okay. Thank you for being honest. 🤍`]);
 }
 
 let onEnterHonest = () => {};
@@ -493,8 +543,8 @@ function initPotion() {
     stirCount++;
     $("btnStir").textContent = stirCount < 3 ? `Stir (${stirCount}/3)` : "Bottle it →";
     if (stirCount >= 3) {
-      const short = state.activities[0]?.split(" ")[0] || "Adventure";
-      state.potionName = `Elixir of ${state.potionBase || "Moonlight Dew"} & ${short}`;
+      const essence = activityEssence(state.activities[0]);
+      state.potionName = `Elixir of ${state.potionBase || "Moonlight Dew"} & ${essence}`;
       unlock("alchemist");
       show($("potionResult"));
       $("potionResult").textContent = `${state.potionName}. Side effects: giggling, holding hands, losing track of time.`;
@@ -542,6 +592,11 @@ function initStars() {
     o.textContent = t;
     sky?.appendChild(o);
   });
+  if (sky) {
+    sky.value = state.time || "Morning ride";
+    state.time = sky.value;
+    saveState();
+  }
   sky?.addEventListener("input", () => {
     state.time = sky.value;
     document.body.style.setProperty("--sky-phase", sky.selectedIndex / 4);
@@ -555,7 +610,7 @@ function initStars() {
 
   $("btnSealDate")?.addEventListener("click", () => {
     if (!state.day) state.day = "TBD";
-    if (!state.time) state.time = "Golden hour";
+    if (!state.time) state.time = sky?.value || "Morning ride";
     saveState();
     let n = 3;
     const cd = $("countdownNum");
@@ -605,7 +660,9 @@ function initOracle() {
 function typeLetter() {
   const el = $("letterBody");
   const paras = CONFIG.letter.map((p) =>
-    p.replace("{name}", guest.isLady ? guest.formal : guest.display)
+    p
+      .replace(/^Dear \{name\},$/, letterSalutation())
+      .replace("{name}", guest.isLady ? guest.formal : "my lady")
       .replace("{fromName}", CONFIG.fromName)
       .replace("{steedName}", state.steedName)
   );
@@ -629,19 +686,36 @@ function initDecree() {
     await navigator.clipboard.writeText(buildSummaryText());
     show($("copyToast"));
   });
-  $("btnReplay")?.addEventListener("click", () => location.reload());
+  $("btnReplay")?.addEventListener("click", () => {
+    resetState();
+    location.reload();
+  });
+}
+
+function activityEssence(activity) {
+  const map = {
+    "Horse riding (your favourite)": "Galloping Courage",
+    "Nature hike + forest picnic": "Forest Moss",
+    "Medieval fair or castle visit": "Castle Banners",
+    "Fantasy game night together": "Arcane Runes",
+    "Movie night": "Silver Screen",
+    "Sunset walk + coffee": "Sunset Ember",
+    "Picnic among the trees": "Woven Picnic",
+    "Painting / pottery date": "Potter's Clay",
+    "Karaoke": "Bard's Courage",
+    "Cozy night in": "Hearth Warmth",
+  };
+  return map[activity] || "Adventure";
 }
 
 export function onScreenEnter(id) {
   if (id === "honest-no") onEnterHonest();
   if (id === "decree") {
+    unlock("heart", true);
     $("decreePreview").textContent = buildSummaryText();
     boostEmbers();
-    setTimeout(() => {
-      unlock("heart");
-      playStamp();
-      $("waxStampAnim")?.classList.add("stamped");
-    }, 800);
+    playStamp();
+    $("waxStampAnim")?.classList.add("stamped");
   }
   if (id === "steed") onEnterSteed();
 }

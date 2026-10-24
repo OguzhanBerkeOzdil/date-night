@@ -5,12 +5,29 @@ const KEY = "questLady_v2";
 export function parseGuestName() {
   const raw = (new URLSearchParams(location.search).get("name") || "").trim();
   let name = raw.replace(/^lady\s+/i, "").trim();
-  if (!name) return { display: CONFIG.defaultTitle, formal: CONFIG.defaultTitle, isLady: false };
+  if (!name) {
+    return { display: "my lady", formal: "my lady", isLady: false };
+  }
   return { display: name, formal: name, isLady: true };
 }
 
-export function ladyTitle(nameInfo) {
-  return nameInfo.isLady ? `Lady ${nameInfo.formal}` : nameInfo.formal;
+/** Title line: "Lady Elif" or "My Lady" */
+export function questOfTitle() {
+  if (guest.isLady) return `Lady ${guest.formal}`;
+  return "My Lady";
+}
+
+export function ladyTitle() {
+  return questOfTitle();
+}
+
+export function grantedToLabel() {
+  return questOfTitle();
+}
+
+export function letterSalutation() {
+  if (guest.isLady) return `Dear ${guest.formal},`;
+  return "My dearest lady,";
 }
 
 export function defaultState() {
@@ -32,7 +49,7 @@ export function defaultState() {
     vibe: "",
     notes: "",
     day: "",
-    time: "",
+    time: "Morning ride",
     fanumTax: true,
     tarotCard: "",
     achievements: [],

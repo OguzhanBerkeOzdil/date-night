@@ -1,6 +1,16 @@
 import { CONFIG } from "./config.js";
-import { ladyTitle, guest, state } from "./state.js";
-import { achievementCount, achievementLabels } from "./achievements.js";
+import { grantedToLabel, guest, state, letterSalutation } from "./state.js";
+import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
+
+function questAnswerLine() {
+  if (state.honestNo) {
+    return "Another quest: respectfully declined (thank you for your honesty)";
+  }
+  if (state.secondDate === "yes") {
+    return `Another quest: AYE (befriended the Dragon of Doubt after ${state.noAttempts} attempts to flee)`;
+  }
+  return "Another quest: —";
+}
 
 export function buildSummaryText() {
   const rating =
@@ -9,29 +19,50 @@ export function buildSummaryText() {
       : state.ratingChip
         ? `Re-rated: still a 10 (${state.ratingChip})`
         : "10/10";
+  const mainAch = achievementLabelsMain();
+  const bonusAch = achievementLabelsBonus();
+  const achLine = `Achievements: ${achievementCount()}/10 — ${mainAch.join(", ") || "—"}${
+    bonusAch.length ? ` (+ bonus: ${bonusAch.join(", ")})` : ""
+  }`;
+
   const lines = [
-    "⚜ ROYAL QUEST DECREE · No. 002",
-    `Granted to: ${ladyTitle(guest)}, ${state.steedClass || "Adventurer"}`,
+    "ROYAL QUEST DECREE · No. 002",
+    `Granted to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
     `Steed: ${state.steedName} (Affection: MAX)`,
     `Today's rating: ${rating}`,
     `Today felt like: ${state.todayVibe || "—"}`,
-    `Another quest: AYE (Dragon befriended after ${state.noAttempts} attempts to flee)`,
+    questAnswerLine(),
     `Provisions: ${state.food.join("; ") || "—"}`,
     `Potion: ${state.potionName || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
     `When we ride: ${state.day || "—"} · ${state.time || "—"}`,
     `Secret ingredient: ${state.notes || "—"}`,
     "Fanum tax: approved by ancient law ✓",
-    `Achievements: ${achievementCount()}/10 — ${achievementLabels().join(", ")}`,
+    achLine,
     "Sealed with wax (and feelings).",
   ];
   return lines.join("\n");
 }
 
+function wrapLines(ctx, text, maxWidth) {
+  const words = text.split(" ");
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const test = line ? `${line} ${w}` : w;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = w;
+    } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 export async function renderDecreeCanvas() {
   await document.fonts.ready;
   const w = 1080;
-  const h = 1520;
+  const h = 1400;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -48,29 +79,41 @@ export async function renderDecreeCanvas() {
     g.fillRect(0, 0, w, h);
   }
 
+  const margin = 72;
   g.strokeStyle = "#6b2d3a";
-  g.lineWidth = 8;
-  g.strokeRect(40, 40, w - 80, h - 80);
+  g.lineWidth = 6;
+  g.strokeRect(margin - 16, margin - 16, w - 2 * (margin - 16), h - 2 * (margin - 16));
   g.strokeStyle = "#c9a227";
   g.lineWidth = 2;
-  g.strokeRect(56, 56, w - 112, h - 112);
+  g.strokeRect(margin, margin, w - 2 * margin, h - 2 * margin);
 
+  let y = margin + 56;
   g.fillStyle = "#4a1f28";
-  g.font = '700 42px "Cinzel", serif';
+  g.font = '700 40px "Cinzel", serif';
   g.textAlign = "center";
-  g.fillText("ROYAL QUEST DECREE", w / 2, 120);
-  g.font = '400 28px "Crimson Pro", serif';
-  g.textAlign = "left";
-  const text = buildSummaryText().split("\n");
-  let y = 180;
-  text.forEach((line) => {
-    g.fillText(line, 80, y);
-    y += 44;
-  });
+  g.fillText("ROYAL QUEST DECREE · No. 002", w / 2, y);
+  y += 48;
 
-  g.font = 'italic 32px "Dancing Script", cursive';
-  g.fillText(ladyTitle(guest), 120, h - 200);
-  g.fillText(CONFIG.fromName, w - 320, h - 200);
+  g.textAlign = "left";
+  g.font = '400 26px "Crimson Pro", serif';
+  const bodyLines = buildSummaryText()
+    .split("\n")
+    .filter((line) => !line.startsWith("ROYAL QUEST"));
+
+  const maxW = w - margin * 2;
+  for (const paragraph of bodyLines) {
+    const wrapped = wrapLines(g, paragraph, maxW);
+    for (const line of wrapped) {
+      if (y > h - margin - 80) break;
+      g.fillText(line, margin, y);
+      y += 34;
+    }
+    y += 6;
+  }
+
+  g.font = 'italic 28px "Dancing Script", cursive';
+  g.fillText(grantedToLabel(), margin, h - margin - 36);
+  g.fillText(CONFIG.fromName, w - margin - 200, h - margin - 36);
 
   return c;
 }

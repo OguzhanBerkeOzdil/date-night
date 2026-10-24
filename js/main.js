@@ -1,10 +1,10 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
 import { initHud, updateHud } from "./hud.js";
-import { initDialogue } from "./dialogue.js";
+import { hideDialogue, initDialogue } from "./dialogue.js";
 import { initParticles } from "./particles.js";
 import { initScreens, onScreenEnter } from "./screens.js";
-import { guest, ladyTitle, saveState } from "./state.js";
+import { guest, questOfTitle, saveState } from "./state.js";
 
 let current = "title";
 const loadedBg = new Set();
@@ -45,6 +45,7 @@ export function navigate(screenId) {
     next.classList.add("screen--active");
     current = screenId;
     document.body.dataset.screen = screenId;
+    hideDialogue();
     setBackground(screenId);
     updateHud(screenId);
     saveState();
@@ -62,8 +63,9 @@ export function navigate(screenId) {
 
 function personalize() {
   document.querySelectorAll("[data-lady]").forEach((el) => {
-    el.textContent = ladyTitle(guest);
+    el.textContent = questOfTitle();
   });
+  document.title = `The Quest of ${questOfTitle()}`;
   document.querySelectorAll("[data-name-only]").forEach((el) => {
     el.textContent = guest.isLady ? guest.formal : guest.display;
   });
