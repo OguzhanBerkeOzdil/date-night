@@ -444,6 +444,12 @@ textarea#notesInput {
 .date-buttons .btn--yes {
   max-width: 100%;
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.date-buttons .btn--no {
+  z-index: 6;
 }
 
 .dragon-win .dragon-cutout {
@@ -479,18 +485,72 @@ textarea#notesInput {
 .menu-item strong { display: block; font-family: var(--font-display); font-size: 0.85rem; }
 .menu-item em { font-size: 0.85rem; opacity: 0.85; }
 
+[data-screen="potion"] .title {
+  color: #f4e8d0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+}
+
+.cauldron-stage {
+  position: relative;
+  height: 0;
+  margin: 0 0 8px;
+  pointer-events: none;
+}
+
+.cauldron-glow {
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  width: 38%;
+  height: 22px;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--glow-color, #5ec4b8) 85%, white) 0%,
+    color-mix(in srgb, var(--glow-color, #5ec4b8) 40%, transparent) 55%,
+    transparent 72%
+  );
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--glow-color, #5ec4b8) 70%, transparent),
+    0 0 36px color-mix(in srgb, var(--glow-color, #5ec4b8) 35%, transparent);
+  animation: cauldronBubble 2.8s ease-in-out infinite;
+}
+
+@keyframes cauldronBubble {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.92; }
+  50% { transform: translateX(-50%) scale(1.06); opacity: 1; }
+}
+
 .potion-ing {
   width: 100%;
   text-align: left;
   padding: 10px 12px;
   margin-bottom: 6px;
   border-radius: var(--radius);
-  border: 2px solid transparent;
-  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid rgba(107, 45, 58, 0.3);
+  background: rgba(252, 245, 232, 0.94);
+  font-family: var(--font-body);
+  color: var(--ink);
 }
 
-.potion-ing--on { border-color: var(--burgundy); }
-.potion-ing em { display: block; font-size: 0.8rem; }
+.potion-ing strong {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  color: var(--burgundy-deep);
+}
+
+.potion-ing--on {
+  border-color: var(--burgundy);
+  background: rgba(255, 252, 245, 0.98);
+}
+
+.potion-ing em {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-family: "Crimson Pro", serif;
+}
 
 .vial-row {
   display: flex;
@@ -590,9 +650,13 @@ textarea#notesInput {
 }
 
 body[data-screen="steed"] .dialogue-box {
-  top: calc(env(safe-area-inset-top, 0px) + 62px);
-  bottom: auto;
-  max-height: min(32vh, 200px);
+  top: auto;
+  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  max-height: min(26vh, 168px);
+}
+
+body[data-screen="rating"] #dialogueBox {
+  display: none !important;
 }
 
 body[data-screen="steed"] .dialogue-panel {
@@ -648,7 +712,7 @@ body[data-screen="steed"] .dialogue-panel {
 
 .achievement-wrap {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 52px);
+  top: calc(env(safe-area-inset-top, 0px) + 78px);
   left: 50%;
   right: auto;
   transform: translateX(-50%);

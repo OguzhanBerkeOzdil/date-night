@@ -4,7 +4,7 @@ import { initHud, updateHud } from "./hud.js";
 import { hideDialogue, initDialogue } from "./dialogue.js";
 import { initParticles } from "./particles.js";
 import { initScreens, onScreenEnter } from "./screens.js";
-import { guest, questOfTitle, saveState } from "./state.js";
+import { guest, hasQuestSave, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
 const loadedBg = new Set();
@@ -67,6 +67,7 @@ export function navigate(screenId) {
     prev?.classList.remove("screen--active");
     next.classList.add("screen--active");
     current = screenId;
+    state.lastScreen = screenId;
     document.body.dataset.screen = screenId;
     hideDialogue();
     setBackground(screenId);
@@ -111,8 +112,16 @@ function initSoundToggle() {
   });
 }
 
+function syncContinueButton() {
+  const btn = $("btnContinue");
+  if (!btn) return;
+  if (hasQuestSave()) btn.classList.remove("hidden");
+  else btn.classList.add("hidden");
+}
+
 function boot() {
   personalize();
+  syncContinueButton();
   const sendBtn = document.getElementById("btnShare");
   if (sendBtn) {
     import("./config.js").then(({ CONFIG }) => {
@@ -136,3 +145,4 @@ else boot();
 
 /** Playwright / debug: jump to any screen */
 window.__questNavigate = navigate;
+window.__questReadNoAttempts = () => state.noAttempts;

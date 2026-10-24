@@ -59,7 +59,7 @@
         </div>
         <div class="menu-plaques">
           <button type="button" class="btn btn--primary" id="btnNewGame">▶ New Game</button>
-          <button type="button" class="btn btn--ghost" id="btnContinue">Continue</button>
+          <button type="button" class="btn btn--ghost hidden" id="btnContinue">Continue</button>
           <p class="hint hidden" id="continueHint">No save file found… yet. Let's make one. ♥</p>
           <button type="button" class="btn btn--ghost" id="btnSoundTitle">♪ Sound: Off</button>
         </div>
@@ -188,7 +188,9 @@
     <section class="screen" data-screen="potion">
       <div class="screen__inner ornate">
         <h2 class="title">Brew the date potion</h2>
-        <svg class="cauldron" viewBox="0 0 200 120" aria-hidden="true"><ellipse id="cauldronLiquid" cx="100" cy="70" rx="70" ry="25" fill="#5ec4b8"/></svg>
+        <div class="cauldron-stage" aria-hidden="true">
+          <div class="cauldron-glow" id="cauldronGlow"></div>
+        </div>
         <div id="potionIngredients" class="potion-list"></div>
         <p class="sub-label">Potion base</p>
         <div id="potionBases" class="vial-row"></div>
