@@ -1,5 +1,5 @@
 import { CONFIG } from "./config.js";
-import { grantedToLabel, guest, state, letterSalutation } from "./state.js";
+import { grantedToLabel, state } from "./state.js";
 import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
 
 function questAnswerLine() {
@@ -79,41 +79,46 @@ export async function renderDecreeCanvas() {
     g.fillRect(0, 0, w, h);
   }
 
-  const margin = 72;
+  const frame = 88;
+  const innerX = 112;
+  const innerY = 168;
+  const innerW = w - innerX * 2;
+  const innerBottom = h - 200;
+
   g.strokeStyle = "#6b2d3a";
   g.lineWidth = 6;
-  g.strokeRect(margin - 16, margin - 16, w - 2 * (margin - 16), h - 2 * (margin - 16));
+  g.strokeRect(frame - 12, frame - 12, w - 2 * (frame - 12), h - 2 * (frame - 12));
   g.strokeStyle = "#c9a227";
   g.lineWidth = 2;
-  g.strokeRect(margin, margin, w - 2 * margin, h - 2 * margin);
+  g.strokeRect(frame, frame, w - 2 * frame, h - 2 * frame);
 
-  let y = margin + 56;
+  let y = innerY;
   g.fillStyle = "#4a1f28";
-  g.font = '700 40px "Cinzel", serif';
+  g.font = '700 38px "Cinzel", serif';
   g.textAlign = "center";
   g.fillText("ROYAL QUEST DECREE · No. 002", w / 2, y);
-  y += 48;
+  y += 56;
 
   g.textAlign = "left";
-  g.font = '400 26px "Crimson Pro", serif';
+  g.font = '400 25px "Crimson Pro", serif';
   const bodyLines = buildSummaryText()
     .split("\n")
     .filter((line) => !line.startsWith("ROYAL QUEST"));
 
-  const maxW = w - margin * 2;
   for (const paragraph of bodyLines) {
-    const wrapped = wrapLines(g, paragraph, maxW);
+    const wrapped = wrapLines(g, paragraph, innerW);
     for (const line of wrapped) {
-      if (y > h - margin - 80) break;
-      g.fillText(line, margin, y);
-      y += 34;
+      if (y > innerBottom - 48) break;
+      g.fillText(line, innerX, y);
+      y += 32;
     }
-    y += 6;
+    y += 4;
   }
 
-  g.font = 'italic 28px "Dancing Script", cursive';
-  g.fillText(grantedToLabel(), margin, h - margin - 36);
-  g.fillText(CONFIG.fromName, w - margin - 200, h - margin - 36);
+  const sigY = innerBottom - 8;
+  g.font = 'italic 26px "Dancing Script", cursive';
+  g.fillText(grantedToLabel(), innerX, sigY);
+  g.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);
 
   return c;
 }

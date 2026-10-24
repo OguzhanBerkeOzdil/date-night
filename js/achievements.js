@@ -42,12 +42,12 @@ function toast(def) {
   if (!wrap) return;
   const el = document.createElement("div");
   el.className = "achievement-toast";
-  el.innerHTML = `${icons.shield}<div><strong>Achievement unlocked — </strong><span>${def.title}: ${def.desc}</span></div>`;
+  el.innerHTML = `${icons.shield}<span class="achievement-toast__label">${def.title}</span>`;
   wrap.appendChild(el);
   playDing();
   vibrate([30, 40, 30]);
-  setTimeout(() => el.classList.add("achievement-toast--out"), 2400);
-  setTimeout(() => el.remove(), 2800);
+  setTimeout(() => el.classList.add("achievement-toast--out"), 2500);
+  setTimeout(() => el.remove(), 2900);
 }
 
 export function achievementCount() {
