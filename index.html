@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a2e1f">
+  <meta name="description" content="A royal summons — answer the quest and seal your next adventure.">
+  <title>Royal Quest · Date Night</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/images/bg-forest.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/images/horse.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/images/parchment.webp" type="image/webp">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="scene-bg" aria-hidden="true">
+    <div class="scene-bg__layer scene-bg__layer--quest is-visible">
+      <picture>
+        <source srcset="assets/images/bg-forest.webp" type="image/webp">
+        <img class="scene-bg__img scene-bg__img--kenburns" src="assets/images/bg-forest.jpg" alt="" width="960" height="1707" decoding="async" fetchpriority="high">
+      </picture>
+    </div>
+    <div class="scene-bg__layer scene-bg__layer--celebration" id="bgCelebrationLayer" hidden>
+      <picture>
+        <source srcset="assets/images/bg-celebration.webp" type="image/webp">
+        <img class="scene-bg__img scene-bg__img--kenburns scene-bg__img--slow" src="assets/images/bg-celebration.jpg" alt="" width="1080" height="1920" decoding="async">
+      </picture>
+    </div>
+    <div class="scene-bg__readability"></div>
+    <div class="scene-bg__gradient"></div>
+    <div class="scene-bg__vignette"></div>
+    <div class="candle-glow candle-glow--left"></div>
+    <div class="candle-glow candle-glow--right"></div>
+  </div>
+
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
+
+  <header class="app-header">
+    <div class="progress-quest" id="progressHearts" aria-label="Quest progress"></div>
+  </header>
+
+  <main id="app" class="app">
+    <!-- Screen 1: Welcome -->
+    <section class="screen screen--active" data-screen="welcome" aria-labelledby="welcome-title">
+      <div class="screen__inner welcome">
+        <div class="scroll-card scroll-card--hero parchment-textured">
+          <picture class="horse-mascot horse-mascot--welcome" id="horseWelcome">
+            <source srcset="assets/images/horse.webp" type="image/webp">
+            <img class="horse-mascot__img" src="assets/images/horse.jpg" alt="" width="720" height="720" decoding="async">
+          </picture>
+          <p class="scroll-card__kicker">By royal decree</p>
+          <h1 class="title" id="welcome-title">A royal summons for Lady <span data-name>you</span></h1>
+          <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, 100% about us.</p>
+          <p class="small-print">Estimated time: one minute. Estimated butterflies: many. ♥</p>
+        </div>
+
+        <div class="wax-seal-wrap" id="envelope" role="button" tabindex="0" aria-label="Break the wax seal to open the scroll">
+          <div class="scroll-roll scroll-roll--top"></div>
+          <div class="scroll-roll scroll-roll--bottom"></div>
+          <div class="scroll-paper">
+            <span class="medallion" aria-hidden="true">⚜</span>
+          </div>
+          <div class="wax-seal" id="waxSeal">
+            <span class="wax-seal__mark">O</span>
+          </div>
+        </div>
+
+        <div class="loading-quest" id="loadingRizz" hidden>
+          <div class="loading-quest__bar"><span id="loadingRizzFill"></span></div>
+          <p class="loading-quest__text" id="loadingRizzText">Consulting the oracle…</p>
+        </div>
+        <button type="button" class="btn btn--primary btn--pulse" id="btnOpen" hidden>Break the seal &amp; begin ⚜</button>
+      </div>
+    </section>
+
+    <!-- Screen 2: Rating -->
+    <section class="screen" data-screen="rating" aria-labelledby="rating-title">
+      <div class="screen__inner parchment">
+        <h2 class="title" id="rating-title">Rate today, m'lady 🌟</h2>
+        <p class="sub">The court grants honesty. (It does not grant numbers below ten.)</p>
+        <div class="slider-wrap">
+          <label class="slider-label" for="ratingSlider">Rating</label>
+          <input type="range" id="ratingSlider" class="rating-slider" min="1" max="10" value="10" step="1">
+          <div class="slider-value" id="sliderValue">10</div>
+          <p class="caption" id="ratingCaption">Verdict: flawless. +1000 aura ✨</p>
+          <button type="button" class="chip chip--bonus" id="chipEleven" hidden>Legendary loot · 11/10 🏆</button>
+        </div>
+        <button type="button" class="btn btn--primary" id="btnRatingSubmit">Seal my answer (it's ten, obviously)</button>
+      </div>
+    </section>
+
+    <!-- Screen 3: Vibe -->
+    <section class="screen" data-screen="vibe" aria-labelledby="vibe-title">
+      <div class="screen__inner parchment">
+        <h2 class="title" id="vibe-title">Today felt like…</h2>
+        <div class="option-list" id="vibeOptions"></div>
+        <p class="caption caption--fade" id="vibeNoted" hidden>Inscribed in the royal archives 📜</p>
+      </div>
+    </section>
+
+    <!-- Screen 4: Another date -->
+    <section class="screen" data-screen="another-date" aria-labelledby="date-title">
+      <div class="screen__inner another-date parchment">
+        <picture class="horse-mascot horse-mascot--quest" id="horseQuest">
+          <source srcset="assets/images/horse.webp" type="image/webp">
+          <img class="horse-mascot__img" src="assets/images/horse.jpg" alt="" width="720" height="720" decoding="async">
+        </picture>
+        <p class="emoji-reaction" id="dateEmoji" aria-hidden="true">🥺</p>
+        <h2 class="title" id="date-title">Will you ride out on another quest with me? 🐎</h2>
+        <div class="date-buttons" id="dateButtons">
+          <button type="button" class="btn btn--yes" id="btnYes">Aye, my liege 💖</button>
+          <button type="button" class="btn btn--no" id="btnNo">Nay</button>
+        </div>
+        <p class="yes-toast" id="yesToast" hidden>Quest accepted! Best loot drop of the year, no cap. 🎉</p>
+        <button type="button" class="link-btn" id="realNoLink" hidden>Real talk: if you truly wish to decline, tap here — no hard feelings 🤍</button>
+      </div>
+    </section>
+
+    <!-- Screen 4b: Honest no -->
+    <section class="screen" data-screen="honest-no" aria-labelledby="honest-title">
+      <div class="screen__inner center parchment">
+        <h2 class="title" id="honest-title">Thank you for your honesty.</h2>
+        <p class="body-text">You remain noble and kind. The realm respects you. 🤍</p>
+        <button type="button" class="btn btn--secondary" id="btnHonestContinue">Continue the scroll anyway (or close this tab)</button>
+      </div>
+    </section>
+
+    <!-- Screen 5: Food -->
+    <section class="screen" data-screen="food" aria-labelledby="food-title">
+      <div class="screen__inner parchment">
+        <h2 class="title" id="food-title">Provisions for the journey 🍽️</h2>
+        <p class="sub">Choose your feast. The scribe is taking notes.</p>
+        <div class="card-grid" id="foodOptions"></div>
+        <label class="fanum-tax" id="fanumTaxLabel">
+          <input type="checkbox" id="fanumTax" checked>
+          <span>I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</span>
+        </label>
+        <button type="button" class="btn btn--primary" id="btnFoodNext">Onward →</button>
+      </div>
+    </section>
+
+    <!-- Screen 6: Activity + vibe -->
+    <section class="screen" data-screen="activity" aria-labelledby="activity-title">
+      <div class="screen__inner parchment">
+        <h2 class="title" id="activity-title">Choose your adventure</h2>
+        <p class="sub-label">Quest activities (pick any)</p>
+        <div class="card-grid card-grid--compact" id="activityOptions"></div>
+        <p class="sub-label">Mood of the realm</p>
+        <div class="chip-row" id="vibeChips"></div>
+        <label class="field-label" for="notesInput">Terms, wishes, or royal demands:</label>
+        <textarea id="notesInput" class="notes-input" rows="2" placeholder="e.g. you owe me a coin for the bard… 😌"></textarea>
+        <button type="button" class="btn btn--primary" id="btnActivityNext">Onward →</button>
+      </div>
+    </section>
+
+    <!-- Screen 7: When -->
+    <section class="screen" data-screen="when" aria-labelledby="when-title">
+      <div class="screen__inner parchment">
+        <h2 class="title" id="when-title">When shall we ride? 📅</h2>
+        <p class="sub-label">Day</p>
+        <div class="chip-row" id="dayChips"></div>
+        <input type="date" id="datePicker" class="date-picker" hidden>
+        <p class="sub-label">Hour of the realm</p>
+        <div class="chip-row" id="timeChips"></div>
+        <div class="booking-countdown" id="bookingCountdown" hidden>
+          <p>Inscribing decree… <span id="countdownNum">3</span>… sealed 🔒</p>
+        </div>
+        <button type="button" class="btn btn--primary" id="btnWhenFinish">Seal the date 🔒</button>
+      </div>
+    </section>
+
+    <!-- Screen 8: Celebration -->
+    <section class="screen" data-screen="celebration" aria-labelledby="cele-title">
+      <div class="screen__inner celebration">
+        <h2 class="title" id="cele-title">By order of the heart — it's a date 💘</h2>
+        <div class="decree-wrap parchment-textured parchment-textured--decree">
+          <article class="ticket decree" id="dateTicket" aria-label="Royal quest contract summary"></article>
+        </div>
+        <p class="small-print ticket-footer">Screenshot this decree. It's legally binding in fairy tales (please come anyway) 🥹</p>
+        <div class="action-row">
+          <button type="button" class="btn btn--primary" id="btnSend">Send to Oğuzhan 💌</button>
+          <button type="button" class="btn btn--secondary" id="btnCopy">Copy decree 📋</button>
+          <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew 🔁</button>
+        </div>
+        <p class="copy-toast" id="copyToast" hidden>Copied! Send it by raven or WhatsApp 💌</p>
+      </div>
+    </section>
+  </main>
+
+  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
