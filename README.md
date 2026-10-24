@@ -1,54 +1,56 @@
-# Date Night 💌
+# The Quest of Lady {name} 💌
 
-A playful, mobile-first questionnaire for a second date — open it from a QR code, answer a few cute questions, and get a shareable **date ticket** at the end.
+A mobile-first, medieval-fantasy date quest — 12 screens, horse narrator, dragon boss fight, potion brewing, oracle tarot, and a shareable royal decree (PNG + WhatsApp).
 
-Live on GitHub Pages: [https://oguzhanberkeozdil.github.io/date-night/](https://oguzhanberkeozdil.github.io/date-night/)
+Live: [https://oguzhanberkeozdil.github.io/date-night/](https://oguzhanberkeozdil.github.io/date-night/)
 
-## Open locally
-
-No build step. From the repo root:
+## Run locally
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then visit [http://localhost:8080](http://localhost:8080) (or open `index.html` via any static file server).
+Open [http://localhost:8080](http://localhost:8080). ES modules require a static server (not `file://`).
 
-## Personalize with `?name=`
-
-Add her name to the URL:
+## Personalize
 
 ```
 https://oguzhanberkeozdil.github.io/date-night/?name=Ayşe
 ```
 
-If `name` is missing, the copy uses **"you"** instead.
+- Shows **Lady Ayşe** (strips a leading `Lady` from the param).
+- Without `?name=`, copy uses **my lady** (never “Lady you”).
 
-Answers are saved in the browser (`localStorage`) as she goes, so a refresh mid-flow can keep progress on the same device.
+## Config (`js/config.js`)
 
-## QR code for Oğuzhan
+```js
+fromName: "Oğuzhan",
+whatsappNumber: "",  // set to e.g. "905xxxxxxxxx" for direct wa.me link
+defaultTitle: "my lady",
+letter: [ /* paragraphs */ ],
+```
 
-1. Use the production URL (with `?name=…` if you want it baked in):
-   - `https://oguzhanberkeozdil.github.io/date-night/?name=HerName`
-2. Generate a QR code with any free tool, for example:
-   - [https://www.qr-code-generator.com/](https://www.qr-code-generator.com/)
-   - Or iOS **Shortcuts** / Android **Google Lens** → create QR from link
-3. Show the QR on your phone or print it — she scans and the survey opens in mobile Safari/Chrome.
+Empty `whatsappNumber` → `https://wa.me/?text=…` (contact picker).
 
-## Share answers
+## QR code
 
-On the final screen, **Send to Oğuzhan 💌** opens WhatsApp with a prefilled summary (`wa.me`). **Copy summary** is the clipboard fallback. **Replay** clears saved answers and starts over.
+Point any QR generator at your URL (optionally with `?name=`).
 
-## Deploy (GitHub Pages)
+## Tests
 
-Repository → **Settings** → **Pages** → **Deploy from a branch** → branch `main`, folder `/ (root)`.
+```bash
+node tests/v2-flow.spec.mjs
+```
 
-The `.nojekyll` file is included so GitHub Pages serves the site as-is.
+Playwright mobile flow (iPhone + Pixel viewports).
 
-## Art assets
+## Assets & credits
 
-Illustrations live in `assets/images/` as WebP with JPG fallbacks (forest quest background, celebration scene, horse mascot, parchment texture). Replace those files to swap art without changing code.
+- Storybook illustrations in `assets/images/` (WebP; cutouts processed with [rembg](https://github.com/danielgatis/rembg)).
+- UI icons: simplified gold-line SVGs (style inspired by [Game-icons.net](https://game-icons.net/) CC BY 3.0).
+- Ambient music: optional Web Audio lute drone on **New Game** (no external MP3 bundled). Add a Pixabay lute loop to `assets/audio/` and wire in `js/audio.js` if desired ([Pixabay license](https://pixabay.com/service/license-summary/)).
+- Fonts: [Google Fonts](https://fonts.google.com/) — Cinzel, Cinzel Decorative, Crimson Pro, Dancing Script (OFL).
 
-## Tech
+## Deploy
 
-Vanilla HTML, CSS, and JavaScript only — no framework, no backend.
+GitHub Pages → `main` / root. `.nojekyll` included.

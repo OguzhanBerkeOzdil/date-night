@@ -4,193 +4,248 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a2e1f">
-  <meta name="description" content="A royal summons — answer the quest and seal your next adventure.">
-  <title>Royal Quest · Date Night</title>
+  <title>The Quest of Lady …</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/images/bg-forest.webp" type="image/webp">
-  <link rel="preload" as="image" href="assets/images/horse.webp" type="image/webp">
-  <link rel="preload" as="image" href="assets/images/parchment.webp" type="image/webp">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="assets/images/bg-title.webp" type="image/webp">
+  <link rel="preload" as="image" href="assets/images/horse-idle.webp" type="image/webp">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/v2.css">
 </head>
 <body>
-  <div class="scene-bg" aria-hidden="true">
-    <div class="scene-bg__layer scene-bg__layer--quest is-visible">
-      <picture>
-        <source srcset="assets/images/bg-forest.webp" type="image/webp">
-        <img class="scene-bg__img scene-bg__img--kenburns" src="assets/images/bg-forest.jpg" alt="" width="960" height="1707" decoding="async" fetchpriority="high">
-      </picture>
-    </div>
-    <div class="scene-bg__layer scene-bg__layer--celebration" id="bgCelebrationLayer" hidden>
-      <picture>
-        <source srcset="assets/images/bg-celebration.webp" type="image/webp">
-        <img class="scene-bg__img scene-bg__img--kenburns scene-bg__img--slow" src="assets/images/bg-celebration.jpg" alt="" width="1080" height="1920" decoding="async">
-      </picture>
-    </div>
+  <div class="scene-bg" id="bgLayer" aria-hidden="true">
+    <picture>
+      <source srcset="assets/images/bg-title.webp" type="image/webp">
+      <img class="scene-bg__img scene-bg__img--kenburns" src="assets/images/bg-title.jpg" alt="" decoding="async">
+    </picture>
     <div class="scene-bg__readability"></div>
-    <div class="scene-bg__gradient"></div>
     <div class="scene-bg__vignette"></div>
-    <div class="candle-glow candle-glow--left"></div>
-    <div class="candle-glow candle-glow--right"></div>
   </div>
+  <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
 
-  <div class="ambient" id="ambient" aria-hidden="true"></div>
-
-  <header class="app-header">
-    <div class="progress-quest" id="progressHearts" aria-label="Quest progress"></div>
+  <header class="top-bar">
+    <button type="button" class="hud-strip" id="questHud" aria-label="Quest map">
+      <svg class="hud-map" viewBox="0 0 100 100" aria-hidden="true">
+        <path id="mapTrail" d="M8,92 Q20,80 32,68 T58,48 T86,18 T92,8" fill="none" stroke="rgba(201,162,39,.25)" stroke-width="2" stroke-dasharray="0 100"/>
+        <path d="M8,92 Q20,80 32,68 T58,48 T86,18 T92,8" fill="none" stroke="#c9a227" stroke-width="2.5" id="mapTrailGold" style="stroke-dasharray:0 100"/>
+      </svg>
+      <span class="map-token" id="mapToken">🐴</span>
+    </button>
+    <button type="button" class="sound-btn" id="btnSoundHud" aria-label="Sound">🔇</button>
   </header>
 
-  <main id="app" class="app">
-    <!-- Screen 1: Welcome -->
-    <section class="screen screen--active" data-screen="welcome" aria-labelledby="welcome-title">
-      <div class="screen__inner welcome">
-        <div class="scroll-card scroll-card--hero parchment-textured">
-          <picture class="horse-mascot horse-mascot--welcome" id="horseWelcome">
-            <source srcset="assets/images/horse.webp" type="image/webp">
-            <img class="horse-mascot__img" src="assets/images/horse.jpg" alt="" width="720" height="720" decoding="async">
-          </picture>
-          <p class="scroll-card__kicker">By royal decree</p>
-          <h1 class="title" id="welcome-title">A royal summons for Lady <span data-name>you</span></h1>
-          <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, 100% about us.</p>
-          <p class="small-print">Estimated time: one minute. Estimated butterflies: many. ♥</p>
-        </div>
+  <div id="achievementToasts" class="achievement-wrap" aria-live="polite"></div>
 
-        <div class="wax-seal-wrap" id="envelope" role="button" tabindex="0" aria-label="Break the wax seal to open the scroll">
-          <div class="scroll-roll scroll-roll--top"></div>
-          <div class="scroll-roll scroll-roll--bottom"></div>
-          <div class="scroll-paper">
-            <span class="medallion" aria-hidden="true">⚜</span>
-          </div>
-          <div class="wax-seal" id="waxSeal">
-            <span class="wax-seal__mark">O</span>
-          </div>
+  <main id="app" class="app app--v2">
+    <section class="screen screen--active" data-screen="title">
+      <div class="screen__inner title-screen">
+        <p class="kicker">A tale in one minute</p>
+        <h1 class="title-lockup">The Quest of <span data-lady>my lady</span></h1>
+        <div class="menu-plaques">
+          <button type="button" class="btn btn--primary" id="btnNewGame">▶ New Game</button>
+          <button type="button" class="btn btn--ghost" id="btnContinue">Continue</button>
+          <p class="hint hidden" id="continueHint">No save file found… yet. Let's make one. ♥</p>
+          <button type="button" class="btn btn--ghost" id="btnSoundTitle">♪ Sound: Off</button>
         </div>
-
-        <div class="loading-quest" id="loadingRizz" hidden>
-          <div class="loading-quest__bar"><span id="loadingRizzFill"></span></div>
-          <p class="loading-quest__text" id="loadingRizzText">Consulting the oracle…</p>
-        </div>
-        <button type="button" class="btn btn--primary btn--pulse" id="btnOpen" hidden>Break the seal &amp; begin ⚜</button>
+        <p class="small-print">Best played with sound on &amp; a smile.</p>
       </div>
     </section>
 
-    <!-- Screen 2: Rating -->
-    <section class="screen" data-screen="rating" aria-labelledby="rating-title">
-      <div class="screen__inner parchment">
-        <h2 class="title" id="rating-title">Rate today, m'lady 🌟</h2>
+    <section class="screen" data-screen="summons">
+      <div class="screen__inner parchment-textured ornate">
+        <p class="kicker">By royal decree</p>
+        <h2 class="title">A royal summons for <span data-lady>my lady</span></h2>
+        <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, entirely about us.</p>
+        <p class="small-print">Estimated time: one minute. Estimated butterflies: many.</p>
+        <div class="wax-art-wrap">
+          <img id="waxSealArt" class="wax-seal-art" src="assets/images/wax-seal.webp" alt="Tap the wax seal" width="140" height="140">
+          <p class="hint">Tap the seal to break it</p>
+        </div>
+        <div class="loading-quest" id="loadingQuest" hidden>
+          <div class="loading-quest__bar"><span id="loadingFill"></span></div>
+          <p id="loadingText">Consulting the oracle…</p>
+        </div>
+        <button type="button" class="btn btn--primary" id="btnSummonBegin" hidden>Break the seal &amp; begin</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="steed">
+      <div class="screen__inner steed-screen">
+        <div class="horse-stage" id="horseIdle">
+          <img id="horseIdleImg" class="horse-cutout" src="assets/images/horse-idle.webp" alt="" width="320" height="320">
+        </div>
+        <p class="affection" id="affectionBar">♡♡♡♡♡</p>
+        <button type="button" class="carrot-btn" id="carrotBtn">🥕 Feed carrot</button>
+        <div class="name-chips">
+          <button type="button" data-steed-name="Clover">Clover</button>
+          <button type="button" data-steed-name="Sir Biscuit">Sir Biscuit</button>
+          <button type="button" data-steed-name="Lady Hazelnut">Lady Hazelnut</button>
+          <button type="button" data-steed-name="Sir Neighs-a-Lot">Sir Neighs-a-Lot</button>
+          <button type="button" data-steed-name="custom">✎ Name me yourself</button>
+        </div>
+        <div class="hidden" id="customSteedWrap"><input id="customSteedInput" maxlength="16" placeholder="Steed name"></div>
+        <button type="button" class="btn btn--primary" id="btnSteedNext">Saddle up →</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="sheet">
+      <div class="screen__inner ornate sheet-panel">
+        <h2 class="title">Your Adventurer Sheet</h2>
+        <p class="sub">The royal scribes have assessed you. Roll for stats.</p>
+        <button type="button" class="btn btn--secondary" id="btnRoll">Roll the dice</button>
+        <p class="d20-out hidden" id="d20Result"></p>
+        <div id="statList" class="stat-list"></div>
+        <div id="classPick" class="class-grid hidden">
+          <button type="button" data-class="Ranger of the Wildwood">Ranger of the Wildwood</button>
+          <button type="button" data-class="Moonlit Healer">Moonlit Healer</button>
+          <button type="button" data-class="Wandering Bard">Wandering Bard</button>
+          <button type="button" data-class="Knight of the Heart">Knight of the Heart</button>
+        </div>
+        <p id="classChosen"></p>
+        <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Accept destiny →</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="rating">
+      <div class="screen__inner ornate parchment">
+        <h2 class="title">Rate today, m'lady</h2>
         <p class="sub">The court grants honesty. (It does not grant numbers below ten.)</p>
         <div class="slider-wrap">
-          <label class="slider-label" for="ratingSlider">Rating</label>
-          <input type="range" id="ratingSlider" class="rating-slider" min="1" max="10" value="10" step="1">
-          <div class="slider-value" id="sliderValue">10</div>
-          <p class="caption" id="ratingCaption">Verdict: flawless. +1000 aura ✨</p>
-          <button type="button" class="chip chip--bonus" id="chipEleven" hidden>Legendary loot · 11/10 🏆</button>
+          <input type="range" id="ratingSlider" min="1" max="10" value="10">
+          <div class="slider-value" id="ratingValue">10</div>
+          <p id="ratingCaption" class="caption">Verdict: flawless. +1000 aura.</p>
+          <div id="ratingChips" class="chip-row hidden">
+            <button type="button" data-rating-chip="it ended too soon">…it ended too soon</button>
+            <button type="button" data-rating-chip="I need a sequel">…I need a sequel</button>
+            <button type="button" data-rating-chip="more horse time">…more horse time</button>
+          </div>
+          <button type="button" class="chip chip--bonus hidden" id="chipEleven">Legendary loot · 11/10</button>
         </div>
-        <button type="button" class="btn btn--primary" id="btnRatingSubmit">Seal my answer (it's ten, obviously)</button>
+        <button type="button" class="btn btn--primary" id="btnRatingNext">Seal my answer</button>
       </div>
     </section>
 
-    <!-- Screen 3: Vibe -->
-    <section class="screen" data-screen="vibe" aria-labelledby="vibe-title">
-      <div class="screen__inner parchment">
-        <h2 class="title" id="vibe-title">Today felt like…</h2>
-        <div class="option-list" id="vibeOptions"></div>
-        <p class="caption caption--fade" id="vibeNoted" hidden>Inscribed in the royal archives 📜</p>
+    <section class="screen" data-screen="journal">
+      <div class="screen__inner journal-panel ornate">
+        <h2 class="title">Quest Log — today felt like…</h2>
+        <div id="journalList" class="journal-list"></div>
       </div>
     </section>
 
-    <!-- Screen 4: Another date -->
-    <section class="screen" data-screen="another-date" aria-labelledby="date-title">
-      <div class="screen__inner another-date parchment">
+    <section class="screen" data-screen="dragon">
+      <div class="screen__inner ornate" id="dragonScene">
+        <div class="boss-hp"><span>Dragon of Doubt</span><div class="boss-hp__bar"><div id="dragonHp" style="width:100%"></div></div></div>
+        <img id="dragonImg" class="dragon-cutout" src="assets/images/dragon-doubt.webp" alt="">
         <picture class="horse-mascot horse-mascot--quest" id="horseQuest">
-          <source srcset="assets/images/horse.webp" type="image/webp">
-          <img class="horse-mascot__img" src="assets/images/horse.jpg" alt="" width="720" height="720" decoding="async">
+          <img id="horseQuestImg" class="horse-cutout small" src="assets/images/horse-idle.webp" alt="">
         </picture>
-        <p class="emoji-reaction" id="dateEmoji" aria-hidden="true">🥺</p>
-        <h2 class="title" id="date-title">Will you ride out on another quest with me? 🐎</h2>
+        <h2 class="title">Will you ride out on another quest with me?</h2>
         <div class="date-buttons" id="dateButtons">
-          <button type="button" class="btn btn--yes" id="btnYes">Aye, my liege 💖</button>
+          <button type="button" class="btn btn--yes" id="btnYes">Aye, my liege</button>
           <button type="button" class="btn btn--no" id="btnNo">Nay</button>
         </div>
-        <p class="yes-toast" id="yesToast" hidden>Quest accepted! Best loot drop of the year, no cap. 🎉</p>
-        <button type="button" class="link-btn" id="realNoLink" hidden>Real talk: if you truly wish to decline, tap here — no hard feelings 🤍</button>
+        <p class="yes-toast hidden" id="yesToast">Quest accepted! Best loot drop of the year.</p>
+        <button type="button" class="link-btn hidden" id="realNoLink">Real talk: if you truly wish to decline, tap here — no hard feelings</button>
       </div>
     </section>
 
-    <!-- Screen 4b: Honest no -->
-    <section class="screen" data-screen="honest-no" aria-labelledby="honest-title">
-      <div class="screen__inner center parchment">
-        <h2 class="title" id="honest-title">Thank you for your honesty.</h2>
-        <p class="body-text">You remain noble and kind. The realm respects you. 🤍</p>
-        <button type="button" class="btn btn--secondary" id="btnHonestContinue">Continue the scroll anyway (or close this tab)</button>
+    <section class="screen" data-screen="honest-no">
+      <div class="screen__inner center ornate">
+        <h2 class="title">Thank you for your honesty.</h2>
+        <p class="body-text">You remain noble and kind. The realm respects you.</p>
+        <button type="button" class="btn btn--secondary" id="btnHonestContinue">Continue the scroll anyway</button>
       </div>
     </section>
 
-    <!-- Screen 5: Food -->
-    <section class="screen" data-screen="food" aria-labelledby="food-title">
-      <div class="screen__inner parchment">
-        <h2 class="title" id="food-title">Provisions for the journey 🍽️</h2>
-        <p class="sub">Choose your feast. The scribe is taking notes.</p>
-        <div class="card-grid" id="foodOptions"></div>
-        <label class="fanum-tax" id="fanumTaxLabel">
-          <input type="checkbox" id="fanumTax" checked>
-          <span>I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</span>
-        </label>
-        <button type="button" class="btn btn--primary" id="btnFoodNext">Onward →</button>
+    <section class="screen" data-screen="tavern">
+      <div class="screen__inner tavern-panel ornate">
+        <h2 class="title">Provisions for the journey</h2>
+        <p class="sub">The innkeeper awaits your order. Pick as many as you like.</p>
+        <div id="tavernMenu" class="menu-list"></div>
+        <label class="fanum-tax" id="fanumTaxLabel"><input type="checkbox" id="fanumTax" checked> I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</label>
+        <button type="button" class="btn btn--primary" id="btnTavernNext">Onward →</button>
       </div>
     </section>
 
-    <!-- Screen 6: Activity + vibe -->
-    <section class="screen" data-screen="activity" aria-labelledby="activity-title">
-      <div class="screen__inner parchment">
-        <h2 class="title" id="activity-title">Choose your adventure</h2>
-        <p class="sub-label">Quest activities (pick any)</p>
-        <div class="card-grid card-grid--compact" id="activityOptions"></div>
-        <p class="sub-label">Mood of the realm</p>
-        <div class="chip-row" id="vibeChips"></div>
-        <label class="field-label" for="notesInput">Terms, wishes, or royal demands:</label>
-        <textarea id="notesInput" class="notes-input" rows="2" placeholder="e.g. you owe me a coin for the bard… 😌"></textarea>
-        <button type="button" class="btn btn--primary" id="btnActivityNext">Onward →</button>
+    <section class="screen" data-screen="potion">
+      <div class="screen__inner ornate">
+        <h2 class="title">Brew the date potion</h2>
+        <svg class="cauldron" viewBox="0 0 200 120" aria-hidden="true"><ellipse id="cauldronLiquid" cx="100" cy="70" rx="70" ry="25" fill="#5ec4b8"/></svg>
+        <div id="potionIngredients" class="potion-list"></div>
+        <p class="sub-label">Potion base</p>
+        <div id="potionBases" class="vial-row"></div>
+        <label class="field-label" for="notesInput">Secret ingredient</label>
+        <textarea id="notesInput" rows="2" placeholder="e.g. you owe me a coin for the bard…"></textarea>
+        <p class="hidden" id="potionResult"></p>
+        <button type="button" class="btn btn--primary" id="btnStir">Stir the cauldron</button>
       </div>
     </section>
 
-    <!-- Screen 7: When -->
-    <section class="screen" data-screen="when" aria-labelledby="when-title">
-      <div class="screen__inner parchment">
-        <h2 class="title" id="when-title">When shall we ride? 📅</h2>
+    <section class="screen" data-screen="stars">
+      <div class="screen__inner ornate">
+        <h2 class="title">When shall we ride?</h2>
         <p class="sub-label">Day</p>
-        <div class="chip-row" id="dayChips"></div>
+        <div id="dayChips" class="chip-row"></div>
         <input type="date" id="datePicker" class="date-picker" hidden>
-        <p class="sub-label">Hour of the realm</p>
-        <div class="chip-row" id="timeChips"></div>
-        <div class="booking-countdown" id="bookingCountdown" hidden>
-          <p>Inscribing decree… <span id="countdownNum">3</span>… sealed 🔒</p>
-        </div>
-        <button type="button" class="btn btn--primary" id="btnWhenFinish">Seal the date 🔒</button>
+        <p class="sub-label">Sky dial</p>
+        <select id="skyDial" class="sky-dial"></select>
+        <button type="button" class="btn btn--ghost" id="btnCoin">Can't decide? Flip a coin</button>
+        <p class="hidden" id="coinMsg">It landed on its edge. Fate says: why not both days?</p>
+        <div class="booking-countdown hidden" id="bookingCountdown">Inscribing decree… <span id="countdownNum">3</span></div>
+        <button type="button" class="btn btn--primary" id="btnSealDate">Seal the date</button>
       </div>
     </section>
 
-    <!-- Screen 8: Celebration -->
-    <section class="screen" data-screen="celebration" aria-labelledby="cele-title">
+    <section class="screen" data-screen="oracle">
+      <div class="screen__inner ornate">
+        <h2 class="title">The oracle has one more thing</h2>
+        <p class="sub">Choose a card. Any card. (They're all good.)</p>
+        <div class="tarot-row">
+          <button type="button" class="tarot-card" data-card="steeds"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-steeds.webp" alt=""><span class="tarot-label">The Two Steeds</span></div></button>
+          <button type="button" class="tarot-card" data-card="golden"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-golden-hour.webp" alt=""><span class="tarot-label">The Golden Hour</span></div></button>
+          <button type="button" class="tarot-card" data-card="hearth"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-hearth.webp" alt=""><span class="tarot-label">The Hearth</span></div></button>
+        </div>
+        <button type="button" class="btn btn--secondary hidden" id="btnOpenLetter">Open the sealed letter</button>
+        <div class="letter-panel hidden" id="letterPanel">
+          <div id="letterBody" class="letter-body"></div>
+        </div>
+        <button type="button" class="btn btn--primary hidden" id="btnToDecree">Seal our decree →</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="decree">
       <div class="screen__inner celebration">
-        <h2 class="title" id="cele-title">By order of the heart — it's a date 💘</h2>
-        <div class="decree-wrap parchment-textured parchment-textured--decree">
-          <article class="ticket decree" id="dateTicket" aria-label="Royal quest contract summary"></article>
+        <h2 class="title light">By order of the heart — it's a date</h2>
+        <div class="decree-wrap parchment-textured ornate">
+          <img id="waxStampAnim" class="wax-stamp-anim" src="assets/images/wax-seal.webp" alt="">
+          <pre class="ticket decree" id="decreePreview"></pre>
         </div>
-        <p class="small-print ticket-footer">Screenshot this decree. It's legally binding in fairy tales (please come anyway) 🥹</p>
         <div class="action-row">
-          <button type="button" class="btn btn--primary" id="btnSend">Send to Oğuzhan 💌</button>
-          <button type="button" class="btn btn--secondary" id="btnCopy">Copy decree 📋</button>
-          <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew 🔁</button>
+          <button type="button" class="btn btn--primary" id="btnShare">Send to Oğuzhan</button>
+          <button type="button" class="btn btn--secondary" id="btnSavePng">Save decree as image</button>
+          <button type="button" class="btn btn--secondary" id="btnCopy">Copy decree</button>
+          <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew</button>
         </div>
-        <p class="copy-toast" id="copyToast" hidden>Copied! Send it by raven or WhatsApp 💌</p>
+        <p class="copy-toast hidden" id="copyToast">Copied!</p>
       </div>
     </section>
   </main>
 
-  <canvas id="confettiCanvas" class="confetti-canvas" aria-hidden="true"></canvas>
+  <aside class="dialogue-box hidden" id="dialogueBox">
+    <img id="dialoguePortrait" class="dialogue-portrait" src="assets/images/horse-idle.webp" alt="">
+    <div class="dialogue-panel">
+      <div class="dialogue-name" id="dialogueName">Clover</div>
+      <p id="dialogueText" aria-live="polite"></p>
+      <span id="dialogueHint" class="dialogue-hint">▼ tap</span>
+    </div>
+  </aside>
 
-  <script src="js/app.js" defer></script>
+  <div class="map-overlay" id="mapOverlay">
+    <img src="assets/images/quest-map.webp" alt="Quest map">
+    <button type="button" id="mapClose" class="btn btn--ghost">Close map</button>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
