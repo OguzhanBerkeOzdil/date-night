@@ -20,6 +20,27 @@ function preloadBg(name) {
   img.src = `assets/images/${name}.webp`;
 }
 
+function resetScroll() {
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  } catch (_) {
+    window.scrollTo(0, 0);
+  }
+  document.documentElement.scrollLeft = 0;
+  document.documentElement.scrollTop = 0;
+  document.body.scrollLeft = 0;
+  document.body.scrollTop = 0;
+  const app = $("app");
+  if (app) {
+    app.scrollTop = 0;
+    app.scrollLeft = 0;
+  }
+  document.querySelectorAll(".screen, .screen__inner, .card-grid, .menu-list").forEach((el) => {
+    el.scrollTop = 0;
+    el.scrollLeft = 0;
+  });
+}
+
 function setBackground(screenId) {
   const name = BG_BY_SCREEN[screenId] || "bg-forest";
   const layer = $("bgLayer");
@@ -37,7 +58,9 @@ function setBackground(screenId) {
 }
 
 export function navigate(screenId) {
+  resetScroll();
   const doNav = () => {
+    resetScroll();
     const prev = document.querySelector(`.screen[data-screen="${current}"]`);
     const next = document.querySelector(`.screen[data-screen="${screenId}"]`);
     if (!next) return;
@@ -54,7 +77,9 @@ export function navigate(screenId) {
     else document.body.classList.remove("bg-celebration");
   };
 
-  if (document.startViewTransition) {
+  const useVt =
+    document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (useVt) {
     document.startViewTransition(doNav);
   } else {
     doNav();
@@ -91,7 +116,7 @@ function boot() {
   const sendBtn = document.getElementById("btnShare");
   if (sendBtn) {
     import("./config.js").then(({ CONFIG }) => {
-      sendBtn.textContent = `Send to ${CONFIG.fromName} 💌`;
+      sendBtn.textContent = `Send it to ${CONFIG.fromName} 💌`;
     });
   }
   initParticles();

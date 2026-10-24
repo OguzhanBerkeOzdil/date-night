@@ -45,6 +45,9 @@ async function runViewport(name, viewport) {
   page.on("pageerror", (e) => errors.push(String(e)));
 
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() => {
+    document.startViewTransition = undefined;
+  });
   await page.goto(`http://127.0.0.1:${port}/?name=Ayse`);
   await page.click("#btnNewGame");
   await page.waitForSelector('[data-screen="summons"].screen--active');

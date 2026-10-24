@@ -131,9 +131,9 @@
           <div class="slider-value" id="ratingValue">10</div>
           <p id="ratingCaption" class="caption">Verdict: flawless. +1000 aura.</p>
           <div id="ratingChips" class="chip-row hidden">
-            <button type="button" data-rating-chip="it ended too soon">…it ended too soon</button>
-            <button type="button" data-rating-chip="I need a sequel">…I need a sequel</button>
-            <button type="button" data-rating-chip="more horse time">…more horse time</button>
+            <button type="button" class="chip-select" data-rating-chip="it ended too soon">…it ended too soon</button>
+            <button type="button" class="chip-select" data-rating-chip="I need a sequel">…I need a sequel</button>
+            <button type="button" class="chip-select" data-rating-chip="more horse time">…more horse time</button>
           </div>
           <button type="button" class="chip chip--bonus hidden" id="chipEleven">Legendary loot · 11/10</button>
         </div>
@@ -180,7 +180,7 @@
         <h2 class="title">Provisions for the journey</h2>
         <p class="sub">The innkeeper awaits your order. Pick as many as you like.</p>
         <div id="tavernMenu" class="menu-list"></div>
-        <label class="fanum-tax" id="fanumTaxLabel"><input type="checkbox" id="fanumTax" checked> I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</label>
+        <label class="fanum-tax" id="fanumTaxLabel" for="fanumTax"><input type="checkbox" id="fanumTax" checked> I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</label>
         <button type="button" class="btn btn--primary" id="btnTavernNext">Onward →</button>
       </div>
     </section>
@@ -239,7 +239,7 @@
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
         <div class="action-row">
-          <button type="button" class="btn btn--primary" id="btnShare">Send to Oğuzhan</button>
+          <button type="button" class="btn btn--primary" id="btnShare">Send it to Oğuzhan 💌</button>
           <button type="button" class="btn btn--secondary" id="btnSavePng">Save decree as image</button>
           <button type="button" class="btn btn--secondary" id="btnCopy">Copy decree</button>
           <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew</button>

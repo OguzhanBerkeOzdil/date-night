@@ -853,16 +853,20 @@ body.bg-celebration .scene-bg__readability {
 
 .fanum-tax {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   margin: 18px 0 8px;
-  padding: 14px;
-  background: rgba(255, 255, 255, 0.4);
+  padding: 14px 16px;
+  min-height: 48px;
+  background: rgba(252, 245, 232, 0.96);
   border-radius: var(--radius);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  border: 1px dashed rgba(107, 45, 58, 0.3);
+  border: 2px dashed rgba(107, 45, 58, 0.35);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .fanum-tax.wiggle {
@@ -870,8 +874,12 @@ body.bg-celebration .scene-bg__readability {
 }
 
 .fanum-tax input {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  flex-shrink: 0;
+  accent-color: var(--burgundy);
   margin-top: 2px;
   accent-color: var(--burgundy);
   pointer-events: none;

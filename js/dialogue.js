@@ -53,6 +53,14 @@ export function hideDialogue() {
   typing = false;
 }
 
+function maybeAutoHideOnSteed() {
+  if (document.body.dataset.screen !== "steed") return;
+  if (queue.length || typing || onDone) return;
+  window.setTimeout(() => {
+    if (document.body.dataset.screen === "steed" && !queue.length && !typing) hideDialogue();
+  }, 2200);
+}
+
 function showNext() {
   const textEl = document.getElementById("dialogueText");
   const hint = document.getElementById("dialogueHint");
@@ -60,6 +68,7 @@ function showNext() {
   if (!queue.length) {
     typing = false;
     if (hint) hint.hidden = !onDone;
+    maybeAutoHideOnSteed();
     return;
   }
   const line = queue.shift();
@@ -84,6 +93,7 @@ function typeLine(line, el, hint) {
       clearInterval(typeTimer);
       typing = false;
       if (hint) hint.hidden = false;
+      if (!queue.length) maybeAutoHideOnSteed();
     }
   }, 28);
 }

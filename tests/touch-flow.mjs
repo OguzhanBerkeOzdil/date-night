@@ -35,6 +35,11 @@ function server() {
 
 const errors = [];
 
+async function assertScrollTop(page) {
+  const y = await page.evaluate(() => window.scrollY || document.documentElement.scrollTop);
+  if (y !== 0) throw new Error(`expected scrollY 0, got ${y}`);
+}
+
 async function assertNoOverflow(page) {
   const { scrollWidth, innerWidth } = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
@@ -60,6 +65,9 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   page.on("pageerror", (e) => errors.push(String(e)));
 
   await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() => {
+    document.startViewTransition = undefined;
+  });
   await page.goto(`http://127.0.0.1:${port}/${query.replace(/^\?/, "?")}`);
   await assertNoOverflow(page);
 
@@ -109,8 +117,16 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
       noBox.y < yesBox.y + yesBox.height &&
       noBox.y + noBox.height > yesBox.y;
     if (overlap) throw new Error("No overlaps Yes");
-    if (noBox.x < -2 || noBox.y < 0 || noBox.x + noBox.width > viewport.width + 2) {
-      throw new Error("No off-screen");
+    if (
+      noBox.x < -2 ||
+      noBox.y < 0 ||
+      noBox.x + noBox.width > viewport.width + 2 ||
+      noBox.y + noBox.height > viewport.height - 40
+    ) {
+      throw new Error("No off-screen or below fold");
+    }
+    if (yesBox.x < -4 || yesBox.x + yesBox.width > viewport.width + 4) {
+      throw new Error("Yes overflows viewport");
     }
   }
 
@@ -118,7 +134,10 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   await page.waitForSelector('[data-screen="honest-no"].screen--active');
   await assertNoOverflow(page);
   await tapLocator(page, page.locator("#btnHonestContinue"));
+  await page.waitForSelector('[data-screen="tavern"].screen--active');
+  await assertScrollTop(page);
   await tapLocator(page, page.locator(".menu-item").first());
+  await tapLocator(page, page.locator("#fanumTaxLabel"));
   await tapLocator(page, page.locator("#btnTavernNext"));
   await tapLocator(page, page.locator(".potion-ing").first());
   await tapLocator(page, page.locator(".vial").first());
@@ -128,10 +147,12 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   if (sky !== "Morning ride") throw new Error(`expected Morning ride default, got ${sky}`);
   await tapLocator(page, page.locator("#btnSealDate"));
   await page.waitForSelector('[data-screen="oracle"].screen--active', { timeout: 12000 });
+  await assertScrollTop(page);
   await tapLocator(page, page.locator(".tarot-card").first());
   await tapLocator(page, page.locator("#btnOpenLetter"));
   await tapLocator(page, page.locator("#btnToDecree"));
   await page.waitForSelector('[data-screen="decree"].screen--active');
+  await assertScrollTop(page);
   const text = await page.locator("#decreePreview").innerText();
   if (!text.includes("declined") && !text.includes("honesty")) {
     throw new Error("honest-no path not reflected in decree");
