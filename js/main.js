@@ -40,6 +40,7 @@ export function navigate(screenId) {
     prev?.classList.remove("screen--active");
     next.classList.add("screen--active");
     current = screenId;
+    document.body.dataset.screen = screenId;
     setBackground(screenId);
     updateHud(screenId);
     saveState();
@@ -93,6 +94,7 @@ function boot() {
   initSoundToggle();
   initScreens(navigate);
   preloadBg("bg-title");
+  document.body.dataset.screen = "title";
   setBackground("title");
   updateHud("title");
   document.getElementById("dialogueBox")?.classList.add("hidden");
@@ -100,3 +102,6 @@ function boot() {
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
 else boot();
+
+/** Playwright / debug: jump to any screen */
+window.__questNavigate = navigate;

@@ -1,20 +1,31 @@
 import { MAP_NODE } from "./config.js";
 
-const POINTS = [
-  { x: 8, y: 92 },
-  { x: 18, y: 78 },
-  { x: 32, y: 68 },
-  { x: 48, y: 58 },
-  { x: 58, y: 48 },
-  { x: 68, y: 38 },
-  { x: 78, y: 28 },
-  { x: 86, y: 18 },
-  { x: 92, y: 8 },
-];
+/** Token position (% of track) for each map node 0–8 */
+const NODE_X = [4, 14, 28, 42, 56, 70, 84, 92, 98];
+const NODE_Y = [72, 48, 68, 58, 52, 42, 46, 38, 62];
+
+let trailLength = 100;
 
 export function initHud() {
   const hud = document.getElementById("questHud");
   const overlay = document.getElementById("mapOverlay");
+  const path = document.getElementById("mapTrailGold");
+  const token = document.getElementById("mapToken");
+
+  if (path) {
+    trailLength = path.getTotalLength();
+    path.style.strokeDasharray = `0 ${trailLength}`;
+  }
+
+  if (token && !token.querySelector("img")) {
+    const img = document.createElement("img");
+    img.src = "assets/images/horse-idle.webp";
+    img.alt = "";
+    img.width = 28;
+    img.height = 28;
+    token.appendChild(img);
+  }
+
   hud?.addEventListener("click", () => overlay?.classList.add("map-overlay--open"));
   overlay?.addEventListener("click", (e) => {
     if (e.target === overlay) overlay.classList.remove("map-overlay--open");
@@ -25,15 +36,24 @@ export function initHud() {
 export function updateHud(screenId) {
   const node = MAP_NODE[screenId] ?? 0;
   const token = document.getElementById("mapToken");
-  const trail = document.getElementById("mapTrailGold");
-  const p = POINTS[node];
-  if (token && p) {
-    token.style.left = `${p.x}%`;
-    token.style.top = `${p.y}%`;
+  const path = document.getElementById("mapTrailGold");
+
+  const x = NODE_X[node] ?? 50;
+  const y = NODE_Y[node] ?? 50;
+  if (token) {
+    token.style.left = `${x}%`;
+    token.style.top = `${y}%`;
   }
-  if (trail) {
-    const len = 100;
-    const filled = (node / (POINTS.length - 1)) * len;
-    trail.style.strokeDasharray = `${filled} ${len}`;
+
+  if (path && trailLength) {
+    const progress = node / (NODE_X.length - 1);
+    const filled = progress * trailLength;
+    path.style.strokeDasharray = `${filled} ${trailLength}`;
+    path.style.strokeDashoffset = "0";
   }
+
+  document.querySelectorAll(".hud-node").forEach((el, i) => {
+    el.setAttribute("fill", i <= node ? "#c9a227" : "#8b7355");
+    el.setAttribute("r", i === node ? "2.4" : "1.8");
+  });
 }

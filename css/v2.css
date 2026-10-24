@@ -1,46 +1,137 @@
 .app--v2 {
   padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  z-index: 2;
+}
+
+.screen__inner {
+  max-width: 100%;
+}
+
+[data-screen="steed"] .screen__inner,
+[data-screen="dragon"] .screen__inner {
+  background: linear-gradient(180deg, rgba(15, 24, 18, 0.15) 0%, rgba(15, 24, 18, 0.35) 100%);
+  border-radius: var(--radius);
+  padding: 12px 14px 20px;
+}
+
+[data-screen="dragon"] .title,
+[data-screen="steed"] .affection {
+  color: var(--parchment);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.particle-canvas {
+  z-index: 1;
 }
 
 .top-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 8px 12px;
+  align-items: flex-start;
+  padding: max(8px, env(safe-area-inset-top)) 10px 6px;
   position: sticky;
   top: 0;
   z-index: 20;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 100%);
 }
 
 .hud-strip {
   flex: 1;
-  height: 44px;
-  background: rgba(244, 232, 208, 0.85);
-  border: 1px solid rgba(201, 162, 39, 0.5);
-  border-radius: 99px;
+  min-height: 54px;
+  padding: 6px 10px 8px;
+  border-radius: 14px;
   position: relative;
   cursor: pointer;
+  text-align: left;
+  border: 2px solid rgba(201, 162, 39, 0.75);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.94) 0%, rgba(244, 228, 200, 0.9) 100%),
+    image-set(
+      url("../assets/images/parchment.webp") type("image/webp"),
+      url("../assets/images/parchment.jpg") type("image/jpeg")
+    );
+  background-size: cover;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.hud-strip__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--burgundy);
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.hud-strip__track {
+  position: relative;
+  height: 28px;
+  width: 100%;
 }
 
 .hud-map {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .map-token {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-size: 1.1rem;
-  transition: left 0.6s ease, top 0.6s ease;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--parchment);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: left 0.55s cubic-bezier(0.34, 1.2, 0.64, 1), top 0.55s ease;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.map-token img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  mix-blend-mode: multiply;
+}
+
+body[data-screen="title"] .hud-strip__label {
+  content: "Your journey";
 }
 
 .sound-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(201, 162, 39, 0.5);
-  background: rgba(26, 46, 31, 0.7);
+  border: 2px solid rgba(201, 162, 39, 0.65);
+  background: rgba(20, 30, 22, 0.55);
+  backdrop-filter: blur(6px);
   margin-left: 8px;
+  flex-shrink: 0;
+}
+
+body[data-screen="title"] #dialogueBox {
+  display: none !important;
+}
+
+.screen__inner.ornate,
+.parchment-textured {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.title-screen {
+  padding-top: 8vh;
+}
+
+.title-screen .menu-plaques .btn--primary {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 
 .title-lockup {
