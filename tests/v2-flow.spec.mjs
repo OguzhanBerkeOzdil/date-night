@@ -51,6 +51,12 @@ async function runViewport(name, viewport) {
   await page.evaluate(() => document.getElementById("waxSealArt")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 15000 });
   await page.click("#btnSummonBegin");
+  await page.waitForSelector('[data-screen="steed"].screen--active');
+  for (let i = 0; i < 4; i++) {
+    const box = page.locator("#dialogueBox:not(.hidden)");
+    if (await box.count()) await box.click();
+    await page.waitForTimeout(120);
+  }
   await page.click("#btnSteedNext");
   await page.click("#btnRoll");
   await page.click('[data-class="Knight of the Heart"]');
@@ -94,6 +100,8 @@ async function runViewport(name, viewport) {
   await page.click("#btnOpenLetter");
   await page.click("#btnToDecree");
   await page.waitForSelector('[data-screen="decree"].screen--active');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth);
+  if (!overflow) throw new Error("horizontal overflow on decree");
   const text = await page.locator("#decreePreview").innerText();
   if (!text.includes("Ayşe") && !text.includes("Ayse")) throw new Error("name missing");
   if (!text.includes("Knight of the Heart")) throw new Error("class missing");

@@ -1,8 +1,35 @@
 import { chromium, webkit, devices } from "playwright";
+import { PNG } from "pngjs";
 
-const URL = process.env.QUEST_URL || "https://oguzhanberkeozdil.github.io/date-night/?name=Elif";
-const waitMs = Number(process.env.WAIT_MS || 9000);
-const tag = process.env.TAG || "before";
+const URL = process.env.QUEST_URL || "http://127.0.0.1:8765/?name=Elif";
+const waitMs = Number(process.env.WAIT_MS || 2500);
+const tag = process.env.TAG || "local";
+
+function samplePngCorners(buffer) {
+  const png = PNG.sync.read(buffer);
+  const { width, height, data } = png;
+  const pts = [
+    [2, 2],
+    [width - 3, 2],
+    [2, height - 3],
+    [width - 3, height - 3],
+    [width / 2, 2],
+    [width / 2, height - 3],
+    [2, height / 2],
+    [width - 3, height / 2],
+  ];
+  return pts.map(([x, y]) => {
+    const ix = Math.max(0, Math.min(width - 1, Math.round(x)));
+    const iy = Math.max(0, Math.min(height - 1, Math.round(y)));
+    const i = (width * iy + ix) << 2;
+    return { x: ix, y: iy, r: data[i], g: data[i + 1], b: data[i + 2] };
+  });
+}
+
+function isCreamBorder(px) {
+  const { r, g, b } = px;
+  return r > 228 && g > 218 && b > 195 && r - b < 40;
+}
 
 async function run(browserType, engine) {
   const browser = await browserType.launch();
@@ -10,58 +37,30 @@ async function run(browserType, engine) {
   await page.goto(URL, { waitUntil: "networkidle" });
   await page.waitForTimeout(waitMs);
 
-  const info = await page.evaluate(() => {
-    const img = document.querySelector(".scene-bg__img");
-    const bg = document.getElementById("bgLayer");
-    const vp = { w: window.innerWidth, h: window.innerHeight };
-    const r = img?.getBoundingClientRect();
-    const cs = img ? getComputedStyle(img) : null;
-    const corners = [
-      [8, 80],
-      [vp.w - 8, 80],
-      [8, vp.h - 8],
-      [vp.w - 8, vp.h - 8],
-    ].map(([x, y]) => {
-      const top = document.elementFromPoint(x, y);
-      const covers =
-        r && x >= r.left - 1 && x <= r.right + 1 && y >= r.top - 1 && y <= r.bottom + 1;
-      return {
-        x,
-        y,
-        topId: top?.id || "",
-        topClass: (top?.className && String(top.className).slice(0, 50)) || top?.tagName,
-        imgCoversPoint: covers,
-      };
-    });
-    const fullBleed =
-      r && r.left <= 1 && r.top <= 1 && r.width >= vp.w - 2 && r.height >= vp.h - 2;
-    return {
-      vp,
-      bgSize: { w: bg?.offsetWidth, h: bg?.offsetHeight },
-      imgRect: r && { x: r.x, y: r.y, w: r.width, h: r.height },
-      transform: cs?.transform,
-      fullBleed,
-      corners,
-    };
-  });
+  const layout = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    innerWidth: window.innerWidth,
+    vp: { w: window.innerWidth, h: window.innerHeight },
+  }));
+
+  const shot = await page.screenshot({ fullPage: false });
+  const corners = samplePngCorners(shot);
+  const creamEdges = corners.filter(isCreamBorder);
 
   const path = `/opt/cursor/artifacts/screenshots/${tag}-live-title-${engine}.png`;
   await page.screenshot({ path, fullPage: false });
-  console.log(engine, JSON.stringify(info, null, 2));
+  console.log(engine, JSON.stringify({ layout, corners, creamEdges: creamEdges.length }, null, 2));
   await browser.close();
-  return info;
+  return {
+    ok: layout.scrollWidth === layout.innerWidth && creamEdges.length === 0,
+  };
 }
 
 let ok = true;
-const c = await run(chromium, "chromium");
-ok =
-  ok &&
-  c.fullBleed &&
-  c.corners.every((p) => p.imgCoversPoint);
+ok = (await run(chromium, "chromium")).ok && ok;
 
 try {
-  const w = await run(webkit, "webkit");
-  ok = ok && w.fullBleed && w.corners.every((p) => p.imgCoversPoint);
+  ok = (await run(webkit, "webkit")).ok && ok;
 } catch (e) {
   console.warn("webkit skipped:", e.message?.slice(0, 120));
 }

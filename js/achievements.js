@@ -2,6 +2,19 @@ import { playDing, vibrate } from "./audio.js";
 import { state, saveState } from "./state.js";
 import { icons } from "./icons.js";
 
+export const MAIN_ACHIEVEMENT_IDS = [
+  "seal",
+  "whisperer",
+  "snack",
+  "charm",
+  "charts",
+  "dragon",
+  "fanum",
+  "alchemist",
+  "fortune",
+  "heart",
+];
+
 const DEFS = {
   seal: { id: "seal", title: "Seal Breaker", desc: "You opened a royal letter. Very official of you." },
   whisperer: { id: "whisperer", title: "Horse Whisperer", desc: "Gave 5 head scratches." },
@@ -17,11 +30,11 @@ const DEFS = {
   fate: { id: "fate", title: "Fate Tempter", desc: "The coin refused to choose.", bonus: true },
 };
 
-export function unlock(id) {
+export function unlock(id, silent = false) {
   if (!DEFS[id] || state.achievements.includes(id)) return;
   state.achievements.push(id);
   saveState();
-  toast(DEFS[id]);
+  if (!silent) toast(DEFS[id]);
 }
 
 function toast(def) {
@@ -29,7 +42,7 @@ function toast(def) {
   if (!wrap) return;
   const el = document.createElement("div");
   el.className = "achievement-toast";
-  el.innerHTML = `${icons.shield}<div><strong>Achievement unlocked</strong><span>${def.title} — ${def.desc}</span></div>`;
+  el.innerHTML = `${icons.shield}<div><strong>Achievement unlocked — </strong><span>${def.title}: ${def.desc}</span></div>`;
   wrap.appendChild(el);
   playDing();
   vibrate([30, 40, 30]);
@@ -38,10 +51,15 @@ function toast(def) {
 }
 
 export function achievementCount() {
-  const main = ["seal", "whisperer", "snack", "charm", "charts", "dragon", "fanum", "alchemist", "fortune", "heart"];
-  return main.filter((id) => state.achievements.includes(id)).length;
+  return MAIN_ACHIEVEMENT_IDS.filter((id) => state.achievements.includes(id)).length;
 }
 
-export function achievementLabels() {
-  return state.achievements.map((id) => DEFS[id]?.title).filter(Boolean);
+export function achievementLabelsMain() {
+  return MAIN_ACHIEVEMENT_IDS.filter((id) => state.achievements.includes(id)).map((id) => DEFS[id].title);
+}
+
+export function achievementLabelsBonus() {
+  return state.achievements
+    .filter((id) => DEFS[id]?.bonus)
+    .map((id) => DEFS[id].title);
 }

@@ -22,6 +22,62 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
+[data-screen="dragon"] .horse-mascot--quest {
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.dragon-honest-wrap {
+  margin: 10px 0 4px;
+  position: relative;
+  z-index: 8;
+}
+
+.dragon-honest-wrap .link-btn {
+  width: 100%;
+  text-align: center;
+  line-height: 1.45;
+  padding: 10px 8px;
+  color: #f4e8d0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+
+.journal-panel,
+.letter-panel,
+.sheet-panel,
+.tavern-panel,
+[data-screen="stars"] .screen__inner.ornate,
+.honest-panel,
+.booking-countdown {
+  background: linear-gradient(
+    180deg,
+    rgba(252, 245, 232, 0.96) 0%,
+    rgba(244, 228, 200, 0.94) 100%
+  );
+  border: 2px solid rgba(201, 162, 39, 0.55);
+  color: var(--ink);
+}
+
+.letter-panel .letter-body {
+  color: #2a1520;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+[data-screen="honest-no"] .body-text {
+  color: #2a1520;
+  font-weight: 500;
+}
+
+.booking-countdown {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  margin: 12px 0;
+  font-weight: 600;
+  color: var(--burgundy-deep);
+}
+
 .particle-canvas {
   z-index: 1;
 }
@@ -254,9 +310,42 @@ body[data-screen="title"] #dialogueBox {
 .name-chips button {
   padding: 8px 12px;
   border-radius: 99px;
-  border: 1px solid rgba(107, 45, 58, 0.3);
-  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(107, 45, 58, 0.35);
+  background: rgba(252, 245, 232, 0.92);
   font-size: 0.85rem;
+  font-family: var(--font-display);
+  color: var(--burgundy-deep);
+}
+
+#ratingSlider {
+  width: 100%;
+  accent-color: var(--burgundy);
+  height: 2.25rem;
+}
+
+#notesInput,
+textarea#notesInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 2px solid rgba(107, 45, 58, 0.35);
+  background: rgba(252, 245, 232, 0.95);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  resize: vertical;
+}
+
+.chip-select,
+.chip-row .chip-select {
+  padding: 10px 14px;
+  border-radius: 99px;
+  border: 2px solid rgba(107, 45, 58, 0.35);
+  background: rgba(252, 245, 232, 0.92);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  color: var(--burgundy-deep);
 }
 
 .sheet-panel .stat-row {
@@ -398,6 +487,12 @@ body[data-screen="title"] #dialogueBox {
   width: 100%;
   padding: 12px;
   border-radius: var(--radius);
+  border: 2px solid rgba(107, 45, 58, 0.35);
+  background: rgba(252, 245, 232, 0.95);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  border-radius: var(--radius);
   font-family: var(--font-body);
   margin-bottom: 12px;
 }
@@ -515,7 +610,7 @@ body[data-screen="title"] #dialogueBox {
 
 .achievement-wrap {
   position: fixed;
-  top: 56px;
+  top: max(72px, env(safe-area-inset-top, 0px) + 64px);
   left: 12px;
   right: 12px;
   z-index: 40;
@@ -576,11 +671,17 @@ body[data-screen="title"] #dialogueBox {
   z-index: 5;
 }
 
+.decree-wrap .ticket.decree {
+  padding-right: 72px;
+  padding-bottom: 28px;
+}
+
 .wax-stamp-anim {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
-  width: 64px;
+  right: 12px;
+  bottom: 8px;
+  width: 56px;
+  pointer-events: none;
   opacity: 0;
   transform: scale(1.6);
   transition: 0.4s ease;
