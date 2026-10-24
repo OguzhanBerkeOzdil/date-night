@@ -54,8 +54,32 @@ export function defaultState() {
     tarotCard: "",
     achievements: [],
     honestNo: false,
+    lastScreen: "title",
     stats: {},
   };
+}
+
+export function hasQuestSave() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    const progressed = [
+      "steed",
+      "sheet",
+      "rating",
+      "journal",
+      "dragon",
+      "tavern",
+      "potion",
+      "stars",
+      "oracle",
+      "decree",
+    ];
+    return progressed.includes(d.lastScreen);
+  } catch (_) {
+    return false;
+  }
 }
 
 export let state = loadState();

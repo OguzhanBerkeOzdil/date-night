@@ -2,14 +2,24 @@ import { CONFIG } from "./config.js";
 import { grantedToLabel, state } from "./state.js";
 import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
 
+function fleeAttemptsPhrase(n) {
+  const count = Math.max(0, Number(n) || 0);
+  return count === 1 ? "1 attempt to flee" : `${count} attempts to flee`;
+}
+
 function questAnswerLine() {
   if (state.honestNo) {
     return "Another quest: respectfully declined (thank you for your honesty)";
   }
   if (state.secondDate === "yes") {
-    return `Another quest: AYE (befriended the Dragon of Doubt after ${state.noAttempts} attempts to flee)`;
+    return `Another quest: AYE (befriended the Dragon of Doubt after ${fleeAttemptsPhrase(state.noAttempts)})`;
   }
   return "Another quest: —";
+}
+
+function fanumLine() {
+  if (state.fanumTax) return "Fanum tax: approved by ancient law ✓";
+  return "Fanum tax: waived by royal mercy (he'll survive)";
 }
 
 export function buildSummaryText() {
@@ -37,7 +47,7 @@ export function buildSummaryText() {
     `Activities: ${state.activities.join("; ") || "—"}`,
     `When we ride: ${state.day || "—"} · ${state.time || "—"}`,
     `Secret ingredient: ${state.notes || "—"}`,
-    "Fanum tax: approved by ancient law ✓",
+    fanumLine(),
     achLine,
     "Sealed with wax (and feelings).",
   ];
@@ -80,10 +90,11 @@ export async function renderDecreeCanvas() {
   }
 
   const frame = 88;
-  const innerX = 112;
-  const innerY = 168;
+  const innerX = 128;
   const innerW = w - innerX * 2;
-  const innerBottom = h - 200;
+  const flatTop = 200;
+  const flatBottom = h - 260;
+  const sigY = flatBottom - 36;
 
   g.strokeStyle = "#6b2d3a";
   g.lineWidth = 6;
@@ -92,30 +103,33 @@ export async function renderDecreeCanvas() {
   g.lineWidth = 2;
   g.strokeRect(frame, frame, w - 2 * frame, h - 2 * frame);
 
-  let y = innerY;
   g.fillStyle = "#4a1f28";
   g.font = '700 38px "Cinzel", serif';
   g.textAlign = "center";
-  g.fillText("ROYAL QUEST DECREE · No. 002", w / 2, y);
-  y += 56;
+  g.fillText("ROYAL QUEST DECREE · No. 002", w / 2, flatTop - 52);
 
   g.textAlign = "left";
   g.font = '400 25px "Crimson Pro", serif';
-  const bodyLines = buildSummaryText()
+  const bodyParagraphs = buildSummaryText()
     .split("\n")
     .filter((line) => !line.startsWith("ROYAL QUEST"));
 
-  for (const paragraph of bodyLines) {
-    const wrapped = wrapLines(g, paragraph, innerW);
-    for (const line of wrapped) {
-      if (y > innerBottom - 48) break;
-      g.fillText(line, innerX, y);
-      y += 32;
-    }
-    y += 4;
+  const rendered = [];
+  for (const paragraph of bodyParagraphs) {
+    rendered.push(...wrapLines(g, paragraph, innerW));
   }
 
-  const sigY = innerBottom - 8;
+  const lineH = 32;
+  const blockH = rendered.length * lineH;
+  const sigBlock = 44;
+  const available = sigY - flatTop - sigBlock;
+  let y = flatTop + Math.max(0, (available - blockH) / 2);
+
+  for (const line of rendered) {
+    g.fillText(line, innerX, y);
+    y += lineH;
+  }
+
   g.font = 'italic 26px "Dancing Script", cursive';
   g.fillText(grantedToLabel(), innerX, sigY);
   g.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);

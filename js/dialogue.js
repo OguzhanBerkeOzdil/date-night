@@ -3,11 +3,24 @@ import { playBlip } from "./audio.js";
 let queue = [];
 let typing = false;
 let onDone = null;
+let steedHideTimer = null;
 
 export function initDialogue() {
   const box = document.getElementById("dialogueBox");
   if (!box) return;
   box.addEventListener("click", () => {
+    if (document.body.dataset.screen === "steed") {
+      if (typing) {
+        skipLine();
+        return;
+      }
+      if (queue.length) {
+        showNext();
+        return;
+      }
+      hideDialogue();
+      return;
+    }
     if (typing) {
       skipLine();
     } else if (queue.length) {
@@ -41,6 +54,7 @@ function stripDuplicateName(line) {
 }
 
 export function say(lines, done) {
+  if (document.body.dataset.screen === "rating") return;
   queue = lines.map(stripDuplicateName);
   onDone = done || null;
   document.getElementById("dialogueBox")?.classList.remove("hidden");
@@ -48,17 +62,21 @@ export function say(lines, done) {
 }
 
 export function hideDialogue() {
+  if (steedHideTimer) clearTimeout(steedHideTimer);
+  steedHideTimer = null;
   document.getElementById("dialogueBox")?.classList.add("hidden");
   queue = [];
   typing = false;
+  onDone = null;
 }
 
-function maybeAutoHideOnSteed() {
+function scheduleSteedHide() {
   if (document.body.dataset.screen !== "steed") return;
-  if (queue.length || typing || onDone) return;
-  window.setTimeout(() => {
+  if (queue.length || typing) return;
+  if (steedHideTimer) clearTimeout(steedHideTimer);
+  steedHideTimer = window.setTimeout(() => {
     if (document.body.dataset.screen === "steed" && !queue.length && !typing) hideDialogue();
-  }, 2200);
+  }, 1600);
 }
 
 function showNext() {
@@ -68,7 +86,7 @@ function showNext() {
   if (!queue.length) {
     typing = false;
     if (hint) hint.hidden = !onDone;
-    maybeAutoHideOnSteed();
+    scheduleSteedHide();
     return;
   }
   const line = queue.shift();
@@ -93,7 +111,7 @@ function typeLine(line, el, hint) {
       clearInterval(typeTimer);
       typing = false;
       if (hint) hint.hidden = false;
-      if (!queue.length) maybeAutoHideOnSteed();
+      if (!queue.length) scheduleSteedHide();
     }
   }, 28);
 }
@@ -105,4 +123,5 @@ function skipLine() {
   typing = false;
   const hint = document.getElementById("dialogueHint");
   if (hint) hint.hidden = false;
+  if (!queue.length) scheduleSteedHide();
 }

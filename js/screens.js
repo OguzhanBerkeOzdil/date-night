@@ -303,7 +303,6 @@ function initRating() {
         bonusShown = true;
       show(chip11);
       show($("ratingChips"));
-      say([`${state.steedName}: I'd also rate today a 10. Nobody asked, but still.`]);
     }
   };
   slider?.addEventListener("change", spring);
@@ -351,16 +350,18 @@ function initJournal() {
 }
 
 const YES_SCALE_MAX = 1.3;
+let syncDragonLayout = () => {};
+let enterDragonScreen = () => {};
 
 export function fitDragonArena() {
   const arena = $("dateButtons");
   const honestWrap = document.querySelector(".dragon-honest-wrap");
   if (!arena) return;
   const top = arena.getBoundingClientRect().top;
-  const safeBottom = 16;
-  const honestH = (honestWrap?.offsetHeight || 36) + 8;
-  const maxBottom = window.innerHeight - honestH - safeBottom;
-  const h = Math.max(96, Math.min(148, maxBottom - top));
+  const safeBottom = 10;
+  const honestReserve = Math.max(honestWrap?.offsetHeight || 0, 44) + 10;
+  const maxBottom = window.innerHeight - honestReserve - safeBottom;
+  const h = Math.max(84, Math.min(132, maxBottom - top));
   arena.style.height = `${h}px`;
   arena.style.minHeight = `${h}px`;
 }
@@ -373,6 +374,44 @@ function capYesScale(btnYes, arena, scale) {
   return Math.min(scale, YES_SCALE_MAX, maxByArena, maxByViewport);
 }
 
+function placeNayBelowYes(btnYes, btnNo, arena) {
+  if (!btnYes || !btnNo || !arena) return;
+  btnYes.style.position = "relative";
+  btnYes.style.zIndex = "2";
+  btnNo.style.position = "absolute";
+  btnNo.style.zIndex = "6";
+  btnNo.style.width = "auto";
+  btnNo.classList.remove("hidden");
+  void btnYes.offsetHeight;
+  const arenaRect = arena.getBoundingClientRect();
+  const yesRect = btnYes.getBoundingClientRect();
+  const pad = 10;
+  const yesBottom = yesRect.bottom - arenaRect.top;
+  const noH = btnNo.offsetHeight * noScale;
+  const noW = btnNo.offsetWidth * noScale;
+  const maxTop = Math.max(pad, arena.clientHeight - noH - pad);
+  const top = Math.min(Math.max(yesBottom + pad, pad), maxTop);
+  const maxLeft = Math.max(pad, arena.clientWidth - noW - pad);
+  const left = Math.min(Math.max(arena.clientWidth * 0.52, pad), maxLeft);
+  btnNo.style.left = `${left}px`;
+  btnNo.style.top = `${top}px`;
+}
+
+function ensureDragonAboveFold() {
+  const wrap = document.querySelector(".dragon-honest-wrap");
+  const arena = $("dateButtons");
+  const btnYes = $("btnYes");
+  const btnNo = $("btnNo");
+  if (!wrap || !arena) return;
+  let guard = 0;
+  while (wrap.getBoundingClientRect().bottom > window.innerHeight - 8 && guard++ < 8) {
+    const h = Math.max(72, arena.clientHeight - 12);
+    arena.style.height = `${h}px`;
+    arena.style.minHeight = `${h}px`;
+    placeNayBelowYes(btnYes, btnNo, arena);
+  }
+}
+
 function initDragon() {
   const btnNo = $("btnNo");
   const btnYes = $("btnYes");
@@ -380,28 +419,30 @@ function initDragon() {
   const hp = $("dragonHp");
   let hpVal = 100;
 
-  function resetNo() {
-    yesScale = 1;
-    noScale = 1;
-    hpVal = 100;
-    if (hp) hp.style.width = "100%";
-    btnNo.style.position = "absolute";
-    btnNo.style.width = "auto";
-    btnNo.style.left = "52%";
-    btnNo.style.top = "48px";
-    btnNo.style.transform = "";
-    btnYes.style.transform = "";
-    btnNo.textContent = NO_LABELS[0];
+  function layoutDragon() {
     fitDragonArena();
-    void btnYes.offsetHeight;
-    const arenaRect = arena.getBoundingClientRect();
-    const yesBottom = btnYes.getBoundingClientRect().bottom - arenaRect.top;
-    btnNo.style.top = `${Math.min(yesBottom + 8, (arena.clientHeight || 120) - btnNo.offsetHeight - 8)}px`;
+    btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
+    btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
+    placeNayBelowYes(btnYes, btnNo, arena);
+    ensureDragonAboveFold();
+  }
+
+  syncDragonLayout = layoutDragon;
+  enterDragonScreen = () => {
+    if (state.noAttempts === 0) {
+      yesScale = 1;
+      noScale = 1;
+      hpVal = 100;
+      if (hp) hp.style.width = "100%";
+      btnNo.textContent = NO_LABELS[0];
+    }
     hide($("realNoLink"));
     hide($("yesToast"));
     $("dragonScene")?.classList.remove("dragon-win");
     if ($("dragonImg")) $("dragonImg").src = "assets/images/dragon-doubt.webp";
-  }
+    btnNo.classList.remove("hidden");
+    layoutDragon();
+  };
 
   function dodge(e) {
     e?.preventDefault();
@@ -455,7 +496,10 @@ function initDragon() {
     btnNo.style.left = `${x}px`;
     btnNo.style.top = `${y}px`;
 
-    if (state.noAttempts >= 7) show($("realNoLink"));
+    if (state.noAttempts >= 7) {
+      show($("realNoLink"));
+      ensureDragonAboveFold();
+    }
     if (state.noAttempts >= 3) unlock("stubborn");
   }
 
@@ -469,6 +513,7 @@ function initDragon() {
     $("horseQuestImg").src = "assets/images/horse-rear.webp";
     $("horseQuest")?.classList.add("horse-mascot--hop");
     hide($("realNoLink"));
+    hide(btnNo);
     unlock("dragon");
     burstHearts(window.innerWidth / 2, window.innerHeight / 2);
     vibrate([60, 30, 120]);
@@ -482,7 +527,10 @@ function initDragon() {
     saveState();
     navigate("honest-no");
   });
-  resetNo();
+
+  window.addEventListener("resize", () => {
+    if (document.body.dataset.screen === "dragon") syncDragonLayout();
+  });
 }
 
 function initHonest() {
@@ -513,14 +561,18 @@ function initTavern() {
   });
 
   $("fanumTax")?.addEventListener("change", () => {
-    state.fanumTax = $("fanumTax")?.checked ?? true;
+    const checked = $("fanumTax")?.checked ?? true;
+    state.fanumTax = checked;
+    if (!checked) {
+      state.achievements = state.achievements.filter((id) => id !== "fanum");
+    }
     saveState();
   });
   $("fanumTaxLabel")?.addEventListener("click", () => {
     $("fanumTaxLabel")?.classList.add("wiggle");
   });
   $("btnTavernNext")?.addEventListener("click", () => {
-    unlock("fanum");
+    if ($("fanumTax")?.checked) unlock("fanum");
     navigate("potion");
   });
 }
@@ -551,8 +603,8 @@ function initPotion() {
     b.addEventListener("click", () => {
       state.potionBase = base.name;
       state.vibe = base.name;
-      const liq = $("cauldronLiquid");
-      if (liq) liq.style.fill = base.color;
+      const glow = $("cauldronGlow");
+      if (glow) glow.style.setProperty("--glow-color", base.color);
       document.querySelectorAll(".vial").forEach((v) => v.classList.remove("vial--on"));
       b.classList.add("vial--on");
       saveState();
@@ -738,8 +790,7 @@ function activityEssence(activity) {
 export function onScreenEnter(id) {
   if (id === "honest-no") onEnterHonest();
   if (id === "dragon") {
-    fitDragonArena();
-    window.requestAnimationFrame(() => fitDragonArena());
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => enterDragonScreen()));
   }
   if (id === "decree") {
     unlock("heart", true);

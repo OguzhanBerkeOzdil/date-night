@@ -101,9 +101,40 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   await tapLocator(page, page.locator("#btnRatingNext"));
   await tapLocator(page, page.locator(".journal-entry").first());
   await page.waitForSelector('[data-screen="dragon"].screen--active');
+  await page.waitForTimeout(200);
   await assertNoOverflow(page);
 
-  for (let i = 0; i < 7; i++) {
+  const overlapAtEntry = await page.evaluate(() => {
+    const y = document.getElementById("btnYes").getBoundingClientRect();
+    const n = document.getElementById("btnNo").getBoundingClientRect();
+    return !(n.right <= y.left || n.left >= y.right || n.bottom <= y.top || n.top >= y.bottom);
+  });
+  if (overlapAtEntry) throw new Error("Dragon Nay overlaps Aye at screen entry");
+
+  const honestBottom = await page.evaluate(() => {
+    const w = document.querySelector(".dragon-honest-wrap");
+    return w ? w.getBoundingClientRect().bottom : 0;
+  });
+  if (honestBottom > viewport.height + 2) {
+    throw new Error(`Honest-no wrap below fold (${honestBottom} > ${viewport.height})`);
+  }
+
+  const attemptsBefore = await page.evaluate(() => window.__questReadNoAttempts?.() ?? 0);
+  await tapLocator(page, page.locator("#btnNo"));
+  await page.waitForTimeout(100);
+  const attemptsAfterOne = await page.evaluate(() => window.__questReadNoAttempts?.() ?? 0);
+  if (attemptsAfterOne !== attemptsBefore + 1) {
+    throw new Error(`First Nay tap did not increment noAttempts (${attemptsBefore} -> ${attemptsAfterOne})`);
+  }
+
+  const overlapAfterOne = await page.evaluate(() => {
+    const y = document.getElementById("btnYes").getBoundingClientRect();
+    const n = document.getElementById("btnNo").getBoundingClientRect();
+    return !(n.right <= y.left || n.left >= y.right || n.bottom <= y.top || n.top >= y.bottom);
+  });
+  if (overlapAfterOne) throw new Error("Dragon Nay overlaps Aye after first dodge");
+
+  for (let i = 1; i < 7; i++) {
     await tapLocator(page, page.locator("#btnNo"));
     await page.waitForTimeout(80);
     await assertNoOverflow(page);
