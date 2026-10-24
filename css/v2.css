@@ -2,6 +2,7 @@
   padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   position: relative;
   z-index: 2;
+  background: transparent;
 }
 
 .screen__inner {
@@ -134,18 +135,46 @@ body[data-screen="title"] #dialogueBox {
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 
+.title-hero-scrim {
+  margin: 0 -4px 8px;
+  padding: 18px 14px 20px;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 18, 14, 0.72) 0%,
+    rgba(12, 18, 14, 0.45) 55%,
+    rgba(12, 18, 14, 0.15) 100%
+  );
+  border: 1px solid rgba(201, 162, 39, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
 .title-lockup {
   font-family: "Cinzel Decorative", "Cinzel", serif;
   font-size: clamp(1.4rem, 6vw, 1.85rem);
   text-align: center;
-  color: var(--parchment);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  color: #fff8f0;
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.9),
+    0 0 24px rgba(0, 0, 0, 0.55);
+  margin: 0;
 }
 
-.title-screen .kicker,
+.title-screen .kicker {
+  color: #f4e8d0;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.85);
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
 .title-screen .small-print {
   color: var(--parchment);
   text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
 }
 
 .menu-plaques {

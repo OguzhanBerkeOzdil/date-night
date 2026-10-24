@@ -15,10 +15,12 @@
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
-    <picture>
-      <source srcset="assets/images/bg-title.webp" type="image/webp">
-      <img class="scene-bg__img scene-bg__img--kenburns" src="assets/images/bg-title.jpg" alt="" decoding="async">
-    </picture>
+    <div class="scene-bg__kenburns">
+      <picture>
+        <source srcset="assets/images/bg-title.webp" type="image/webp">
+        <img class="scene-bg__img" src="assets/images/bg-title.jpg" alt="" decoding="async" fetchpriority="high">
+      </picture>
+    </div>
     <div class="scene-bg__readability"></div>
     <div class="scene-bg__vignette"></div>
   </div>
@@ -51,8 +53,10 @@
   <main id="app" class="app app--v2">
     <section class="screen screen--active" data-screen="title">
       <div class="screen__inner title-screen">
-        <p class="kicker">A tale in one minute</p>
-        <h1 class="title-lockup">The Quest of <span data-lady>my lady</span></h1>
+        <div class="title-hero-scrim">
+          <p class="kicker">A tale in one minute</p>
+          <h1 class="title-lockup">The Quest of <span data-lady>my lady</span></h1>
+        </div>
         <div class="menu-plaques">
           <button type="button" class="btn btn--primary" id="btnNewGame">▶ New Game</button>
           <button type="button" class="btn btn--ghost" id="btnContinue">Continue</button>
