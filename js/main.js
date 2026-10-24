@@ -24,10 +24,14 @@ function setBackground(screenId) {
   const name = BG_BY_SCREEN[screenId] || "bg-forest";
   const layer = $("bgLayer");
   if (!layer) return;
-  const pic = layer.querySelector("img");
+  const pic = layer.querySelector(".scene-bg__img");
   const src = layer.querySelector("source");
+  const kb = layer.querySelector(".scene-bg__kenburns");
   if (pic) pic.src = `assets/images/${name}.jpg`;
   if (src) src.srcset = `assets/images/${name}.webp`;
+  if (kb) {
+    kb.classList.toggle("scene-bg__kenburns--slow", screenId === "decree");
+  }
   const next = SCREENS[SCREENS.indexOf(screenId) + 1];
   if (next) preloadBg(BG_BY_SCREEN[next]);
 }

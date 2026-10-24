@@ -48,14 +48,36 @@ body {
 /* ——— Full-bleed scene background ——— */
 .scene-bg {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 0;
   pointer-events: none;
-  width: 100%;
+  width: 100vw;
   height: 100dvh;
   height: 100vh;
+  min-height: -webkit-fill-available;
   overflow: hidden;
-  transform: translateZ(0);
+  isolation: isolate;
+}
+
+/* Ken Burns on wrapper only — never transform the <img> (breaks WebKit cover) */
+.scene-bg__kenburns {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: center center;
+  animation: sceneKenBurns 36s ease-in-out infinite alternate;
+}
+
+.scene-bg__kenburns--slow {
+  animation-duration: 44s;
+}
+
+@keyframes sceneKenBurns {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
 }
 
 .scene-bg picture {
@@ -70,33 +92,13 @@ body {
 
 .scene-bg__img {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-width: 100%;
-  min-height: 100%;
+  max-width: none;
   object-fit: cover;
   object-position: center center;
-  transform: translate(-50%, -50%);
-  will-change: transform;
-}
-
-.scene-bg__img--kenburns {
-  width: 112%;
-  height: 112%;
-  min-width: 112%;
-  min-height: 112%;
-  animation: kenBurns 32s ease-in-out infinite alternate;
-}
-
-.scene-bg__img--slow {
-  animation-duration: 40s;
-}
-
-@keyframes kenBurns {
-  from { transform: translate(-50%, -50%) scale(1); }
-  to { transform: translate(-50%, -50%) scale(1.06); }
+  transform: none;
 }
 
 .scene-bg__readability {
@@ -115,7 +117,7 @@ body.bg-celebration .scene-bg__readability {
 .scene-bg__vignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.4) 100%);
+  background: radial-gradient(ellipse at center, transparent 88%, rgba(0, 0, 0, 0.28) 100%);
   pointer-events: none;
 }
 
@@ -193,6 +195,7 @@ body.bg-celebration .scene-bg__readability {
   max-width: 480px;
   margin: 0 auto;
   padding: 0 18px calc(36px + var(--safe-bottom));
+  background: transparent;
 }
 
 .screen {
