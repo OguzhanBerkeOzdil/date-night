@@ -25,12 +25,23 @@
   <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
 
   <header class="top-bar">
-    <button type="button" class="hud-strip" id="questHud" aria-label="Quest map">
-      <svg class="hud-map" viewBox="0 0 100 100" aria-hidden="true">
-        <path id="mapTrail" d="M8,92 Q20,80 32,68 T58,48 T86,18 T92,8" fill="none" stroke="rgba(201,162,39,.25)" stroke-width="2" stroke-dasharray="0 100"/>
-        <path d="M8,92 Q20,80 32,68 T58,48 T86,18 T92,8" fill="none" stroke="#c9a227" stroke-width="2.5" id="mapTrailGold" style="stroke-dasharray:0 100"/>
-      </svg>
-      <span class="map-token" id="mapToken">🐴</span>
+    <button type="button" class="hud-strip" id="questHud" aria-label="Quest map — tap to open">
+      <span class="hud-strip__label">Quest trail</span>
+      <div class="hud-strip__track">
+        <svg class="hud-map" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true">
+          <path id="mapTrailBg" d="M2,14 C18,6 35,16 50,10 S82,4 98,12" fill="none" stroke="rgba(107,45,58,0.2)" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 4"/>
+          <path id="mapTrailGold" d="M2,14 C18,6 35,16 50,10 S82,4 98,12" fill="none" stroke="#c9a227" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="2" cy="14" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="14" cy="9" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="28" cy="13" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="42" cy="11" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="56" cy="9" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="70" cy="7" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="84" cy="8" r="1.8" fill="#8b7355" class="hud-node"/>
+          <circle cx="98" cy="12" r="1.8" fill="#8b7355" class="hud-node"/>
+        </svg>
+        <span class="map-token" id="mapToken" aria-hidden="true"></span>
+      </div>
     </button>
     <button type="button" class="sound-btn" id="btnSoundHud" aria-label="Sound">🔇</button>
   </header>
