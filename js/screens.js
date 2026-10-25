@@ -4,6 +4,7 @@ import { unlock } from "./achievements.js";
 // bonus achievements use same unlock()
 import { playNeigh, playStamp, playHorn, duckMusic, vibrate, unlockAudio, startAmbience, setSoundOn, isSoundOn } from "./audio.js";
 import { say, setSteedName, setPortrait, hideDialogue } from "./dialogue.js";
+import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood, icons } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
@@ -800,4 +801,5 @@ export function onScreenEnter(id) {
     $("waxStampAnim")?.classList.add("stamped");
   }
   if (id === "steed") onEnterSteed();
+  if (id === "oracle") hydrateLazyImages(document.querySelector('[data-screen="oracle"]'));
 }
