@@ -412,17 +412,29 @@ const YES_SCALE_MAX = 1.3;
 let syncDragonLayout = () => {};
 let enterDragonScreen = () => {};
 
+const HONEST_LINK_SLOT_PX = 48;
+
 export function fitDragonArena() {
   const arena = $("dateButtons");
+  const btnYes = $("btnYes");
+  const btnNo = $("btnNo");
   const honestWrap = document.querySelector(".dragon-honest-wrap");
   if (!arena) return;
   const top = arena.getBoundingClientRect().top;
-  const safeBottom = 10;
-  const honestReserve = Math.max(honestWrap?.offsetHeight || 0, 44) + 10;
+  const safeBottom = 12;
+  const honestReserve = Math.max(honestWrap?.offsetHeight || 0, HONEST_LINK_SLOT_PX) + 8;
   const maxBottom = window.innerHeight - honestReserve - safeBottom;
-  const h = Math.max(84, Math.min(132, maxBottom - top));
+  const maxByViewport = Math.max(96, maxBottom - top);
+  void btnYes?.offsetHeight;
+  void btnNo?.offsetHeight;
+  const yesH = btnYes?.offsetHeight || 64;
+  const noH = (btnNo?.offsetHeight || 48) * noScale;
+  const pad = 12;
+  const needed = yesH + noH + pad * 3;
+  const h = Math.min(maxByViewport, Math.max(96, needed));
   arena.style.height = `${h}px`;
-  arena.style.minHeight = `${h}px`;
+  arena.style.minHeight = "0";
+  arena.style.maxHeight = `${maxByViewport}px`;
 }
 
 function capYesScale(btnYes, arena, scale) {
@@ -433,42 +445,72 @@ function capYesScale(btnYes, arena, scale) {
   return Math.min(scale, YES_SCALE_MAX, maxByArena, maxByViewport);
 }
 
-function placeNayBelowYes(btnYes, btnNo, arena) {
+function measureNay(btnNo) {
+  if (!btnNo) return { w: 96, h: 48 };
+  const r = btnNo.getBoundingClientRect();
+  return { w: r.width, h: r.height };
+}
+
+function clampNayPosition(btnYes, btnNo, arena, x, y) {
   if (!btnYes || !btnNo || !arena) return;
   btnYes.style.position = "relative";
   btnYes.style.zIndex = "2";
   btnNo.style.position = "absolute";
-  btnNo.style.zIndex = "6";
+  btnNo.style.zIndex = "12";
   btnNo.style.width = "auto";
   btnNo.classList.remove("hidden");
-  void btnYes.offsetHeight;
+  void btnNo.offsetHeight;
+  const pad = 10;
+  const arenaW = arena.clientWidth;
+  const arenaH = arena.clientHeight;
   const arenaRect = arena.getBoundingClientRect();
   const yesRect = btnYes.getBoundingClientRect();
-  const pad = 10;
+  const { w: noW, h: noH } = measureNay(btnNo);
   const yesBottom = yesRect.bottom - arenaRect.top;
-  const noH = btnNo.offsetHeight * noScale;
-  const noW = btnNo.offsetWidth * noScale;
-  const maxTop = Math.max(pad, arena.clientHeight - noH - pad);
-  let top = Math.min(Math.max(yesBottom + pad, pad), maxTop);
-  if (top + noH > arena.clientHeight - pad) top = Math.max(pad, arena.clientHeight - noH - pad);
-  const maxLeft = Math.max(pad, arena.clientWidth - noW - pad);
-  const left = Math.min(Math.max(arena.clientWidth * 0.52, pad), maxLeft);
+  const minY = yesBottom + pad;
+  let maxY = Math.max(minY, arenaH - noH - pad);
+  if (maxY < minY) maxY = minY;
+  const maxX = Math.max(pad, arenaW - noW - pad);
+  let left = Math.min(Math.max(x, pad), maxX);
+  let top = Math.min(Math.max(y, minY), maxY);
   btnNo.style.left = `${left}px`;
   btnNo.style.top = `${top}px`;
 }
 
-function ensureDragonAboveFold() {
-  const wrap = document.querySelector(".dragon-honest-wrap");
+function placeNayBelowYes(btnYes, btnNo, arena) {
+  if (!btnYes || !btnNo || !arena) return;
+  const arenaRect = arena.getBoundingClientRect();
+  const yesRect = btnYes.getBoundingClientRect();
+  const pad = 10;
+  const yesBottom = yesRect.bottom - arenaRect.top;
+  const { w: noW } = measureNay(btnNo);
+  const maxLeft = Math.max(pad, arena.clientWidth - noW - pad);
+  const left = Math.min(Math.max(arena.clientWidth * 0.52, pad), maxLeft);
+  clampNayPosition(btnYes, btnNo, arena, left, yesBottom + pad);
+}
+
+function ensureDragonInViewport() {
   const arena = $("dateButtons");
   const btnYes = $("btnYes");
   const btnNo = $("btnNo");
-  if (!wrap || !arena) return;
+  const wrap = document.querySelector(".dragon-honest-wrap");
+  if (!arena || !btnYes || !btnNo) return;
+  fitDragonArena();
+  const pad = 10;
   let guard = 0;
-  while (wrap.getBoundingClientRect().bottom > window.innerHeight - 8 && guard++ < 8) {
-    const h = Math.max(72, arena.clientHeight - 12);
-    arena.style.height = `${h}px`;
-    arena.style.minHeight = `${h}px`;
-    placeNayBelowYes(btnYes, btnNo, arena);
+  while (guard++ < 12) {
+    const noRect = btnNo.getBoundingClientRect();
+    const arenaRect = arena.getBoundingClientRect();
+    const overBottom = noRect.bottom > arenaRect.bottom - 2;
+    const overViewport = noRect.bottom > window.innerHeight - 12;
+    if (!overBottom && !overViewport) break;
+    const left = Number.parseFloat(btnNo.style.left) || pad;
+    const top = Number.parseFloat(btnNo.style.top) || pad;
+    clampNayPosition(btnYes, btnNo, arena, left, top - 8);
+    if (overViewport && wrap) {
+      fitDragonArena();
+      placeNayBelowYes(btnYes, btnNo, arena);
+    }
   }
 }
 
@@ -484,7 +526,7 @@ function initDragon() {
     btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
     btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
     placeNayBelowYes(btnYes, btnNo, arena);
-    ensureDragonAboveFold();
+    ensureDragonInViewport();
   }
 
   syncDragonLayout = layoutDragon;
@@ -531,24 +573,23 @@ function initDragon() {
       }
     }
 
-    btnYes.style.transform = `scale(${yesScale})`;
-    btnNo.style.transform = `scale(${noScale})`;
-    void btnYes.offsetHeight;
+    btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
+    btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
+    void btnNo.offsetHeight;
 
+    fitDragonArena();
     const pad = 10;
     const arenaW = arena?.clientWidth || 300;
-    const arenaH = arena?.clientHeight || 220;
     const arenaRect = arena.getBoundingClientRect();
     const yesRect = btnYes.getBoundingClientRect();
     const yesBottom = yesRect.bottom - arenaRect.top;
-    const noW = btnNo.offsetWidth * noScale;
-    const noH = btnNo.offsetHeight * noScale;
+    const { w: noW, h: noH } = measureNay(btnNo);
     const minY = yesBottom + pad;
-    const maxY = Math.max(minY, Math.min(arenaH - noH - pad, arenaH - noH - pad));
+    const maxY = Math.max(minY, arena.clientHeight - noH - pad);
     const maxX = Math.max(pad, arenaW - noW - pad);
     let x = pad;
     let y = minY;
-    for (let t = 0; t < 24; t++) {
+    for (let t = 0; t < 28; t++) {
       x = pad + Math.random() * Math.max(0, maxX - pad);
       y = minY + Math.random() * Math.max(0, maxY - minY);
       const noLeft = x;
@@ -566,16 +607,17 @@ function initDragon() {
         noBottom > yesTop - pad;
       if (!overlaps) break;
     }
-
-    btnNo.style.position = "absolute";
-    const clampMaxY = arenaH - noH - pad;
-    y = Math.min(Math.max(y, minY), clampMaxY);
-    btnNo.style.left = `${x}px`;
-    btnNo.style.top = `${y}px`;
+    clampNayPosition(btnYes, btnNo, arena, x, y);
+    fitDragonArena();
+    clampNayPosition(btnYes, btnNo, arena, x, y);
+    ensureDragonInViewport();
 
     if (state.noAttempts >= 7) {
       scheduleHonestLinkReveal();
-      ensureDragonAboveFold();
+      requestAnimationFrame(() => {
+        fitDragonArena();
+        ensureDragonInViewport();
+      });
     } else {
       disarmHonestLink();
     }
@@ -617,6 +659,9 @@ function initDragon() {
   });
 
   window.addEventListener("resize", () => {
+    if (document.body.dataset.screen === "dragon") syncDragonLayout();
+  });
+  window.addEventListener("dragon-honest-resize", () => {
     if (document.body.dataset.screen === "dragon") syncDragonLayout();
   });
 }
@@ -764,7 +809,7 @@ function initStars() {
         show($("datePicker"));
         return;
       }
-      state.day = dayLabelWithTime(label);
+      state.day = label;
       selectChip(dayWrap, c);
       refreshDayChipLabels();
       saveState();
@@ -796,7 +841,7 @@ function initStars() {
     document.body.style.setProperty("--sky-phase", sky.selectedIndex / 4);
     const on = dayWrap?.querySelector(".chip-select--on");
     if (on && on.dataset.dayBase) {
-      state.day = dayLabelWithTime(on.dataset.dayBase);
+      state.day = on.dataset.dayBase;
     }
     refreshDayChipLabels();
     saveState();

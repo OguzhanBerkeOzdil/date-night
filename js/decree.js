@@ -22,6 +22,23 @@ function fanumLine() {
   return "Fanum tax: waived by royal mercy (he'll survive)";
 }
 
+/** Day label only (chip/calendar), without sky-dial time duplicated in decree. */
+export function dayLabelForDecree() {
+  const raw = (state.day || "").trim();
+  if (!raw) return "";
+  const sep = raw.indexOf(" · ");
+  if (sep > 0) return raw.slice(0, sep).trim();
+  return raw;
+}
+
+export function whenWeRideLine() {
+  const day = dayLabelForDecree() || "—";
+  const time = (state.time || "").trim();
+  if (!time || day === "—") return `When we ride: ${day}`;
+  if (day.includes(time)) return `When we ride: ${day}`;
+  return `When we ride: ${day} · ${time}`;
+}
+
 export function buildSummaryText() {
   const rating =
     state.ratingBonus || state.rating >= 11
@@ -50,7 +67,7 @@ export function buildSummaryText() {
     `Provisions: ${state.food.join("; ") || "—"}`,
     `Potion: ${state.potionName || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
-    `When we ride: ${state.day || "—"} · ${state.time || "—"}`,
+    whenWeRideLine(),
     ...(oracleLine ? [oracleLine] : []),
     `Secret ingredient: ${state.notes || "—"}`,
     fanumLine(),
