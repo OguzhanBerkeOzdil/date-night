@@ -4,6 +4,33 @@ let queue = [];
 let typing = false;
 let onDone = null;
 let steedHideTimer = null;
+let dialogueHome = null;
+let dialogueNext = null;
+
+function rememberDialogueHome() {
+  const box = document.getElementById("dialogueBox");
+  if (!box || dialogueHome) return;
+  dialogueHome = box.parentElement;
+  dialogueNext = box.nextSibling;
+}
+
+export function attachSteedDialogue() {
+  rememberDialogueHome();
+  const box = document.getElementById("dialogueBox");
+  const anchor = document.getElementById("steedDialogueAnchor");
+  if (!box || !anchor || box.parentElement === anchor) return;
+  anchor.appendChild(box);
+  box.classList.add("dialogue-box--steed");
+  anchor.setAttribute("aria-hidden", "false");
+}
+
+export function detachSteedDialogue() {
+  const box = document.getElementById("dialogueBox");
+  if (!box || !dialogueHome || box.parentElement === dialogueHome) return;
+  dialogueHome.insertBefore(box, dialogueNext);
+  box.classList.remove("dialogue-box--steed");
+  document.getElementById("steedDialogueAnchor")?.setAttribute("aria-hidden", "true");
+}
 
 export function initDialogue() {
   const box = document.getElementById("dialogueBox");
@@ -55,6 +82,7 @@ function stripDuplicateName(line) {
 
 export function say(lines, done) {
   if (document.body.dataset.screen === "rating") return;
+  if (document.body.dataset.screen === "steed") attachSteedDialogue();
   queue = lines.map(stripDuplicateName);
   onDone = done || null;
   document.getElementById("dialogueBox")?.classList.remove("hidden");
@@ -64,6 +92,7 @@ export function say(lines, done) {
 export function hideDialogue() {
   if (steedHideTimer) clearTimeout(steedHideTimer);
   steedHideTimer = null;
+  detachSteedDialogue();
   document.getElementById("dialogueBox")?.classList.add("hidden");
   queue = [];
   typing = false;

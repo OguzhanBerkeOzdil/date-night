@@ -14,7 +14,7 @@ CUTOUT_MAX = {
     "horse-rear.webp": 560,
     "dragon-doubt.webp": 480,
     "dragon-befriended.webp": 480,
-    "quest-map.webp": 1080,
+    "quest-map.webp": 1920,
     "tarot-back.webp": 220,
     "tarot-steeds.webp": 220,
     "tarot-golden-hour.webp": 220,

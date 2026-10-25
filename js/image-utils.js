@@ -6,11 +6,11 @@ export function pickBgWebpUrl(name) {
   const dpr = window.devicePixelRatio || 1;
   const cssW = window.innerWidth * dpr;
   if (landscape) {
-    return cssW >= 2400
+    return cssW > 1920
       ? `assets/images/${name}-landscape-2560.webp`
       : `assets/images/${name}-landscape.webp`;
   }
-  return cssW >= 1320 ? `assets/images/${name}-1440.webp` : `assets/images/${name}.webp`;
+  return cssW > 1080 ? `assets/images/${name}-1440.webp` : `assets/images/${name}.webp`;
 }
 
 export function preloadUrl(url) {

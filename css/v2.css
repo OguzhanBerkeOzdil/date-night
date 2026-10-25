@@ -306,6 +306,48 @@ body[data-screen="title"] #dialogueBox {
   text-align: center;
 }
 
+.steed-hero-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.steed-dialogue-anchor {
+  width: 100%;
+  max-width: 340px;
+  min-height: 0;
+}
+
+.steed-dialogue-anchor:empty {
+  display: none;
+}
+
+@media (min-width: 400px) {
+  body[data-screen="steed"] .steed-hero-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  body[data-screen="steed"] .horse-stage {
+    flex: 0 1 min(52%, 200px);
+  }
+
+  body[data-screen="steed"] .steed-dialogue-anchor {
+    flex: 1 1 min(48%, 200px);
+    max-width: 240px;
+  }
+
+  body[data-screen="steed"] .horse-cutout {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
 .carrot-btn {
   margin: 12px auto;
   padding: 10px 18px;
@@ -673,19 +715,41 @@ textarea#notesInput {
   min-height: 120px;
 }
 
-body[data-screen="steed"] .dialogue-box {
-  top: calc(env(safe-area-inset-top, 0px) + 72px);
-  bottom: auto;
-  max-height: min(22vh, 140px);
-}
-
 body[data-screen="rating"] #dialogueBox {
   display: none !important;
 }
 
-body[data-screen="steed"] .dialogue-panel {
+body[data-screen="steed"] .dialogue-box.dialogue-box--steed {
+  position: relative;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  transform: none;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  max-height: min(28vh, 168px);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.38);
+}
+
+body[data-screen="steed"] .dialogue-box--steed .dialogue-portrait {
+  width: 42px;
+  height: 42px;
+}
+
+body[data-screen="steed"] .dialogue-box--steed .dialogue-panel {
   max-height: 120px;
   overflow-y: auto;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+body[data-screen="steed"] .dialogue-box--steed .dialogue-name {
+  font-size: 0.68rem;
+  margin-bottom: 2px;
 }
 
 .dialogue-box {
@@ -736,7 +800,8 @@ body[data-screen="steed"] .dialogue-panel {
 
 .achievement-wrap {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 118px);
+  top: auto;
+  bottom: calc(124px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   right: auto;
   transform: translateX(-50%);
@@ -746,6 +811,15 @@ body[data-screen="steed"] .dialogue-panel {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+}
+
+body[data-screen="title"] .achievement-wrap,
+body[data-screen="summons"] .achievement-wrap {
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+body[data-screen="steed"] .achievement-wrap {
+  bottom: calc(148px + env(safe-area-inset-bottom, 0px));
 }
 
 .achievement-toast {

@@ -3,7 +3,7 @@ import { unlock } from "./achievements.js";
 
 // bonus achievements use same unlock()
 import { playNeigh, playStamp, playHorn, duckMusic, vibrate, unlockAudio, startAmbience, setSoundOn, isSoundOn } from "./audio.js";
-import { say, setSteedName, setPortrait, hideDialogue } from "./dialogue.js";
+import { say, setSteedName, setPortrait, hideDialogue, attachSteedDialogue } from "./dialogue.js";
 import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood, icons } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
@@ -227,6 +227,7 @@ function pickSteed(name) {
 }
 
 export function onEnterSteed() {
+  attachSteedDialogue();
   setPortrait("assets/images/horse-idle.webp");
   setSteedName(state.steedName);
   say([
