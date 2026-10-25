@@ -16,10 +16,34 @@ const EPIGRAPH_SCREENS = new Set([
   "honest-no",
 ]);
 
+const PANEL_EPIGRAPH_SCREENS = new Set([
+  "summons",
+  "sheet",
+  "rating",
+  "journal",
+  "tavern",
+  "potion",
+  "stars",
+  "honest-no",
+  "decree",
+]);
+
 const HONEST_EPIGRAPH = {
   text: "I had rather hear my dog bark at a crow than a man swear he loves me.",
   by: "Shakespeare, Much Ado About Nothing (Beatrice)",
 };
+
+function isShortViewport() {
+  return window.innerHeight <= 680 || window.matchMedia("(max-height: 680px)").matches;
+}
+
+function compactQuote(text) {
+  const oneLine = text.replace(/\s*\/\s*/g, " — ").replace(/\s+/g, " ").trim();
+  if (oneLine.length <= 88) return oneLine;
+  const cut = oneLine.slice(0, 85).trim();
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${(lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+}
 
 export function initEpigraphs() {
   document.querySelectorAll(".screen[data-screen]").forEach((section) => {
@@ -50,12 +74,22 @@ export function updateEpigraph(screenId) {
   if (screenId === "honest-no") block = HONEST_EPIGRAPH;
   if (!block) return;
 
-  el.innerHTML = `<p>${block.text}</p><footer>— ${block.by}</footer>`;
-  el.setAttribute("cite", block.by);
-  el.classList.remove("hidden");
-
-  const short = window.innerHeight < 680;
-  if (short && (screenId === "dragon" || screenId === "steed")) {
+  const short = isShortViewport();
+  const hideOnShort = screenId === "dragon" || screenId === "steed";
+  if (short && hideOnShort) {
     el.classList.add("hidden");
+    return;
   }
+
+  const quoteText = short ? compactQuote(block.text) : block.text;
+  el.innerHTML = `<p>${quoteText}</p><footer>— ${block.by}</footer>`;
+  el.setAttribute("cite", block.by);
+  el.classList.remove("hidden", "screen-epigraph--compact", "screen-epigraph--on-panel", "screen-epigraph--on-sky");
+  el.classList.add("screen-epigraph--pill");
+  if (PANEL_EPIGRAPH_SCREENS.has(screenId)) {
+    el.classList.add("screen-epigraph--on-panel");
+  } else {
+    el.classList.add("screen-epigraph--on-sky");
+  }
+  if (short) el.classList.add("screen-epigraph--compact");
 }

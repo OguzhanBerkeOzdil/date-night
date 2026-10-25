@@ -161,6 +161,10 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
     }
   }
 
+  await page.waitForFunction(
+    () => document.getElementById("realNoLink")?.classList.contains("honest-link--armed"),
+    { timeout: 8000 }
+  );
   await tapLocator(page, page.locator("#realNoLink"));
   await page.waitForSelector('[data-screen="honest-no"].screen--active');
   await assertNoOverflow(page);

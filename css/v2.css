@@ -29,18 +29,26 @@
 }
 
 .dragon-honest-wrap {
-  margin: 10px 0 4px;
+  margin: 6px 0 8px;
   position: relative;
   z-index: 8;
+  min-height: 0;
 }
 
 .dragon-honest-wrap .link-btn {
   width: 100%;
   text-align: center;
   line-height: 1.45;
-  padding: 10px 8px;
+  padding: 8px 8px;
   color: #f4e8d0;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+  opacity: 0.92;
+}
+
+.dragon-honest-wrap .link-btn.honest-link--armed {
+  pointer-events: auto;
+  opacity: 1;
 }
 
 .journal-panel,
@@ -163,6 +171,13 @@ body[data-screen="title"] .hud-strip__label {
   content: "Your journey";
 }
 
+.top-bar__tools {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .sound-btn {
   width: 44px;
   height: 44px;
@@ -170,7 +185,6 @@ body[data-screen="title"] .hud-strip__label {
   border: 2px solid rgba(201, 162, 39, 0.65);
   background: rgba(20, 30, 22, 0.55);
   backdrop-filter: blur(6px);
-  margin-left: 8px;
   flex-shrink: 0;
 }
 
@@ -800,8 +814,8 @@ body[data-screen="steed"] .dialogue-box--steed .dialogue-name {
 
 .achievement-wrap {
   position: fixed;
-  top: auto;
-  bottom: calc(124px + env(safe-area-inset-bottom, 0px));
+  top: calc(env(safe-area-inset-top, 0px) + 58px);
+  bottom: auto;
   left: 50%;
   right: auto;
   transform: translateX(-50%);
@@ -811,15 +825,6 @@ body[data-screen="steed"] .dialogue-box--steed .dialogue-name {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-}
-
-body[data-screen="title"] .achievement-wrap,
-body[data-screen="summons"] .achievement-wrap {
-  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-}
-
-body[data-screen="steed"] .achievement-wrap {
-  bottom: calc(148px + env(safe-area-inset-bottom, 0px));
 }
 
 .achievement-toast {
@@ -966,13 +971,32 @@ body[data-screen="steed"] .achievement-wrap {
 
 .screen-epigraph {
   margin: 10px 0 0;
-  padding: 0 6px 2px;
+  padding: 0;
   border: none;
   font-size: 0.82rem;
   font-style: italic;
   line-height: 1.45;
-  color: var(--ink-soft);
-  text-shadow: 0 1px 2px rgba(252, 245, 232, 0.85);
+}
+
+.screen-epigraph--pill {
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.screen-epigraph--on-sky {
+  color: #f4e8d0;
+  background: rgba(18, 12, 10, 0.78);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  text-shadow: none;
+}
+
+.screen-epigraph--on-panel {
+  color: #2a1520;
+  background: rgba(252, 245, 232, 0.94);
+  border: 1px solid rgba(107, 45, 58, 0.35);
+  text-shadow: none;
 }
 
 .screen-epigraph footer {
@@ -980,51 +1004,61 @@ body[data-screen="steed"] .achievement-wrap {
   margin-top: 4px;
   font-size: 0.68rem;
   font-style: normal;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
-[data-screen="steed"] .screen-epigraph,
-[data-screen="dragon"] .screen-epigraph {
-  color: #f4e8d0;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
+.screen-epigraph--compact {
+  margin-top: 6px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 6px 10px;
 }
 
-.title-screen .screen-epigraph {
-  color: #f4e8d0;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+.screen-epigraph--compact p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
-@media (max-height: 680px) {
-  .screen-epigraph {
-    display: none !important;
-  }
+.screen-epigraph--compact footer {
+  font-size: 0.62rem;
+  margin-top: 2px;
 }
 
-.bard-quill {
-  position: absolute;
-  right: 8px;
-  bottom: 6px;
-  z-index: 4;
-  width: 36px;
-  height: 36px;
+.bard-quill--hud {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(201, 162, 39, 0.55);
-  background: rgba(12, 18, 14, 0.55);
+  border: 2px solid rgba(201, 162, 39, 0.65);
+  background: rgba(20, 30, 22, 0.55);
+  backdrop-filter: blur(6px);
   color: #f4e8d0;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
 }
 
 .bard-quill.hidden {
   display: none;
 }
 
-.chip-select--on {
-  border-color: var(--gold);
-  background: rgba(252, 245, 232, 0.98);
-  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.35);
+.chip-row .chip-select.chip-select--on,
+.chip-select.chip-select--on {
+  border-color: var(--burgundy);
+  background: linear-gradient(180deg, rgba(107, 45, 58, 0.14) 0%, rgba(252, 245, 232, 0.98) 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(201, 162, 39, 0.55),
+    0 2px 8px rgba(107, 45, 58, 0.12);
+  font-weight: 600;
+  color: var(--burgundy-deep);
+}
+
+.chip-row .chip-select.chip-select--on::after,
+.chip-select.chip-select--on::after {
+  content: " ✓";
+  font-weight: 700;
 }
 
 .class-grid button em {

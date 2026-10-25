@@ -31,32 +31,6 @@ function nextLine() {
   return pool.pop();
 }
 
-export function initBardQuill() {
-  document.querySelectorAll(".screen[data-screen]").forEach((section) => {
-    const id = section.dataset.screen;
-    if (!BARD_SCREENS.has(id)) return;
-    const inner = section.querySelector(".screen__inner");
-    if (!inner || inner.querySelector(".bard-quill")) return;
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "bard-quill";
-    btn.setAttribute("aria-label", "The bard recites a line");
-    btn.textContent = "🪶";
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      reciteBardLine();
-    });
-    inner.appendChild(btn);
-  });
-}
-
-export function syncBardQuill(screenId) {
-  document.querySelectorAll(".bard-quill").forEach((btn) => {
-    const on = BARD_SCREENS.has(screenId);
-    btn.classList.toggle("hidden", !on);
-  });
-}
-
 function reciteBardLine() {
   if (hideTimer) clearTimeout(hideTimer);
   const line = nextLine().replace(/\{steed\}/g, state.steedName || "the steed");
@@ -66,4 +40,22 @@ function reciteBardLine() {
   taps++;
   if (taps >= 3) unlock("bard");
   hideTimer = window.setTimeout(() => hideDialogue(), 4000);
+}
+
+export function initBardQuill() {
+  const btn = document.getElementById("btnBardHud");
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = "1";
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    reciteBardLine();
+  });
+  document.querySelectorAll(".screen__inner .bard-quill").forEach((el) => el.remove());
+}
+
+export function syncBardQuill(screenId) {
+  const btn = document.getElementById("btnBardHud");
+  if (!btn) return;
+  const on = BARD_SCREENS.has(screenId);
+  btn.classList.toggle("hidden", !on);
 }

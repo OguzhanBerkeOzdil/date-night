@@ -8,7 +8,15 @@ import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood, icons } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
-import { guest, questOfTitle, letterSalutation, resetState, saveState, state } from "./state.js";
+import {
+  disarmHonestLink,
+  honestLinkIsArmed,
+  scheduleHonestLinkReveal,
+  setPointerOnNay,
+  swallowGhostClick,
+} from "./dragon-guards.js";
+import { updateEpigraph } from "./epigraph.js";
+import { guest, questOfTitle, letterSalutation, beginNewQuest, saveState, state } from "./state.js";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A peasant classic with a royal taste" },
@@ -126,6 +134,14 @@ function initTitle() {
   });
 
   $("btnNewGame")?.addEventListener("click", () => {
+    beginNewQuest();
+    stirCount = 0;
+    potionBottled = false;
+    letterStarted = false;
+    sealing = false;
+    pickSteedIx = 0;
+    yesScale = 1;
+    noScale = 1;
     unlockAudio();
     if (isSoundOn()) {
       startAmbience();
@@ -238,6 +254,7 @@ function pickSteed(name) {
   state.steedName = name;
   saveState();
   setSteedName(name);
+  updateEpigraph("steed");
   const templates = COPY.steedPickLines;
   const line = templates[pickSteedIx % templates.length].replace(/\{name\}/g, name);
   pickSteedIx++;
@@ -432,7 +449,8 @@ function placeNayBelowYes(btnYes, btnNo, arena) {
   const noH = btnNo.offsetHeight * noScale;
   const noW = btnNo.offsetWidth * noScale;
   const maxTop = Math.max(pad, arena.clientHeight - noH - pad);
-  const top = Math.min(Math.max(yesBottom + pad, pad), maxTop);
+  let top = Math.min(Math.max(yesBottom + pad, pad), maxTop);
+  if (top + noH > arena.clientHeight - pad) top = Math.max(pad, arena.clientHeight - noH - pad);
   const maxLeft = Math.max(pad, arena.clientWidth - noW - pad);
   const left = Math.min(Math.max(arena.clientWidth * 0.52, pad), maxLeft);
   btnNo.style.left = `${left}px`;
@@ -479,7 +497,7 @@ function initDragon() {
       btnNo.textContent = COPY.noLabels[0];
       hide($("dragonFoolCaption"));
     }
-    hide($("realNoLink"));
+    disarmHonestLink();
     hide($("yesToast"));
     $("dragonScene")?.classList.remove("dragon-win");
     if ($("dragonImg")) $("dragonImg").src = "assets/images/dragon-doubt.webp";
@@ -487,9 +505,16 @@ function initDragon() {
     layoutDragon();
   };
 
+  const releaseNayPointer = () => setPointerOnNay(false);
+  btnNo?.addEventListener("pointerdown", () => setPointerOnNay(true));
+  btnNo?.addEventListener("pointerup", releaseNayPointer);
+  btnNo?.addEventListener("pointercancel", releaseNayPointer);
+  btnNo?.addEventListener("pointerleave", releaseNayPointer);
+
   function dodge(e) {
     e?.preventDefault();
     e?.stopPropagation();
+    swallowGhostClick();
     state.noAttempts++;
     hpVal = Math.min(100, hpVal + 5);
     if (hp) hp.style.width = hpVal + "%";
@@ -543,12 +568,16 @@ function initDragon() {
     }
 
     btnNo.style.position = "absolute";
+    const clampMaxY = arenaH - noH - pad;
+    y = Math.min(Math.max(y, minY), clampMaxY);
     btnNo.style.left = `${x}px`;
     btnNo.style.top = `${y}px`;
 
     if (state.noAttempts >= 7) {
-      show($("realNoLink"));
+      scheduleHonestLinkReveal();
       ensureDragonAboveFold();
+    } else {
+      disarmHonestLink();
     }
     if (state.noAttempts >= 3) unlock("stubborn");
   }
@@ -562,7 +591,7 @@ function initDragon() {
     $("dragonImg").src = "assets/images/dragon-befriended.webp";
     $("horseQuestImg").src = "assets/images/horse-rear.webp";
     $("horseQuest")?.classList.add("horse-mascot--hop");
-    hide($("realNoLink"));
+    disarmHonestLink();
     hide(btnNo);
     unlock("dragon");
     burstHearts(window.innerWidth / 2, window.innerHeight / 2);
@@ -575,7 +604,12 @@ function initDragon() {
     setTimeout(() => navigate("tavern"), 1400);
   });
 
-  $("realNoLink")?.addEventListener("click", () => {
+  $("realNoLink")?.addEventListener("click", (e) => {
+    if (!honestLinkIsArmed()) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     state.honestNo = true;
     state.secondDate = "no";
     saveState();
@@ -697,25 +731,42 @@ function initPotion() {
 
 function initStars() {
   const days = [
-    "Friday evening",
+    "This Friday",
     "This Saturday",
     "This Sunday",
     "Next week (playing hard to get)",
     "Consult the calendar",
   ];
   const dayWrap = $("dayChips");
+
+  function dayLabelWithTime(base) {
+    const t = state.time || $("skyDial")?.value;
+    if (!t) return base;
+    return `${base} · ${t}`;
+  }
+
+  function refreshDayChipLabels() {
+    dayWrap?.querySelectorAll(".chip-select").forEach((btn, i) => {
+      if (i >= 4) return;
+      const base = btn.dataset.dayBase || days[i];
+      btn.textContent = btn.classList.contains("chip-select--on") ? dayLabelWithTime(base) : base;
+    });
+  }
+
   days.forEach((label, i) => {
     const c = document.createElement("button");
     c.type = "button";
     c.className = "chip-select";
+    c.dataset.dayBase = label;
     c.textContent = label;
     c.addEventListener("click", () => {
       if (i === 4) {
         show($("datePicker"));
         return;
       }
-      state.day = label;
+      state.day = dayLabelWithTime(label);
       selectChip(dayWrap, c);
+      refreshDayChipLabels();
       saveState();
     });
     dayWrap?.appendChild(c);
@@ -743,6 +794,11 @@ function initStars() {
   sky?.addEventListener("input", () => {
     state.time = sky.value;
     document.body.style.setProperty("--sky-phase", sky.selectedIndex / 4);
+    const on = dayWrap?.querySelector(".chip-select--on");
+    if (on && on.dataset.dayBase) {
+      state.day = dayLabelWithTime(on.dataset.dayBase);
+    }
+    refreshDayChipLabels();
     saveState();
   });
 
@@ -774,6 +830,20 @@ function initStars() {
       }
     }, 1000);
   });
+}
+
+export function restoreOracleFromState() {
+  if (!state.tarotKey) return;
+  const meta = tarotForKey(state.tarotKey);
+  document.querySelectorAll(".tarot-card").forEach((c) => c.classList.add("flipped"));
+  const chosen = document.querySelector(`.tarot-card[data-card="${state.tarotKey}"]`);
+  chosen?.classList.add("tarot-card--chosen");
+  const fortune = $("tarotFortune");
+  if (fortune && meta) {
+    fortune.textContent = meta.long;
+    show(fortune);
+  }
+  show($("btnOpenLetter"));
 }
 
 function initOracle() {
@@ -861,7 +931,7 @@ function initDecree() {
     setTimeout(() => hide(toast), 2000);
   });
   $("btnReplay")?.addEventListener("click", () => {
-    resetState();
+    beginNewQuest();
     const base = location.pathname + (location.search || "");
     location.replace(base);
   });
@@ -910,7 +980,10 @@ export function onScreenEnter(id) {
     $("waxStampAnim")?.classList.add("stamped");
   }
   if (id === "steed") onEnterSteed();
-  if (id === "oracle") hydrateLazyImages(document.querySelector('[data-screen="oracle"]'));
+  if (id === "oracle") {
+    hydrateLazyImages(document.querySelector('[data-screen="oracle"]'));
+    restoreOracleFromState();
+  }
   if (id === "potion") {
     stirCount = 0;
     potionBottled = false;
@@ -921,5 +994,4 @@ export function onScreenEnter(id) {
     sealing = false;
     $("btnSealDate")?.removeAttribute("disabled");
   }
-  if (id === "oracle") letterStarted = false;
 }

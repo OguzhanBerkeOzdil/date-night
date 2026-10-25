@@ -39,7 +39,7 @@ function intersects(a, b) {
 
 function blockersFor(screen) {
   const base =
-    ".title, .sub, .sub-label, .btn--primary, .btn--secondary, .name-chips button, .carrot-btn, #horseIdleImg, #btnSteedNext, .vial";
+    ".btn--primary, .btn--secondary, .name-chips button, .carrot-btn, #horseIdleImg, #btnSteedNext, .vial, .tarot-card";
   if (screen === "potion") {
     return `${base}, #potionIngredients .potion-ing:first-of-type`;
   }
