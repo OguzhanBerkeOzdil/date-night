@@ -63,3 +63,7 @@ export function achievementLabelsBonus() {
     .filter((id) => DEFS[id]?.bonus)
     .map((id) => DEFS[id].title);
 }
+
+if (typeof window !== "undefined") {
+  window.__questUnlock = unlock;
+}

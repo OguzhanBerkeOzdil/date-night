@@ -53,7 +53,7 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
 
-  .dialogue-box {
+  .dialogue-box:not(.dialogue-box--steed) {
     width: min(496px, calc(var(--game-column) - 8px));
     left: 50%;
     right: auto;
@@ -65,7 +65,14 @@
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    top: calc(env(safe-area-inset-top, 0px) + 118px);
+    top: auto;
+    bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+  }
+
+  @media (max-height: 820px) {
+    .achievement-wrap {
+      bottom: calc(380px + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   [data-screen="potion"] .title,
