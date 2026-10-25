@@ -13,11 +13,23 @@ function $(id) {
   return document.getElementById(id);
 }
 
+function bgSrcsets(name) {
+  return {
+    landWebp: `assets/images/${name}-landscape.webp 1920w, assets/images/${name}-landscape-2560.webp 2560w`,
+    landJpg: `assets/images/${name}-landscape.jpg 1920w, assets/images/${name}-landscape-2560.jpg 2560w`,
+    portWebp: `assets/images/${name}.webp 1080w, assets/images/${name}-1440.webp 1440w`,
+    portJpg: `assets/images/${name}.jpg 1080w, assets/images/${name}-1440.jpg 1440w`,
+  };
+}
+
 function preloadBg(name) {
   if (!name || loadedBg.has(name)) return;
   loadedBg.add(name);
   const img = new Image();
-  img.src = `assets/images/${name}.webp`;
+  const landscape = window.matchMedia("(min-aspect-ratio: 1/1)").matches;
+  img.src = landscape
+    ? `assets/images/${name}-landscape.webp`
+    : `assets/images/${name}.webp`;
 }
 
 function resetScroll() {
@@ -45,11 +57,19 @@ function setBackground(screenId) {
   const name = BG_BY_SCREEN[screenId] || "bg-forest";
   const layer = $("bgLayer");
   if (!layer) return;
+  const sets = bgSrcsets(name);
   const pic = layer.querySelector(".scene-bg__img");
-  const src = layer.querySelector("source");
+  const landWebp = $("bgSrcLandWebp");
+  const landJpg = $("bgSrcLandJpg");
+  const portWebp = $("bgSrcPortWebp");
   const kb = layer.querySelector(".scene-bg__kenburns");
-  if (pic) pic.src = `assets/images/${name}.jpg`;
-  if (src) src.srcset = `assets/images/${name}.webp`;
+  if (landWebp) landWebp.srcset = sets.landWebp;
+  if (landJpg) landJpg.srcset = sets.landJpg;
+  if (portWebp) portWebp.srcset = sets.portWebp;
+  if (pic) {
+    pic.src = `assets/images/${name}.jpg`;
+    pic.srcset = sets.portJpg;
+  }
   if (kb) {
     kb.classList.toggle("scene-bg__kenburns--slow", screenId === "decree");
   }
