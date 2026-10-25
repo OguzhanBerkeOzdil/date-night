@@ -1,15 +1,46 @@
+import {
+  BARD_LINES,
+  CLOVER_EPIGRAPH,
+  DRAGON_FOOL_QUOTE,
+  EPIGRAPHS,
+  LOADING_STEPS,
+  NO_LABELS,
+  STEED_PICK_LINES,
+  TAROT_FORTUNES,
+  YES_TOASTS,
+} from "./copy-data.js";
+
 export const CONFIG = {
   fromName: "Oğuzhan",
   whatsappNumber: "",
   defaultTitle: "my lady",
   letter: [
     "Dear {name},",
-    "I built a whole kingdom just to ask you a few questions. Probably too much. Definitely worth it.",
-    "Thank you for today — and for the smile that made the oracle's job very easy.",
-    "Wherever the next trail goes, I'd like to ride it with you.",
-    "— Yours, {fromName} (and {steedName}, who insisted on being mentioned)",
+    "I built a small kingdom just to ask you a few questions. Slightly much? Yes. Worth it? Also yes.",
+    "Thank you for today. The oracle said you'd be good company, and the oracle undersold it.",
+    "I'd like another ride, another tavern, and another excuse to make you laugh.",
+    "— Your humble knight, {fromName} (and {steedName}, who insisted on being mentioned)",
   ],
 };
+
+export const COPY = {
+  epigraphs: EPIGRAPHS,
+  cloverEpigraph: CLOVER_EPIGRAPH,
+  bardLines: BARD_LINES,
+  tarotFortunes: TAROT_FORTUNES,
+  noLabels: NO_LABELS,
+  loadingSteps: LOADING_STEPS,
+  yesToasts: YES_TOASTS,
+  steedPickLines: STEED_PICK_LINES,
+  dragonFoolQuote: DRAGON_FOOL_QUOTE,
+  steedWhispererLine: "Okay, you're officially my favourite human. Don't tell him.",
+  steedCarrotLine: "*crunch* …I would follow you into any forest now.",
+  benedickQuip: "I would my horse had the speed of your tongue.",
+};
+
+export function tarotForKey(key) {
+  return COPY.tarotFortunes[key] || null;
+}
 
 export const SCREENS = [
   "title",
@@ -26,7 +57,6 @@ export const SCREENS = [
   "decree",
 ];
 
-/** Map HUD landmark index (0–8) per screen id */
 export const MAP_NODE = {
   title: 0,
   summons: 0,

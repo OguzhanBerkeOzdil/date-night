@@ -1,4 +1,4 @@
-import { CONFIG } from "./config.js";
+import { CONFIG, COPY, tarotForKey } from "./config.js";
 import { unlock } from "./achievements.js";
 
 // bonus achievements use same unlock()
@@ -14,8 +14,8 @@ const FOOD = [
   { id: "pizza", name: "Pizza", line: "A peasant classic with a royal taste" },
   { id: "sushi", name: "Sushi", line: "Delicacies from a faraway kingdom" },
   { id: "burger", name: "Burgers & fries", line: "The traditional tavern feast" },
-  { id: "pasta", name: "Pasta", line: "Shared spaghetti, one noodle, you know the scene" },
-  { id: "taco", name: "Tacos", line: "A taco 'bout a quest" },
+  { id: "pasta", name: "Pasta", line: "Shared spaghetti. One noodle. No promises." },
+  { id: "taco", name: "Tacos", line: "Let's taco 'bout our next quest" },
   { id: "brunch", name: "Brunch", line: "Sweet rolls and a second breakfast" },
   { id: "street", name: "Street food", line: "Market provisions, eaten while wandering" },
   { id: "dessert", name: "Just dessert", line: "Skip to the good part" },
@@ -29,24 +29,26 @@ const JOURNAL = [
   "Monster-hunting banter (we won)",
   "A surprisingly legendary feast",
   "A fairy tale that might be real",
+  "A side quest I didn't want to end",
+  "A tavern scene with great banter",
 ];
 
 const INGREDIENTS = [
   { label: "Mane of a galloping steed", act: "Horse riding (your favourite)" },
   { label: "Moss from the old forest", act: "Nature hike + forest picnic" },
   { label: "A banner from the castle fair", act: "Medieval fair or castle visit" },
-  { label: "A cozy controller rune", act: "Fantasy game night together" },
+  { label: "A cosy controller rune", act: "Fantasy game night together" },
   { label: "Popcorn of the silver screen", act: "Movie night" },
   { label: "A drop of sunset", act: "Sunset walk + coffee" },
   { label: "A woven picnic basket", act: "Picnic among the trees" },
   { label: "Clay from the potter's wheel", act: "Painting / pottery date" },
   { label: "A brave bard's microphone", act: "Karaoke" },
-  { label: "A blanket from the hearth", act: "Cozy night in" },
+  { label: "A blanket from the hearth", act: "Cosy night in" },
 ];
 
 const BASES = [
   { id: "hearth", name: "Hearth Ember", color: "#e8a04a" },
-  { id: "rose", name: "Courtly Rose", color: "#e88aa8" },
+  { id: "rose", name: "Wild Rose", color: "#e88aa8" },
   { id: "fizz", name: "Chaos Fizz", color: "#5ec4b8" },
   { id: "dew", name: "Moonlight Dew", color: "#b8a8e8" },
   { id: "sap", name: "Wild Sap", color: "#7cb86a" },
@@ -56,25 +58,17 @@ const CLASSES = [
   { id: "ranger", title: "Ranger of the Wildwood", desc: "Rides fast, finds hidden paths, befriends every animal." },
   { id: "healer", title: "Moonlit Healer", desc: "Fixes bad days with one smile. Passive aura: calm." },
   { id: "bard", title: "Wandering Bard", desc: "Main-character playlist. Inspires the whole party." },
-  { id: "knight", title: "Knight of the Heart", desc: "Defends the realm and steals all the fries." },
-];
-
-const NO_LABELS = [
-  "Nay",
-  "Are you sure?",
-  "Really sure??",
-  "Think of the tavern snacks",
-  "The dragon is gaining power",
-  "{steed} is crying (fake)",
-  "My aura is dropping",
-  "Fine, it's tiny now",
-  "nay",
+  { id: "knight", title: "Knight of the Wildflowers", desc: "Defends the realm and steals all the fries." },
 ];
 
 let navigate;
 let yesScale = 1;
 let noScale = 1;
 let stirCount = 0;
+let potionBottled = false;
+let letterStarted = false;
+let sealing = false;
+let pickSteedIx = 0;
 
 export function initScreens(nav) {
   navigate = nav;
@@ -108,22 +102,43 @@ function hide(el) {
   el.classList.add("hidden");
 }
 
+function formatPickerDate(iso) {
+  if (!iso) return "";
+  try {
+    return new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  } catch (_) {
+    return iso;
+  }
+}
+
+function selectChip(row, chosen) {
+  row?.querySelectorAll(".chip-select").forEach((c) => c.classList.remove("chip-select--on"));
+  chosen?.classList.add("chip-select--on");
+}
+
 function initTitle() {
   document.querySelectorAll("[data-lady]").forEach((el) => {
     el.textContent = questOfTitle();
   });
 
   $("btnNewGame")?.addEventListener("click", () => {
-    setSoundOn(true);
     unlockAudio();
-    startAmbience();
-    playHorn();
+    if (isSoundOn()) {
+      startAmbience();
+      playHorn();
+    }
     navigate("summons");
   });
 
   $("btnContinue")?.addEventListener("click", () => {
-    $("continueHint")?.classList.remove("hidden");
-    $("btnContinue")?.classList.add("wobble");
+    unlockAudio();
+    if (isSoundOn()) startAmbience();
+    const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "summons";
+    navigate(target);
   });
 
   $("btnSoundTitle")?.addEventListener("click", () => {
@@ -149,21 +164,17 @@ function initSummons() {
 function runOracleLoad() {
   const fill = $("loadingFill");
   const text = $("loadingText");
-  const steps = [
-    { p: 67, t: "Consulting the oracle… 67%…" },
-    { p: 77, t: "Asking the horse… she said 6-7 lol…" },
-    { p: 100, t: "Scroll unlocked — 100%" },
-  ];
+  const steps = COPY.loadingSteps;
   let i = 0;
   const tick = () => {
     if (i >= steps.length) {
       show($("btnSummonBegin"));
       return;
     }
-    fill.style.width = steps[i].p + "%";
+    fill.style.width = `${steps[i].p}%`;
     text.textContent = steps[i].t;
     i++;
-    setTimeout(tick, i === 2 ? 400 : 550);
+    setTimeout(tick, 520);
   };
   tick();
 }
@@ -187,7 +198,10 @@ function initSteed() {
     horse.classList.add("horse-pet");
     setTimeout(() => horse.classList.remove("horse-pet"), 300);
     burstHearts(horse.getBoundingClientRect().x + 80, horse.getBoundingClientRect().y + 40);
-    if (state.affection >= 5) unlock("whisperer");
+    if (state.affection >= 5) {
+      unlock("whisperer");
+      say([COPY.steedWhispererLine]);
+    }
   });
 
   carrot?.addEventListener("click", () => {
@@ -198,6 +212,7 @@ function initSteed() {
     $("horseIdleImg").src = "assets/images/horse-munch.webp";
     unlock("snack");
     playNeigh();
+    say([COPY.steedCarrotLine]);
   });
 
   document.querySelectorAll("[data-steed-name]").forEach((btn) => {
@@ -223,7 +238,11 @@ function pickSteed(name) {
   state.steedName = name;
   saveState();
   setSteedName(name);
-  say([`${name}? I LOVE it. Let's go!`]);
+  const templates = COPY.steedPickLines;
+  const line = templates[pickSteedIx % templates.length].replace(/\{name\}/g, name);
+  pickSteedIx++;
+  const lines = [line, COPY.benedickQuip];
+  say(lines);
 }
 
 export function onEnterSteed() {
@@ -236,7 +255,20 @@ export function onEnterSteed() {
   ]);
 }
 
+function renderClassPick() {
+  const grid = $("classPick");
+  if (!grid || grid.dataset.rendered) return;
+  grid.dataset.rendered = "1";
+  grid.innerHTML = CLASSES
+    .map(
+      (c) =>
+        `<button type="button" data-class="${c.title}"><strong>${c.title}</strong><em>${c.desc}</em></button>`
+    )
+    .join("");
+}
+
 function initSheet() {
+  renderClassPick();
   $("btnRoll")?.addEventListener("click", () => {
     $("d20Result")?.classList.remove("hidden");
     $("d20Result").textContent = "Natural 20! (The dice are biased. Towards you.)";
@@ -250,7 +282,7 @@ function initSheet() {
         ["Beauty", "∞", "Error: value too high to display."],
         ["Humour", "97", "Laughs at his jokes: +3 bonus."],
         ["Horse Bond", "S-rank", `Certified by ${state.steedName}.`],
-        ["Patience", "100", "Required for dating him."],
+        ["Patience", "100", "Required for his puns."],
         ["Courage", "95", "Opened this link. Brave."],
       ];
       stats.innerHTML = rows
@@ -263,13 +295,18 @@ function initSheet() {
     $("classPick")?.classList.remove("hidden");
   });
 
-  document.querySelectorAll("[data-class]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.steedClass = btn.dataset.class;
-      saveState();
-      $("classChosen").textContent = `Class chosen: ${state.steedClass}. Title added to your decree.`;
-      show($("btnSheetNext"));
-    });
+  $("classPick")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-class]");
+    if (!btn) return;
+    state.steedClass = btn.dataset.class;
+    saveState();
+    const meta = CLASSES.find((c) => c.title === state.steedClass);
+    $("classChosen").textContent = meta
+      ? `Class chosen: ${meta.title} — ${meta.desc}`
+      : `Class chosen: ${state.steedClass}. Title added to your decree.`;
+    $("classPick")?.querySelectorAll("[data-class]").forEach((b) => b.classList.remove("class-pick--on"));
+    btn.classList.add("class-pick--on");
+    show($("btnSheetNext"));
   });
   $("btnSheetNext")?.addEventListener("click", () => navigate("rating"));
 }
@@ -284,27 +321,29 @@ function initRating() {
   function caption(n) {
     if (n >= 10) return "Verdict: flawless. +1000 aura.";
     if (n === 9) return "So close. The court rounds up for you.";
-    if (n >= 7) return "The royal judges say… nay.";
-    if (n >= 4) return "6-7?? Not in this kingdom.";
+    if (n === 8) return "8? The court is offended on your behalf.";
+    if (n === 6 || n === 7) return "6-7?? Not in this kingdom.";
+    if (n >= 4) return "The dragon is laughing. Try again.";
     return "Error 404: that number has been banished.";
   }
 
   slider?.addEventListener("input", () => {
     last = +slider.value;
     $("ratingValue").textContent = slider.value;
-    cap.textContent = caption(last);
+    if (!state.ratingBonus) cap.textContent = caption(last);
   });
 
   const spring = () => {
     slider.value = "10";
     $("ratingValue").textContent = "10";
-    cap.textContent = caption(10);
+    if (!state.ratingBonus) cap.textContent = caption(10);
     slider.classList.add("boing");
     setTimeout(() => slider.classList.remove("boing"), 500);
     if (!bonusShown) {
-        bonusShown = true;
+      bonusShown = true;
       show(chip11);
       show($("ratingChips"));
+      show($("ratingChipLead"));
     }
   };
   slider?.addEventListener("change", spring);
@@ -322,7 +361,8 @@ function initRating() {
   document.querySelectorAll("[data-rating-chip]").forEach((c) => {
     c.addEventListener("click", () => {
       state.ratingChip = c.dataset.ratingChip;
-      cap.textContent = "Re-rated: still a 10.";
+      if (!state.ratingBonus) cap.textContent = "Re-rated: still a 10.";
+      selectChip($("ratingChips"), c);
       saveState();
     });
   });
@@ -436,7 +476,8 @@ function initDragon() {
       noScale = 1;
       hpVal = 100;
       if (hp) hp.style.width = "100%";
-      btnNo.textContent = NO_LABELS[0];
+      btnNo.textContent = COPY.noLabels[0];
+      hide($("dragonFoolCaption"));
     }
     hide($("realNoLink"));
     hide($("yesToast"));
@@ -455,8 +496,15 @@ function initDragon() {
     saveState();
     noScale = Math.max(0.55, noScale * 0.88);
     yesScale = capYesScale(btnYes, arena, yesScale * 1.12);
-    const i = Math.min(state.noAttempts, NO_LABELS.length) - 1;
-    btnNo.textContent = (NO_LABELS[i] || "nay").replace("{steed}", state.steedName);
+    const i = Math.min(state.noAttempts, COPY.noLabels.length) - 1;
+    btnNo.textContent = (COPY.noLabels[i] || "nay").replace(/\{steed\}/g, state.steedName);
+    if (state.noAttempts >= 3) {
+      const cap = $("dragonFoolCaption");
+      if (cap) {
+        cap.textContent = COPY.dragonFoolQuote;
+        show(cap);
+      }
+    }
 
     btnYes.style.transform = `scale(${yesScale})`;
     btnNo.style.transform = `scale(${noScale})`;
@@ -519,7 +567,11 @@ function initDragon() {
     unlock("dragon");
     burstHearts(window.innerWidth / 2, window.innerHeight / 2);
     vibrate([60, 30, 120]);
-    show($("yesToast"));
+    const toasts = COPY.yesToasts;
+    const msg = toasts[Math.floor(Math.random() * toasts.length)].replace(/\{steed\}/g, state.steedName);
+    const yt = $("yesToast");
+    if (yt) yt.textContent = msg;
+    show(yt);
     setTimeout(() => navigate("tavern"), 1400);
   });
 
@@ -537,11 +589,15 @@ function initDragon() {
 
 function initHonest() {
   $("btnHonestContinue")?.addEventListener("click", () => {
-    state.secondDate = "yes";
     saveState();
     navigate("tavern");
   });
-  onEnterHonest = () => {};
+  onEnterHonest = () => {
+    const body = document.querySelector('[data-screen="honest-no"] .body-text');
+    if (body) {
+      body.textContent = `You remain noble and kind. The realm respects you, and ${state.steedName} still thinks you're great.`;
+    }
+  };
 }
 
 let onEnterHonest = () => {};
@@ -620,23 +676,28 @@ function initPotion() {
   });
 
   $("btnStir")?.addEventListener("click", () => {
-    stirCount++;
-    $("btnStir").textContent = stirCount < 3 ? `Stir (${stirCount}/3)` : "Bottle it →";
-    if (stirCount >= 3) {
-      const essence = activityEssence(state.activities[0]);
-      state.potionName = `Elixir of ${state.potionBase || "Moonlight Dew"} & ${essence}`;
-      unlock("alchemist");
-      show($("potionResult"));
-      $("potionResult").textContent = `${state.potionName}. Side effects: giggling, holding hands, losing track of time.`;
-      $("btnStir").textContent = "Continue →";
-      setTimeout(() => navigate("stars"), 400);
+    if (potionBottled) {
+      navigate("stars");
+      return;
     }
+    stirCount++;
+    if (stirCount < 3) {
+      $("btnStir").textContent = `Stir (${stirCount}/3)`;
+      return;
+    }
+    state.potionName = buildPotionName();
+    unlock("alchemist");
+    show($("potionResult"));
+    $("potionResult").textContent = `${state.potionName}. Side effects: giggling, stolen fries, losing track of time.`;
+    $("btnStir").textContent = "Bottle it & ride on →";
+    potionBottled = true;
+    saveState();
   });
 }
 
 function initStars() {
   const days = [
-    "This Friday eve",
+    "Friday evening",
     "This Saturday",
     "This Sunday",
     "Next week (playing hard to get)",
@@ -654,13 +715,15 @@ function initStars() {
         return;
       }
       state.day = label;
+      selectChip(dayWrap, c);
       saveState();
     });
     dayWrap?.appendChild(c);
   });
 
   $("datePicker")?.addEventListener("change", (e) => {
-    state.day = e.target.value;
+    const v = e.target.value;
+    state.day = formatPickerDate(v);
     saveState();
   });
 
@@ -689,6 +752,10 @@ function initStars() {
   });
 
   $("btnSealDate")?.addEventListener("click", () => {
+    if (sealing) return;
+    sealing = true;
+    const sealBtn = $("btnSealDate");
+    sealBtn?.setAttribute("disabled", "true");
     if (!state.day) state.day = "TBD";
     if (!state.time) state.time = sky?.value || "Morning ride";
     saveState();
@@ -701,6 +768,8 @@ function initStars() {
       if (n > 0) cd.textContent = String(n);
       else {
         clearInterval(iv);
+        sealing = false;
+        sealBtn?.removeAttribute("disabled");
         navigate("oracle");
       }
     }, 1000);
@@ -709,22 +778,29 @@ function initStars() {
 
 function initOracle() {
   const cards = document.querySelectorAll(".tarot-card");
-  const names = {
-    steeds: "The Two Steeds",
-    golden: "The Golden Hour",
-    hearth: "The Hearth",
-  };
   cards.forEach((card) => {
     card.addEventListener("click", () => {
+      if (state.tarotKey) return;
+      const key = card.dataset.card;
+      const meta = tarotForKey(key);
       unlock("fortune");
-      state.tarotCard = names[card.dataset.card] || card.dataset.card;
+      state.tarotKey = key;
+      state.tarotCard = meta?.title || key;
       saveState();
       document.querySelectorAll(".tarot-card").forEach((c) => c.classList.add("flipped"));
+      card.classList.add("tarot-card--chosen");
+      const fortune = $("tarotFortune");
+      if (fortune && meta) {
+        fortune.textContent = meta.long;
+        show(fortune);
+      }
       show($("btnOpenLetter"));
     });
   });
 
   $("btnOpenLetter")?.addEventListener("click", () => {
+    if (letterStarted) return;
+    letterStarted = true;
     show($("letterPanel"));
     duckMusic(true);
     typeLetter();
@@ -753,18 +829,36 @@ function typeLetter() {
     el.textContent = full.slice(0, ++i);
     if (i >= full.length) clearInterval(iv);
   }, 35);
-  el.addEventListener("click", () => {
-    el.textContent = full;
-    clearInterval(iv);
-  });
+  el.addEventListener(
+    "click",
+    () => {
+      el.textContent = full;
+      clearInterval(iv);
+    },
+    { once: true }
+  );
 }
 
 function initDecree() {
   $("btnShare")?.addEventListener("click", () => shareDecree());
   $("btnSavePng")?.addEventListener("click", () => downloadDecreePng());
   $("btnCopy")?.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(buildSummaryText());
-    show($("copyToast"));
+    const text = buildSummaryText();
+    const toast = $("copyToast");
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (_) {
+      const pre = $("decreePreview");
+      if (pre) {
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }
+    show(toast);
+    setTimeout(() => hide(toast), 2000);
   });
   $("btnReplay")?.addEventListener("click", () => {
     resetState();
@@ -784,9 +878,17 @@ function activityEssence(activity) {
     "Picnic among the trees": "Woven Picnic",
     "Painting / pottery date": "Potter's Clay",
     "Karaoke": "Bard's Courage",
-    "Cozy night in": "Hearth Warmth",
+    "Cosy night in": "Hearth Warmth",
   };
   return map[activity] || "Adventure";
+}
+
+function buildPotionName() {
+  const base = state.potionBase || "Moonlight Dew";
+  const essences = state.activities.slice(0, 2).map((a) => activityEssence(a));
+  if (!essences.length) return `Elixir of ${base}`;
+  if (essences.length === 1) return `Elixir of ${base} & ${essences[0]}`;
+  return `Elixir of ${base}, ${essences[0]} & ${essences[1]}`;
 }
 
 export function onScreenEnter(id) {
@@ -795,6 +897,12 @@ export function onScreenEnter(id) {
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => enterDragonScreen()));
   }
   if (id === "decree") {
+    const head = document.querySelector('[data-screen="decree"] .title.light');
+    if (head) {
+      head.textContent = state.honestNo
+        ? "By order of the realm — thank you for your honesty"
+        : "By royal decree — it's a date ✦";
+    }
     unlock("heart", true);
     $("decreePreview").textContent = buildSummaryText();
     boostEmbers();
@@ -803,4 +911,15 @@ export function onScreenEnter(id) {
   }
   if (id === "steed") onEnterSteed();
   if (id === "oracle") hydrateLazyImages(document.querySelector('[data-screen="oracle"]'));
+  if (id === "potion") {
+    stirCount = 0;
+    potionBottled = false;
+    const stir = $("btnStir");
+    if (stir) stir.textContent = "Stir the cauldron";
+  }
+  if (id === "stars") {
+    sealing = false;
+    $("btnSealDate")?.removeAttribute("disabled");
+  }
+  if (id === "oracle") letterStarted = false;
 }

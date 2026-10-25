@@ -62,7 +62,7 @@ async function runViewport(name, viewport) {
   }
   await page.click("#btnSteedNext");
   await page.click("#btnRoll");
-  await page.click('[data-class="Knight of the Heart"]');
+  await page.click('[data-class="Knight of the Wildflowers"]');
   await page.click("#btnSheetNext");
   const slider = page.locator("#ratingSlider");
   await slider.evaluate((el) => {
@@ -95,6 +95,7 @@ async function runViewport(name, viewport) {
   await page.locator(".potion-ing").first().click();
   await page.locator(".vial").first().click();
   for (let i = 0; i < 3; i++) await page.click("#btnStir");
+  await page.click("#btnStir");
   await page.locator("#dayChips .chip-select").first().click();
   await page.selectOption("#skyDial", { index: 2 });
   await page.click("#btnSealDate");
@@ -107,7 +108,7 @@ async function runViewport(name, viewport) {
   if (!overflow) throw new Error("horizontal overflow on decree");
   const text = await page.locator("#decreePreview").innerText();
   if (!text.includes("Ayşe") && !text.includes("Ayse")) throw new Error("name missing");
-  if (!text.includes("Knight of the Heart")) throw new Error("class missing");
+  if (!text.includes("Knight of the Wildflowers")) throw new Error("class missing");
   await page.screenshot({ path: `/opt/cursor/artifacts/screenshots/v2-${name.replace(/\s/g, "")}-decree.png` });
   await browser.close();
   s.close();

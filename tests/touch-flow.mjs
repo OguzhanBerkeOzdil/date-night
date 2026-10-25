@@ -88,7 +88,7 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   }
   await tapLocator(page, page.locator("#btnSteedNext"));
   await tapLocator(page, page.locator("#btnRoll"));
-  await tapLocator(page, page.locator('[data-class="Knight of the Heart"]'));
+  await tapLocator(page, page.locator('[data-class="Knight of the Wildflowers"]'));
   await tapLocator(page, page.locator("#btnSheetNext"));
 
   const slider = page.locator("#ratingSlider");
@@ -173,6 +173,7 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   await tapLocator(page, page.locator(".potion-ing").first());
   await tapLocator(page, page.locator(".vial").first());
   for (let i = 0; i < 3; i++) await tapLocator(page, page.locator("#btnStir"));
+  await tapLocator(page, page.locator("#btnStir"));
   await tapLocator(page, page.locator("#dayChips .chip-select").first());
   const sky = await page.locator("#skyDial").inputValue();
   if (sky !== "Morning ride") throw new Error(`expected Morning ride default, got ${sky}`);

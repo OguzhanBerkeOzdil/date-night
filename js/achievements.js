@@ -19,15 +19,16 @@ const DEFS = {
   seal: { id: "seal", title: "Seal Breaker", desc: "You opened a royal letter. Very official of you." },
   whisperer: { id: "whisperer", title: "Horse Whisperer", desc: "Gave 5 head scratches." },
   snack: { id: "snack", title: "Snack Diplomat", desc: "Bribed a horse with a carrot. Classic." },
-  charm: { id: "charm", title: "Critical Charm", desc: "Rolled a natural 20 on every stat." },
+  charm: { id: "charm", title: "Critical Charm", desc: "Rolled a natural 20. The dice have a favourite." },
   charts: { id: "charts", title: "Off the Charts", desc: "Broke the rating scale." },
   dragon: { id: "dragon", title: "Dragon Befriender", desc: "Defeated doubt with a single word." },
   fanum: { id: "fanum", title: "Ancient Law Respected", desc: "Accepted the fanum tax. Gracefully." },
   alchemist: { id: "alchemist", title: "Master Alchemist", desc: "Brewed a perfect date potion." },
   fortune: { id: "fortune", title: "Fortune Favoured", desc: "Drew a card from the oracle." },
-  heart: { id: "heart", title: "Stole His Heart", desc: "Rarity: 1 of 1." },
+  heart: { id: "heart", title: "Stole the Show", desc: "Rarity: 1 of 1. Quest complete." },
   stubborn: { id: "stubborn", title: "Stubborn Thumb", desc: "Tried to say no 3 times. Bold.", bonus: true },
   fate: { id: "fate", title: "Fate Tempter", desc: "The coin refused to choose.", bonus: true },
+  bard: { id: "bard", title: "Bard's Favourite Audience", desc: "Heard 3 lines from the bard. Survived the cheese.", bonus: true },
 };
 
 export function unlock(id, silent = false) {
