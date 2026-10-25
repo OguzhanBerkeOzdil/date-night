@@ -2,6 +2,8 @@
 @media (min-aspect-ratio: 1/1) and (min-width: 720px) {
   :root {
     --game-column: min(520px, calc(100vw - 40px));
+    --column-left: calc((100vw - var(--game-column)) / 2);
+    --column-right: calc(var(--column-left) + var(--game-column));
   }
 
   .app.app--v2 {
@@ -60,19 +62,64 @@
     transform: translateX(-50%);
   }
 
-  .achievement-wrap {
-    width: min(380px, var(--game-column));
-    left: 50%;
-    right: auto;
+  body[data-screen="sheet"] #dialogueBox:not(.hidden) {
+    top: calc(env(safe-area-inset-top, 0px) + 12.5rem);
     transform: translateX(-50%);
-    top: auto;
-    bottom: calc(140px + env(safe-area-inset-bottom, 0px));
   }
 
-  @media (max-height: 820px) {
-    .achievement-wrap {
-      bottom: calc(380px + env(safe-area-inset-bottom, 0px));
-    }
+  .achievement-wrap {
+    width: min(260px, max(140px, calc(var(--column-left) - 20px)));
+    left: auto;
+    right: max(12px, calc(100vw - var(--column-right) - 272px));
+    transform: none;
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    bottom: auto;
+    align-items: flex-end;
+  }
+
+  .achievement-wrap--shift {
+    top: auto !important;
+    bottom: calc(148px + env(safe-area-inset-bottom, 0px)) !important;
+    right: max(12px, calc(100vw - var(--column-right) - 272px)) !important;
+    left: auto !important;
+    align-items: flex-end !important;
+  }
+
+  .achievement-wrap--shift-b {
+    top: calc(env(safe-area-inset-top, 0px) + 72px) !important;
+    bottom: auto !important;
+    left: max(12px, calc(var(--column-left) - 268px)) !important;
+    right: auto !important;
+    align-items: flex-start !important;
+  }
+
+  body[data-screen="potion"] .achievement-wrap {
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    bottom: auto;
+    left: max(12px, calc(var(--column-left) - 272px));
+    right: auto;
+    align-items: flex-start;
+  }
+
+  body[data-screen="oracle"] .achievement-wrap,
+  body[data-screen="sheet"] .achievement-wrap,
+  body[data-screen="tavern"] .achievement-wrap,
+  body[data-screen="rating"] .achievement-wrap,
+  body[data-screen="journal"] .achievement-wrap,
+  body[data-screen="decree"] .achievement-wrap {
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    bottom: auto;
+    left: auto;
+    right: max(12px, calc(100vw - var(--column-right) - 272px));
+    align-items: flex-end;
+  }
+
+  body[data-screen="stars"] .achievement-wrap {
+    top: auto;
+    bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+    left: auto;
+    right: max(12px, calc(100vw - var(--column-right) - 272px));
+    align-items: flex-end;
   }
 
   [data-screen="potion"] .title,

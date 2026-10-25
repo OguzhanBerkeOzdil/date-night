@@ -40,8 +40,11 @@ export function unlock(id, silent = false) {
 
 function controlRects() {
   const scope = document.querySelector(".screen--active") || document.body;
+  const screen = document.body.dataset.screen;
   const sel =
-    "button:not(:disabled):not(.hidden), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card, .screen--active .title, .screen--active h2";
+    screen === "potion"
+      ? "#btnStir, #notesInput, select, .vial, button.btn--primary, button.btn--secondary, .screen--active .title, .screen--active h2"
+      : "button:not(:disabled):not(.hidden), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card, .screen--active .title, .screen--active h2";
   return [...scope.querySelectorAll(sel)]
     .filter((el) => {
       if (el.closest(".top-bar")) return false;
@@ -59,27 +62,42 @@ function toastOverlapsControls(toastRect) {
   return controlRects().some((r) => rectsOverlap(toastRect, r));
 }
 
+function settleToastLayout(el) {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.setTimeout(() => resolve(el.getBoundingClientRect()), 80);
+      });
+    });
+  });
+}
+
 function toast(def, attempt = 0) {
   const wrap = document.getElementById("achievementToasts");
   if (!wrap) return;
-  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b");
-  if (attempt % 3 === 1) wrap.classList.add("achievement-wrap--shift");
-  if (attempt % 3 === 2) wrap.classList.add("achievement-wrap--shift-b");
+  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b", "achievement-wrap--shift-c");
+  const mode = attempt % 4;
+  if (mode === 1) wrap.classList.add("achievement-wrap--shift");
+  if (mode === 2) wrap.classList.add("achievement-wrap--shift-b");
+  if (mode === 3) wrap.classList.add("achievement-wrap--shift-c");
   const el = document.createElement("div");
   el.className = "achievement-toast";
   el.innerHTML = `${icons.shield}<span class="achievement-toast__label">${def.title}</span>`;
   wrap.appendChild(el);
-  const tr = el.getBoundingClientRect();
-  if (toastOverlapsControls(tr) && attempt < 16) {
-    el.remove();
-    window.setTimeout(() => toast(def, attempt + 1), 120);
-    return;
-  }
-  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b");
-  playDing();
-  vibrate([30, 40, 30]);
-  setTimeout(() => el.classList.add("achievement-toast--out"), 2500);
-  setTimeout(() => el.remove(), 2900);
+
+  settleToastLayout(el).then((tr) => {
+    if (!el.isConnected) return;
+    if (toastOverlapsControls(tr) && attempt < 20) {
+      el.remove();
+      window.setTimeout(() => toast(def, attempt + 1), 150);
+      return;
+    }
+    wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b", "achievement-wrap--shift-c");
+    playDing();
+    vibrate([30, 40, 30]);
+    setTimeout(() => el.classList.add("achievement-toast--out"), 2500);
+    setTimeout(() => el.remove(), 2900);
+  });
 }
 
 export function achievementCount() {

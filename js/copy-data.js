@@ -56,7 +56,7 @@ export const EPIGRAPHS = {
     "by": "Lord Byron"
   },
   "summons": {
-    "text": "The course of true love never did run smooth — / but this quest has been a merry one.",
+    "text": "The course of true love never did run smooth, / so let this quest be a merry one.",
     "by": "After Shakespeare, A Midsummer Night's Dream"
   },
   "steed": {

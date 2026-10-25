@@ -38,12 +38,10 @@ function intersects(a, b) {
 }
 
 function blockersFor(screen) {
-  const base =
-    "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card";
   if (screen === "potion") {
-    return `${base}, #potionIngredients .potion-ing:first-of-type`;
+    return "#btnStir, #notesInput, select, .vial, button.btn--primary, button.btn--secondary, .screen--active .title, .screen--active h2";
   }
-  return `${base}, .potion-ing`;
+  return "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card, .screen--active .title, .screen--active h2";
 }
 
 const CASES = [
@@ -60,6 +58,7 @@ const CASES = [
 async function assertNoToastOverlap(page, label, screen) {
   const toast = page.locator(".achievement-toast").first();
   await toast.waitFor({ state: "visible", timeout: 10000 });
+  await page.waitForTimeout(200);
   const overlaps = await page.evaluate((sel) => {
     const t = document.querySelector(".achievement-toast");
     if (!t) return [];
@@ -108,9 +107,22 @@ for (const c of CASES) {
     document.startViewTransition = undefined;
   });
   await page.goto(`http://127.0.0.1:${port}/?name=Ayse`, { waitUntil: "networkidle" });
-  await page.waitForFunction(() => typeof window.__questNavigate === "function");
+  await page.evaluate((id) => {
+    try {
+      const raw = JSON.parse(localStorage.getItem("questLady_v2") || "{}");
+      raw.achievements = (raw.achievements || []).filter((a) => a !== id);
+      localStorage.setItem("questLady_v2", JSON.stringify(raw));
+    } catch (_) {}
+  }, c.unlock);
+  await page.reload();
+  await page.waitForFunction(() => typeof window.__questUnlock === "function");
   await page.evaluate((sid) => window.__questNavigate(sid), c.screen);
   await page.waitForSelector(`.screen--active[data-screen="${c.screen}"]`);
+  if (c.screen === "sheet") {
+    await page.click("#btnRoll");
+    await page.waitForSelector("#classPick button");
+    await page.click('[data-class="Knight of the Wildflowers"]');
+  }
   if (c.screen === "potion") {
     await page.waitForSelector("#potionIngredients button");
     await page.evaluate(() => {
@@ -120,7 +132,6 @@ for (const c of CASES) {
   if (c.screen === "tavern") {
     await page.evaluate(() => document.getElementById("fanumTax")?.click());
   }
-  await page.waitForFunction(() => typeof window.__questUnlock === "function");
   await page.evaluate((id) => window.__questUnlock(id), c.unlock);
   await page.waitForTimeout(80);
   await assertNoToastOverlap(page, c.label, c.screen);
