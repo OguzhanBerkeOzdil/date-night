@@ -6,7 +6,9 @@ export function parseGuestName() {
   const raw = (new URLSearchParams(location.search).get("name") || "").trim();
   let name = raw.replace(/^lady\s+/i, "").trim();
   if (!name) {
-    return { display: "my lady", formal: "my lady", isLady: false };
+    const fallback = CONFIG.defaultTitle || "my lady";
+    const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
+    return { display: fallback, formal, isLady: false };
   }
   return { display: name, formal: name, isLady: true };
 }
@@ -27,7 +29,7 @@ export function grantedToLabel() {
 
 export function letterSalutation() {
   if (guest.isLady) return `Dear ${guest.formal},`;
-  return "My dearest lady,";
+  return "To the lady of this quest,";
 }
 
 export function defaultState() {
@@ -52,6 +54,7 @@ export function defaultState() {
     time: "Morning ride",
     fanumTax: true,
     tarotCard: "",
+    tarotKey: "",
     achievements: [],
     honestNo: false,
     lastScreen: "title",

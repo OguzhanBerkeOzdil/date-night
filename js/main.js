@@ -1,6 +1,8 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
-import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
+import { loadSoundPref, setSoundOn, isSoundOn, unlockAudio, startAmbience } from "./audio.js";
+import { initBardQuill, syncBardQuill } from "./bard.js";
+import { initEpigraphs, updateEpigraph } from "./epigraph.js";
 import { initHud, updateHud } from "./hud.js";
 import { hideDialogue, initDialogue } from "./dialogue.js";
 import { initParticles } from "./particles.js";
@@ -94,6 +96,8 @@ export function navigate(screenId) {
     updateHud(screenId);
     saveState();
     onScreenEnter(screenId);
+    updateEpigraph(screenId);
+    syncBardQuill(screenId);
     if (screenId === "decree") document.body.classList.add("bg-celebration");
     else document.body.classList.remove("bg-celebration");
   };
@@ -153,6 +157,10 @@ function boot() {
   initHud();
   initSoundToggle();
   initScreens(navigate);
+  initEpigraphs();
+  initBardQuill();
+  updateEpigraph("title");
+  syncBardQuill("title");
   preloadBg("bg-title");
   document.body.dataset.screen = "title";
   setBackground("title");

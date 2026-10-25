@@ -10,10 +10,11 @@ export function isSoundOn() {
   return soundOn;
 }
 
-export function setSoundOn(v) {
+export function setSoundOn(v, userTouched = true) {
   soundOn = v;
   try {
     localStorage.setItem("questSound", v ? "1" : "0");
+    if (userTouched) localStorage.setItem("questSoundTouched", "1");
   } catch (_) {}
   if (musicGain) musicGain.gain.value = v ? 0.12 : 0;
 }
@@ -23,6 +24,14 @@ export function loadSoundPref() {
     soundOn = localStorage.getItem("questSound") === "1";
   } catch (_) {
     soundOn = false;
+  }
+}
+
+export function soundPrefTouched() {
+  try {
+    return localStorage.getItem("questSoundTouched") === "1";
+  } catch (_) {
+    return false;
   }
 }
 

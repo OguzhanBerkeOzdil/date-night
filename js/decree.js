@@ -1,4 +1,4 @@
-import { CONFIG } from "./config.js";
+import { CONFIG, tarotForKey } from "./config.js";
 import { grantedToLabel, state } from "./state.js";
 import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
 
@@ -35,6 +35,11 @@ export function buildSummaryText() {
     bonusAch.length ? ` (+ bonus: ${bonusAch.join(", ")})` : ""
   }`;
 
+  const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
+  const oracleLine = state.tarotCard
+    ? `Oracle's card: ${state.tarotCard} (${tarotMeta?.short || "—"})`
+    : null;
+
   const lines = [
     "ROYAL QUEST DECREE · No. 002",
     `Granted to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
@@ -46,10 +51,11 @@ export function buildSummaryText() {
     `Potion: ${state.potionName || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
     `When we ride: ${state.day || "—"} · ${state.time || "—"}`,
+    ...(oracleLine ? [oracleLine] : []),
     `Secret ingredient: ${state.notes || "—"}`,
     fanumLine(),
     achLine,
-    "Sealed with wax (and feelings).",
+    "Sealed with wax (and a few butterflies).",
   ];
   return lines.join("\n");
 }
@@ -119,7 +125,7 @@ export async function renderDecreeCanvas() {
     rendered.push(...wrapLines(g, paragraph, innerW));
   }
 
-  const lineH = 32;
+  const lineH = 30;
   const blockH = rendered.length * lineH;
   const sigBlock = 44;
   const available = sigY - flatTop - sigBlock;

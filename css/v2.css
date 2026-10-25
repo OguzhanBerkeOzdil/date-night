@@ -959,6 +959,110 @@ body[data-screen="steed"] .achievement-wrap {
   flex-shrink: 0;
 }
 
+.screen__inner {
+  position: relative;
+  padding-bottom: 6px;
+}
+
+.screen-epigraph {
+  margin: 10px 0 0;
+  padding: 0 6px 2px;
+  border: none;
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  text-shadow: 0 1px 2px rgba(252, 245, 232, 0.85);
+}
+
+.screen-epigraph footer {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.68rem;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+[data-screen="steed"] .screen-epigraph,
+[data-screen="dragon"] .screen-epigraph {
+  color: #f4e8d0;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
+}
+
+.title-screen .screen-epigraph {
+  color: #f4e8d0;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-height: 680px) {
+  .screen-epigraph {
+    display: none !important;
+  }
+}
+
+.bard-quill {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  background: rgba(12, 18, 14, 0.55);
+  color: #f4e8d0;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.bard-quill.hidden {
+  display: none;
+}
+
+.chip-select--on {
+  border-color: var(--gold);
+  background: rgba(252, 245, 232, 0.98);
+  box-shadow: inset 0 0 0 1px rgba(201, 162, 39, 0.35);
+}
+
+.class-grid button em {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  font-style: normal;
+}
+
+.class-grid button.class-pick--on {
+  border-color: var(--gold);
+  background: rgba(252, 245, 232, 0.96);
+}
+
+.tarot-card--chosen {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+.tarot-fortune {
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 8px 0 12px;
+  line-height: 1.45;
+}
+
+.dragon-fool-caption {
+  font-size: 0.72rem;
+  font-style: italic;
+  text-align: center;
+  color: #f4e8d0;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  margin: 0 0 6px;
+}
+
 :root {
   --sky-phase: 0;
 }

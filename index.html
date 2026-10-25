@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/v2.css">
-  <link rel="stylesheet" href="css/desktop.css">
+  <link rel="stylesheet" href="css/styles.css?v=20261025">
+  <link rel="stylesheet" href="css/v2.css?v=20261025">
+  <link rel="stylesheet" href="css/desktop.css?v=20261025">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -59,13 +59,12 @@
     <section class="screen screen--active" data-screen="title">
       <div class="screen__inner title-screen">
         <div class="title-hero-scrim">
-          <p class="kicker">A tale in one minute</p>
+          <p class="kicker">A tale in a few minutes</p>
           <h1 class="title-lockup">The Quest of <span data-lady>my lady</span></h1>
         </div>
         <div class="menu-plaques">
           <button type="button" class="btn btn--primary" id="btnNewGame">▶ New Game</button>
           <button type="button" class="btn btn--ghost hidden" id="btnContinue">Continue</button>
-          <p class="hint hidden" id="continueHint">No save file found… yet. Let's make one. ♥</p>
           <button type="button" class="btn btn--ghost" id="btnSoundTitle">♪ Sound: Off</button>
         </div>
         <p class="small-print">Best played with sound on &amp; a smile.</p>
@@ -76,8 +75,8 @@
       <div class="screen__inner parchment-textured ornate">
         <p class="kicker">By royal decree</p>
         <h2 class="title">A royal summons for <span data-lady>my lady</span></h2>
-        <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, entirely about us.</p>
-        <p class="small-print">Estimated time: one minute. Estimated butterflies: many.</p>
+        <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, suspiciously about you.</p>
+        <p class="small-print">Estimated time: a few minutes. Estimated butterflies: several.</p>
         <div class="wax-art-wrap">
           <img id="waxSealArt" class="wax-seal-art" src="assets/images/wax-seal.webp" alt="Tap the wax seal" width="140" height="140">
           <p class="hint">Tap the seal to break it</p>
@@ -115,16 +114,11 @@
     <section class="screen" data-screen="sheet">
       <div class="screen__inner ornate sheet-panel">
         <h2 class="title">Your Adventurer Sheet</h2>
-        <p class="sub">The royal scribes have assessed you. Roll for stats.</p>
+        <p class="sub">The royal scribes have assessed you. Roll to see the (obvious) results.</p>
         <button type="button" class="btn btn--secondary" id="btnRoll">Roll the dice</button>
         <p class="d20-out hidden" id="d20Result"></p>
         <div id="statList" class="stat-list"></div>
-        <div id="classPick" class="class-grid hidden">
-          <button type="button" data-class="Ranger of the Wildwood">Ranger of the Wildwood</button>
-          <button type="button" data-class="Moonlit Healer">Moonlit Healer</button>
-          <button type="button" data-class="Wandering Bard">Wandering Bard</button>
-          <button type="button" data-class="Knight of the Heart">Knight of the Heart</button>
-        </div>
+        <div id="classPick" class="class-grid hidden"></div>
         <p id="classChosen"></p>
         <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Accept destiny →</button>
       </div>
@@ -132,16 +126,18 @@
 
     <section class="screen" data-screen="rating">
       <div class="screen__inner ornate parchment">
-        <h2 class="title">Rate today, m'lady</h2>
+        <h2 class="title">Rate today, my lady</h2>
         <p class="sub">The court grants honesty. (It does not grant numbers below ten.)</p>
         <div class="slider-wrap">
           <input type="range" id="ratingSlider" min="1" max="10" value="10">
           <div class="slider-value" id="ratingValue">10</div>
           <p id="ratingCaption" class="caption">Verdict: flawless. +1000 aura.</p>
+          <p class="sub-label hidden" id="ratingChipLead">It's not an 11 only because…</p>
           <div id="ratingChips" class="chip-row hidden">
             <button type="button" class="chip-select" data-rating-chip="it ended too soon">…it ended too soon</button>
             <button type="button" class="chip-select" data-rating-chip="I need a sequel">…I need a sequel</button>
             <button type="button" class="chip-select" data-rating-chip="more horse time">…more horse time</button>
+            <button type="button" class="chip-select" data-rating-chip="he talked about horses too much">…he talked about horses too much</button>
           </div>
           <button type="button" class="chip chip--bonus hidden" id="chipEleven">Legendary loot · 11/10</button>
         </div>
@@ -159,18 +155,19 @@
     <section class="screen" data-screen="dragon">
       <div class="screen__inner ornate" id="dragonScene">
         <div class="boss-hp"><span>Dragon of Doubt</span><div class="boss-hp__bar"><div id="dragonHp" style="width:100%"></div></div></div>
+        <p class="dragon-fool-caption hidden" id="dragonFoolCaption" aria-hidden="true"></p>
         <img id="dragonImg" class="dragon-cutout" src="assets/images/dragon-doubt.webp" alt="">
         <picture class="horse-mascot horse-mascot--quest" id="horseQuest">
           <img id="horseQuestImg" class="horse-cutout small" src="assets/images/horse-idle.webp" alt="">
         </picture>
         <h2 class="title">Will you ride out on another quest with me?</h2>
         <div class="date-buttons" id="dateButtons">
-          <button type="button" class="btn btn--yes" id="btnYes">Aye, my liege</button>
+          <button type="button" class="btn btn--yes" id="btnYes">Aye, sir knight!</button>
           <button type="button" class="btn btn--no" id="btnNo">Nay</button>
         </div>
         <p class="yes-toast hidden" id="yesToast">Quest accepted! Best loot drop of the year.</p>
         <p class="dragon-honest-wrap">
-          <button type="button" class="link-btn hidden" id="realNoLink">Real talk: if you truly wish to decline, tap here — no hard feelings</button>
+          <button type="button" class="link-btn hidden" id="realNoLink">Real talk: if it's a no, tap here. Zero hard feelings, promise.</button>
         </p>
       </div>
     </section>
@@ -179,7 +176,7 @@
       <div class="screen__inner center ornate honest-panel">
         <h2 class="title">Thank you for your honesty.</h2>
         <p class="body-text">You remain noble and kind. The realm respects you.</p>
-        <button type="button" class="btn btn--secondary" id="btnHonestContinue">Continue the scroll anyway</button>
+        <button type="button" class="btn btn--secondary" id="btnHonestContinue">Continue anyway (just for the snacks)</button>
       </div>
     </section>
 
@@ -215,7 +212,7 @@
         <p class="sub-label">Day</p>
         <div id="dayChips" class="chip-row"></div>
         <input type="date" id="datePicker" class="date-picker" hidden>
-        <p class="sub-label">Sky dial</p>
+        <p class="sub-label">Time of day</p>
         <select id="skyDial" class="sky-dial"></select>
         <button type="button" class="btn btn--ghost" id="btnCoin">Can't decide? Flip a coin</button>
         <p class="hidden" id="coinMsg">It landed on its edge. Fate says: why not both days?</p>
@@ -233,6 +230,7 @@
           <button type="button" class="tarot-card" data-card="golden"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-golden-hour.webp" alt="" decoding="async"><span class="tarot-label">The Golden Hour</span></div></button>
           <button type="button" class="tarot-card" data-card="hearth"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-hearth.webp" alt="" decoding="async"><span class="tarot-label">The Hearth</span></div></button>
         </div>
+        <p class="tarot-fortune hidden" id="tarotFortune" aria-live="polite"></p>
         <button type="button" class="btn btn--secondary hidden" id="btnOpenLetter">Open the sealed letter</button>
         <div class="letter-panel hidden" id="letterPanel">
           <div id="letterBody" class="letter-body"></div>
@@ -273,6 +271,6 @@
     <button type="button" id="mapClose" class="btn btn--ghost">Close map</button>
   </div>
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js?v=20261025"></script>
 </body>
 </html>
