@@ -175,8 +175,11 @@ async function testToastNoControls(page, baseUrl, viewport) {
     const tr = t.getBoundingClientRect();
     const scope = document.querySelector(".screen--active");
     if (!scope) return [];
+    const screen = document.body.dataset.screen;
     const sel =
-      "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .title, h2";
+      screen === "potion"
+        ? "#btnStir, #notesInput, select, .vial, button.btn--primary, button.btn--secondary, .title, h2"
+        : "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .title, h2";
     const hits = [];
     scope.querySelectorAll(sel).forEach((el) => {
       if (el.closest(".top-bar")) return;

@@ -422,13 +422,17 @@ export function fitDragonArena() {
   if (!arena) return;
   const top = arena.getBoundingClientRect().top;
   const safeBottom = 12;
-  const honestReserve = Math.max(honestWrap?.offsetHeight || 0, HONEST_LINK_SLOT_PX) + 8;
+  const linkHidden = document.getElementById("realNoLink")?.classList.contains("hidden");
+  const honestReserve =
+    linkHidden ? 10 : Math.max(honestWrap?.offsetHeight || 0, HONEST_LINK_SLOT_PX) + 8;
   const maxBottom = window.innerHeight - honestReserve - safeBottom;
   const maxByViewport = Math.max(96, maxBottom - top);
+  if (btnNo) btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
+  if (btnYes) btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
   void btnYes?.offsetHeight;
   void btnNo?.offsetHeight;
-  const yesH = btnYes?.offsetHeight || 64;
-  const noH = (btnNo?.offsetHeight || 48) * noScale;
+  const yesH = btnYes?.getBoundingClientRect().height || 64;
+  const noH = measureNay(btnNo).h || 48;
   const pad = 12;
   const needed = yesH + noH + pad * 3;
   const h = Math.min(maxByViewport, Math.max(96, needed));
@@ -489,12 +493,28 @@ function placeNayBelowYes(btnYes, btnNo, arena) {
   clampNayPosition(btnYes, btnNo, arena, left, yesBottom + pad);
 }
 
+function reconcileYesScaleForArena(btnYes, btnNo, arena) {
+  if (!btnYes || !btnNo || !arena) return;
+  let guard = 0;
+  while (guard++ < 16) {
+    fitDragonArena();
+    const pad = 22;
+    const yesH = btnYes.getBoundingClientRect().height;
+    const noH = measureNay(btnNo).h;
+    if (yesH + noH + pad <= arena.clientHeight) return;
+    if (yesScale <= 1) return;
+    yesScale = Math.max(1, yesScale - 0.05);
+    btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
+  }
+}
+
 function ensureDragonInViewport() {
   const arena = $("dateButtons");
   const btnYes = $("btnYes");
   const btnNo = $("btnNo");
   const wrap = document.querySelector(".dragon-honest-wrap");
   if (!arena || !btnYes || !btnNo) return;
+  reconcileYesScaleForArena(btnYes, btnNo, arena);
   fitDragonArena();
   const pad = 10;
   let guard = 0;
@@ -522,9 +542,10 @@ function initDragon() {
   let hpVal = 100;
 
   function layoutDragon() {
-    fitDragonArena();
     btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
     btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
+    reconcileYesScaleForArena(btnYes, btnNo, arena);
+    fitDragonArena();
     placeNayBelowYes(btnYes, btnNo, arena);
     ensureDragonInViewport();
   }
@@ -561,7 +582,7 @@ function initDragon() {
     hpVal = Math.min(100, hpVal + 5);
     if (hp) hp.style.width = hpVal + "%";
     saveState();
-    noScale = Math.max(0.55, noScale * 0.88);
+    noScale = Math.max(0.75, noScale * 0.9);
     yesScale = capYesScale(btnYes, arena, yesScale * 1.12);
     const i = Math.min(state.noAttempts, COPY.noLabels.length) - 1;
     btnNo.textContent = (COPY.noLabels[i] || "nay").replace(/\{steed\}/g, state.steedName);
@@ -611,6 +632,16 @@ function initDragon() {
     fitDragonArena();
     clampNayPosition(btnYes, btnNo, arena, x, y);
     ensureDragonInViewport();
+    const nayRect = btnNo.getBoundingClientRect();
+    const arenaBounds = arena.getBoundingClientRect();
+    if (
+      nayRect.bottom > arenaBounds.bottom - 2 ||
+      nayRect.top < arenaBounds.top + 2 ||
+      nayRect.bottom > window.innerHeight - 8
+    ) {
+      placeNayBelowYes(btnYes, btnNo, arena);
+      ensureDragonInViewport();
+    }
 
     if (state.noAttempts >= 7) {
       scheduleHonestLinkReveal();
