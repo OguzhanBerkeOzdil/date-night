@@ -16,7 +16,7 @@ export const CONFIG = {
   defaultTitle: "my lady",
   letter: [
     "Dear {name},",
-    "I built a small kingdom just to ask you a few questions. Slightly much? Yes. Worth it? Also yes.",
+    "I built a small kingdom just to ask you a few questions. A bit much? Yes. Worth it? Also yes.",
     "Thank you for today. The oracle said you'd be good company, and the oracle undersold it.",
     "I'd like another ride, another tavern, and another excuse to make you laugh.",
     "— Your humble knight, {fromName} (and {steedName}, who insisted on being mentioned)",

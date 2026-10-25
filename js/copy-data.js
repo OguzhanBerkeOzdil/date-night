@@ -39,7 +39,6 @@ export const BARD_LINES = [
   "The oracle says the stars align for another quest. I never argue with the oracle.",
   "I had one shooting-star wish saved. I think today used it up.",
   "I'd share my last slice with you. In this kingdom, that's the highest honour.",
-  "Fanum tax aside, you're the best part of any meal.",
   "Two seats at the tavern, one extra dessert, zero regrets.",
   "I'd split the last fry with you. Okay, I'd give you the last fry. That's how serious this is.",
   "Quest update: you've been added to my party. No take-backs.",
@@ -57,8 +56,8 @@ export const EPIGRAPHS = {
     "by": "Lord Byron"
   },
   "summons": {
-    "text": "She left the web, she left the loom, / She made three paces thro' the room",
-    "by": "Tennyson, The Lady of Shalott"
+    "text": "The course of true love never did run smooth; / But yet it never did run quite this fun.",
+    "by": "After Shakespeare, A Midsummer Night's Dream"
   },
   "steed": {
     "text": "When I bestride him, I soar, I am a hawk: he trots the air; the earth sings when he touches it",
@@ -152,4 +151,4 @@ export const STEED_PICK_LINES = [
   "{name}! Finally, a name worthy of my mane.",
 ];
 
-export const DRAGON_FOOL_QUOTE = "Lord, what fools these mortals be!";
+export const DRAGON_FOOL_QUOTE = "Even dragons know when they're outmatched by a good answer.";

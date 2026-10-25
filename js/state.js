@@ -106,3 +106,9 @@ export function resetState() {
   state = defaultState();
   localStorage.removeItem(KEY);
 }
+
+/** Fresh quest progress; keeps sound preferences in localStorage. */
+export function beginNewQuest() {
+  state = defaultState();
+  saveState();
+}
