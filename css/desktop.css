@@ -1,0 +1,82 @@
+/* Desktop / landscape: centered quest column over full-bleed painting */
+@media (min-aspect-ratio: 1/1) and (min-width: 720px) {
+  :root {
+    --game-column: min(520px, calc(100vw - 40px));
+  }
+
+  .app.app--v2 {
+    max-width: var(--game-column);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  header.top-bar {
+    width: var(--game-column);
+    max-width: calc(100vw - 24px);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .screen__inner.ornate,
+  .screen__inner.sheet-panel,
+  .screen__inner.journal-panel,
+  .screen__inner.tavern-panel,
+  .screen__inner.parchment,
+  .screen__inner.honest-panel,
+  .screen__inner.celebration .decree-wrap {
+    background: linear-gradient(
+      180deg,
+      rgba(252, 245, 232, 0.94) 0%,
+      rgba(244, 228, 200, 0.92) 100%
+    );
+    border: 2px solid rgba(201, 162, 39, 0.55);
+    border-radius: 18px;
+    box-shadow:
+      0 14px 44px rgba(0, 0, 0, 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    padding: 16px 18px 22px;
+  }
+
+  [data-screen="steed"] .screen__inner,
+  [data-screen="dragon"] .screen__inner {
+    background: linear-gradient(
+      180deg,
+      rgba(12, 18, 14, 0.55) 0%,
+      rgba(12, 18, 14, 0.72) 100%
+    );
+    border: 2px solid rgba(201, 162, 39, 0.45);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .dialogue-box {
+    width: min(496px, calc(var(--game-column) - 8px));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .achievement-wrap {
+    width: min(380px, var(--game-column));
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .map-overlay {
+    padding-left: max(20px, calc((100vw - var(--game-column)) / 2));
+    padding-right: max(20px, calc((100vw - var(--game-column)) / 2));
+  }
+}
+
+@media (min-aspect-ratio: 1/1) and (min-width: 1200px) {
+  .scene-bg__readability {
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, transparent 22%, transparent 78%, rgba(0, 0, 0, 0.42) 100%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, transparent 20%, transparent 72%, rgba(0, 0, 0, 0.48) 100%);
+  }
+}

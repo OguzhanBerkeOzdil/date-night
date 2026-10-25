@@ -1,0 +1,241 @@
+{
+  "landscape": {
+    "bg-forest": {
+      "1920": {
+        "jpg": 819038,
+        "webp": 346552,
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      "2560": {
+        "jpg": 1265050,
+        "webp": 498106,
+        "size": [
+          2560,
+          1440
+        ]
+      }
+    },
+    "bg-celebration": {
+      "1920": {
+        "jpg": 694692,
+        "webp": 263466,
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      "2560": {
+        "jpg": 1053213,
+        "webp": 372690,
+        "size": [
+          2560,
+          1440
+        ]
+      }
+    }
+  },
+  "portrait": {
+    "bg-title": {
+      "1080": {
+        "jpg": 517411,
+        "webp": 197540,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 792775,
+        "webp": 280096,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-meadow-stable": {
+      "1080": {
+        "jpg": 646191,
+        "webp": 275026,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 979290,
+        "webp": 379160,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-tavern": {
+      "1080": {
+        "jpg": 665319,
+        "webp": 277052,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 1012434,
+        "webp": 390166,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-cauldron": {
+      "1080": {
+        "jpg": 584336,
+        "webp": 230748,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 907909,
+        "webp": 332358,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-starry-hill": {
+      "1080": {
+        "jpg": 462746,
+        "webp": 148382,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 721167,
+        "webp": 219764,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-forest": {
+      "1080": {
+        "jpg": 546919,
+        "webp": 207780,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 820012,
+        "webp": 281474,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    },
+    "bg-celebration": {
+      "1080": {
+        "jpg": 486664,
+        "webp": 167338,
+        "size": [
+          1080,
+          1920
+        ]
+      },
+      "1440": {
+        "jpg": 737182,
+        "webp": 235188,
+        "size": [
+          1440,
+          2560
+        ]
+      }
+    }
+  },
+  "cutouts": {
+    "horse-idle.webp": {
+      "size": [
+        1710,
+        1712
+      ],
+      "bytes": 295770
+    },
+    "horse-munch.webp": {
+      "size": [
+        1882,
+        1748
+      ],
+      "bytes": 307942
+    },
+    "horse-rear.webp": {
+      "size": [
+        1752,
+        1734
+      ],
+      "bytes": 347936
+    },
+    "dragon-doubt.webp": {
+      "size": [
+        1522,
+        1738
+      ],
+      "bytes": 205016
+    },
+    "dragon-befriended.webp": {
+      "size": [
+        1488,
+        1758
+      ],
+      "bytes": 210468
+    },
+    "quest-map.webp": {
+      "size": [
+        2160,
+        3840
+      ],
+      "bytes": 612498
+    },
+    "tarot-steeds.webp": {
+      "size": [
+        1440,
+        1920
+      ],
+      "bytes": 456002
+    },
+    "tarot-golden-hour.webp": {
+      "size": [
+        1440,
+        1920
+      ],
+      "bytes": 382080
+    },
+    "tarot-hearth.webp": {
+      "size": [
+        1440,
+        1920
+      ],
+      "bytes": 426136
+    },
+    "tarot-back.webp": {
+      "size": [
+        1440,
+        1920
+      ],
+      "bytes": 416692
+    }
+  },
+  "upscaler": "RealESRGAN_x4plus via spandrel (PyTorch CPU); 4x enhance then Lanczos to delivery sizes"
+}

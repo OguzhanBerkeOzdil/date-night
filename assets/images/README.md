@@ -1,10 +1,7 @@
 # Quest artwork
 
-Optimized assets (WebP + JPG fallback). Regenerate with `ffmpeg` if sources change.
+Portrait backgrounds: `bg-*.webp` (1080×1920) + `bg-*-1440.webp` (retina).  
+Landscape (desktop): `bg-*-landscape.webp` (1920×1080) + `bg-*-landscape-2560.webp`.
 
-| File | Role |
-|------|------|
-| `bg-forest.*` | Main quest background (9:16, ~960×1707) |
-| `bg-celebration.*` | Final screen night campfire scene |
-| `horse.*` | Welcome + another-date mascot (720²) |
-| `parchment.*` | Summons card + royal decree texture |
+Regenerate with `python3 scripts/process-desktop-graphics.py` (RealESRGAN_x4plus via spandrel).  
+See `graphics-manifest.json` for delivery sizes.
