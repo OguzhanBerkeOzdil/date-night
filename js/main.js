@@ -1,4 +1,5 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
+import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
 import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
 import { initHud, updateHud } from "./hud.js";
 import { hideDialogue, initDialogue } from "./dialogue.js";
@@ -7,7 +8,6 @@ import { initScreens, onScreenEnter } from "./screens.js";
 import { guest, hasQuestSave, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
-const loadedBg = new Set();
 
 function $(id) {
   return document.getElementById(id);
@@ -23,13 +23,14 @@ function bgSrcsets(name) {
 }
 
 function preloadBg(name) {
-  if (!name || loadedBg.has(name)) return;
-  loadedBg.add(name);
-  const img = new Image();
-  const landscape = window.matchMedia("(min-aspect-ratio: 1/1)").matches;
-  img.src = landscape
-    ? `assets/images/${name}-landscape.webp`
-    : `assets/images/${name}.webp`;
+  if (!name) return;
+  preloadUrl(pickBgWebpUrl(name));
+}
+
+function preloadScreenAssets(screenId) {
+  const next = SCREENS[SCREENS.indexOf(screenId) + 1];
+  if (next) preloadBg(BG_BY_SCREEN[next]);
+  if (screenId === "stars" || next === "oracle") preloadTarotAssets();
 }
 
 function resetScroll() {
@@ -73,8 +74,7 @@ function setBackground(screenId) {
   if (kb) {
     kb.classList.toggle("scene-bg__kenburns--slow", screenId === "decree");
   }
-  const next = SCREENS[SCREENS.indexOf(screenId) + 1];
-  if (next) preloadBg(BG_BY_SCREEN[next]);
+  preloadScreenAssets(screenId);
 }
 
 export function navigate(screenId) {

@@ -65,6 +65,22 @@
     left: 50%;
     right: auto;
     transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top, 0px) + 118px);
+  }
+
+  [data-screen="potion"] .title,
+  [data-screen="oracle"] .title {
+    color: var(--ink);
+    text-shadow: none;
+  }
+
+  [data-screen="oracle"] .sub {
+    color: var(--ink-soft);
+    text-shadow: none;
+  }
+
+  [data-screen="potion"] .cauldron-glow {
+    display: none;
   }
 
   .map-overlay {

@@ -8,8 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/images/bg-title.webp" type="image/webp">
-  <link rel="preload" as="image" href="assets/images/horse-idle.webp" type="image/webp">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/v2.css">
   <link rel="stylesheet" href="css/desktop.css">
@@ -228,9 +226,9 @@
         <h2 class="title">The oracle has one more thing</h2>
         <p class="sub">Choose a card. Any card. (They're all good.)</p>
         <div class="tarot-row">
-          <button type="button" class="tarot-card" data-card="steeds"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-steeds.webp" alt=""><span class="tarot-label">The Two Steeds</span></div></button>
-          <button type="button" class="tarot-card" data-card="golden"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-golden-hour.webp" alt=""><span class="tarot-label">The Golden Hour</span></div></button>
-          <button type="button" class="tarot-card" data-card="hearth"><div class="tarot-inner"><img src="assets/images/tarot-back.webp" alt=""><img class="tarot-face" src="assets/images/tarot-hearth.webp" alt=""><span class="tarot-label">The Hearth</span></div></button>
+          <button type="button" class="tarot-card" data-card="steeds"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-steeds.webp" alt="" decoding="async"><span class="tarot-label">The Two Steeds</span></div></button>
+          <button type="button" class="tarot-card" data-card="golden"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-golden-hour.webp" alt="" decoding="async"><span class="tarot-label">The Golden Hour</span></div></button>
+          <button type="button" class="tarot-card" data-card="hearth"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-hearth.webp" alt="" decoding="async"><span class="tarot-label">The Hearth</span></div></button>
         </div>
         <button type="button" class="btn btn--secondary hidden" id="btnOpenLetter">Open the sealed letter</button>
         <div class="letter-panel hidden" id="letterPanel">
@@ -259,7 +257,7 @@
   </main>
 
   <aside class="dialogue-box hidden" id="dialogueBox">
-    <img id="dialoguePortrait" class="dialogue-portrait" src="assets/images/horse-idle.webp" alt="">
+    <img id="dialoguePortrait" class="dialogue-portrait" alt="" decoding="async">
     <div class="dialogue-panel">
       <div class="dialogue-name" id="dialogueName">Clover</div>
       <p id="dialogueText" aria-live="polite"></p>
@@ -268,7 +266,7 @@
   </aside>
 
   <div class="map-overlay" id="mapOverlay">
-    <img src="assets/images/quest-map.webp" alt="Quest map">
+    <img data-lazy-src="assets/images/quest-map.webp" alt="Quest map" decoding="async">
     <button type="button" id="mapClose" class="btn btn--ghost">Close map</button>
   </div>
 

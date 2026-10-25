@@ -40,7 +40,7 @@ export function setSteedName(name) {
 
 export function setPortrait(src) {
   const img = document.getElementById("dialoguePortrait");
-  if (img) img.src = src;
+  if (img && src) img.src = src;
 }
 
 function stripDuplicateName(line) {
@@ -76,7 +76,7 @@ function scheduleSteedHide() {
   if (steedHideTimer) clearTimeout(steedHideTimer);
   steedHideTimer = window.setTimeout(() => {
     if (document.body.dataset.screen === "steed" && !queue.length && !typing) hideDialogue();
-  }, 1600);
+  }, 2200);
 }
 
 function showNext() {
@@ -110,8 +110,10 @@ function typeLine(line, el, hint) {
     if (charIx >= fullLine.length) {
       clearInterval(typeTimer);
       typing = false;
-      if (hint) hint.hidden = false;
-      if (!queue.length) scheduleSteedHide();
+      if (hint) hint.hidden = document.body.dataset.screen === "steed" && queue.length > 0;
+      if (document.body.dataset.screen === "steed" && queue.length) {
+        window.setTimeout(() => showNext(), 900);
+      } else if (!queue.length) scheduleSteedHide();
     }
   }, 28);
 }
