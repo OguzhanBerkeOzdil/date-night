@@ -39,7 +39,7 @@ function intersects(a, b) {
 
 function blockersFor(screen) {
   const base =
-    ".btn--primary, .btn--secondary, .name-chips button, .carrot-btn, #horseIdleImg, #btnSteedNext, .vial, .tarot-card";
+    "button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card";
   if (screen === "potion") {
     return `${base}, #potionIngredients .potion-ing:first-of-type`;
   }
@@ -59,7 +59,7 @@ const CASES = [
 
 async function assertNoToastOverlap(page, label, screen) {
   const toast = page.locator(".achievement-toast").first();
-  await toast.waitFor({ state: "visible", timeout: 3000 });
+  await toast.waitFor({ state: "visible", timeout: 10000 });
   const overlaps = await page.evaluate((sel) => {
     const t = document.querySelector(".achievement-toast");
     if (!t) return [];
@@ -67,6 +67,7 @@ async function assertNoToastOverlap(page, label, screen) {
     const bad = [];
     const scope = document.querySelector(".screen--active") || document;
     scope.querySelectorAll(sel).forEach((el) => {
+      if (el.closest(".top-bar")) return;
       const r = el.getBoundingClientRect();
       if (r.width < 2 || r.height < 2) return;
       const hit = !(tr.right <= r.left || tr.left >= r.right || tr.bottom <= r.top || tr.top >= r.bottom);

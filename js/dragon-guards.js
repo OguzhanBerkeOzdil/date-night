@@ -59,6 +59,7 @@ function tryRevealHonestLink() {
   if (!link) return;
   link.classList.remove("hidden");
   link.removeAttribute("hidden");
+  window.dispatchEvent(new Event("dragon-honest-resize"));
   honestRevealTimer = window.setTimeout(() => {
     honestRevealTimer = null;
     armHonestLinkIfReady();

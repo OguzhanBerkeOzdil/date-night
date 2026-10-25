@@ -38,13 +38,44 @@ export function unlock(id, silent = false) {
   if (!silent) toast(DEFS[id]);
 }
 
-function toast(def) {
+function controlRects() {
+  const scope = document.querySelector(".screen--active") || document.body;
+  const sel =
+    "button:not(:disabled):not(.hidden), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card, .screen--active .title, .screen--active h2";
+  return [...scope.querySelectorAll(sel)]
+    .filter((el) => {
+      if (el.closest(".top-bar")) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 8 && r.height > 8 && getComputedStyle(el).visibility !== "hidden";
+    })
+    .map((el) => el.getBoundingClientRect());
+}
+
+function rectsOverlap(a, b) {
+  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+}
+
+function toastOverlapsControls(toastRect) {
+  return controlRects().some((r) => rectsOverlap(toastRect, r));
+}
+
+function toast(def, attempt = 0) {
   const wrap = document.getElementById("achievementToasts");
   if (!wrap) return;
+  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b");
+  if (attempt % 3 === 1) wrap.classList.add("achievement-wrap--shift");
+  if (attempt % 3 === 2) wrap.classList.add("achievement-wrap--shift-b");
   const el = document.createElement("div");
   el.className = "achievement-toast";
   el.innerHTML = `${icons.shield}<span class="achievement-toast__label">${def.title}</span>`;
   wrap.appendChild(el);
+  const tr = el.getBoundingClientRect();
+  if (toastOverlapsControls(tr) && attempt < 16) {
+    el.remove();
+    window.setTimeout(() => toast(def, attempt + 1), 120);
+    return;
+  }
+  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b");
   playDing();
   vibrate([30, 40, 30]);
   setTimeout(() => el.classList.add("achievement-toast--out"), 2500);

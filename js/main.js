@@ -105,7 +105,9 @@ export function navigate(screenId) {
   const useVt =
     document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (useVt) {
-    document.startViewTransition(doNav);
+    const vt = document.startViewTransition(doNav);
+    vt?.ready?.catch(() => {});
+    vt?.finished?.catch(() => {});
   } else {
     doNav();
   }
