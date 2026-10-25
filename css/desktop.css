@@ -64,6 +64,8 @@
 
   body[data-screen="sheet"] #dialogueBox:not(.hidden) {
     top: calc(env(safe-area-inset-top, 0px) + 12.5rem);
+    left: 50%;
+    right: auto;
     transform: translateX(-50%);
   }
 

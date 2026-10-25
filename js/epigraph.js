@@ -38,7 +38,11 @@ function isShortViewport() {
 }
 
 function compactQuote(text) {
-  const oneLine = text.replace(/\s*\/\s*/g, " — ").replace(/\s+/g, " ").trim();
+  const oneLine = text
+    .replace(/\s*,\s*\/\s*/g, ", ")
+    .replace(/\s*\/\s*/g, " — ")
+    .replace(/\s+/g, " ")
+    .trim();
   if (oneLine.length <= 88) return oneLine;
   const cut = oneLine.slice(0, 85).trim();
   const lastSpace = cut.lastIndexOf(" ");
