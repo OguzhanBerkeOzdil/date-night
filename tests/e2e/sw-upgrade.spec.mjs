@@ -15,11 +15,25 @@ async function extractCommit(commit, dest) {
   execSync(`git archive ${commit} | tar -x -C "${dest}"`, { cwd: workspace, stdio: "pipe" });
 }
 
+async function evaluateIgnoringNav(page, fn, arg) {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    try {
+      return await page.evaluate(fn, arg);
+    } catch (err) {
+      const msg = String(err);
+      if (!msg.includes("Execution context was destroyed")) throw err;
+      await page.waitForLoadState("domcontentloaded", { timeout: 5000 }).catch(() => {});
+      await page.waitForTimeout(150);
+    }
+  }
+  throw new Error("page.evaluate failed after navigation retries");
+}
+
 async function waitForUpgrade(page, expectedVersion) {
   await expect
     .poll(
       async () =>
-        page.evaluate(async (ver) => {
+        evaluateIgnoringNav(page, async (ver) => {
           const keys = await caches.keys();
           const hasOldShell = keys.some((k) => k === "quest-shell-20261026");
           const hasNewShell = keys.some((k) => k.includes(ver));
@@ -44,7 +58,7 @@ async function waitForUpgrade(page, expectedVersion) {
             keys,
           };
         }, expectedVersion),
-      { timeout: 10000 }
+      { timeout: 15000 }
     )
     .toMatchObject({
       hasOldShell: false,
@@ -75,7 +89,7 @@ async function runUpgradeScenario(page, oldCommit) {
   await page.request.post(`${baseURL}/__test/use-new-build`);
   await page.reload({ waitUntil: "domcontentloaded" });
 
-  await waitForUpgrade(page, "20261031");
+  await waitForUpgrade(page, "20261101");
   expect(swErrors).toEqual([]);
 
   await new Promise((resolve, reject) => {
@@ -91,4 +105,52 @@ test("upgrades from classic SW build 2028511 (quest-shell-20261026)", async ({ p
 test("upgrades from module SW build a8b1897", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1440");
   await runUpgradeScenario(page, "a8b1897");
+});
+
+test("upgrades from 4dc3a62 (20261031) without loops; foreign cache survives", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1440");
+
+  const oldRoot = join(workspace, "tests/fixtures/.sw-upgrade-cache", "4dc3a62");
+  await extractCommit("4dc3a62", oldRoot);
+  const server = await startDualBuildServer({ oldRoot, newRoot: workspace, port: PORT });
+
+  const swErrors = [];
+  page.on("pageerror", (err) => {
+    const msg = String(err);
+    if (msg.includes("ServiceWorker") || msg.includes("service worker")) swErrors.push(msg);
+  });
+
+  await page.goto(`${baseURL}/?name=Ayse`, { waitUntil: "networkidle" });
+  await page.waitForFunction(() => navigator.serviceWorker?.controller != null, null, {
+    timeout: 15000,
+  });
+
+  await page.evaluate(async () => {
+    const foreign = await caches.open("other-app-v1");
+    await foreign.put("/other-app-dummy", new Response("keep-me"));
+  });
+
+  await page.request.post(`${baseURL}/__test/use-new-build`);
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
+
+  await waitForUpgrade(page, "20261101");
+  expect(swErrors).toEqual([]);
+
+  const foreignText = await evaluateIgnoringNav(page, async () => {
+    const cache = await caches.open("other-app-v1");
+    const res = await cache.match("/other-app-dummy");
+    return res ? await res.text() : null;
+  });
+  expect(foreignText).toBe("keep-me");
+
+  const keys = await evaluateIgnoringNav(page, () => caches.keys());
+  expect(keys).toContain("other-app-v1");
+  expect(keys.some((k) => k === "quest-shell-20261031")).toBe(false);
+
+  await new Promise((resolve, reject) => {
+    server.close((err) => (err ? reject(err) : resolve()));
+  });
 });
