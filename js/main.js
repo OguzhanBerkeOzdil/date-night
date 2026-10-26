@@ -138,7 +138,7 @@ function initSoundToggle() {
   });
 }
 
-function syncContinueButton() {
+export function syncContinueButton() {
   const btn = $("btnContinue");
   if (!btn) return;
   if (hasQuestSave()) btn.classList.remove("hidden");
@@ -172,6 +172,12 @@ function boot() {
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
 else boot();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+  });
+}
 
 /** Playwright / debug: jump to any screen */
 window.__questNavigate = navigate;

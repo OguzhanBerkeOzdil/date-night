@@ -74,10 +74,7 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
   await tapLocator(page, page.locator("#btnNewGame"));
   await page.waitForSelector('[data-screen="summons"].screen--active');
   await assertNoOverflow(page);
-  await page.evaluate(() => {
-    document.getElementById("waxSealArt")?.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-    document.getElementById("waxSealArt")?.click();
-  });
+  await page.locator("#waxSealBtn").click();
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 15000 });
   await tapLocator(page, page.locator("#btnSummonBegin"));
   await page.waitForSelector('[data-screen="steed"].screen--active');
@@ -161,10 +158,8 @@ async function runFlow(name, deviceKey, viewport, query = "?name=Ayse") {
     }
   }
 
-  await page.waitForFunction(
-    () => document.getElementById("realNoLink")?.classList.contains("honest-link--armed"),
-    { timeout: 8000 }
-  );
+  const honestVisible = await page.locator("#realNoLink").isVisible();
+  if (!honestVisible) throw new Error("honest decline link not visible on dragon screen");
   await tapLocator(page, page.locator("#realNoLink"));
   await page.waitForSelector('[data-screen="honest-no"].screen--active');
   await assertNoOverflow(page);

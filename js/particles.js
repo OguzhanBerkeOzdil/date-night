@@ -3,11 +3,24 @@ let raf = 0;
 let reduced = false;
 let lowPower = false;
 
+function applyReducedMotion() {
+  reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced && raf) {
+    cancelAnimationFrame(raf);
+    raf = 0;
+    particles = [];
+    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  } else if (!reduced && !raf && ctx) {
+    loop();
+  }
+}
+
 export function initParticles() {
   canvas = document.getElementById("particleCanvas");
   if (!canvas) return;
   ctx = canvas.getContext("2d");
-  reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  applyReducedMotion();
+  window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", applyReducedMotion);
   resize();
   window.addEventListener("resize", resize);
   if (!reduced) loop();
@@ -78,7 +91,8 @@ function loop() {
     if (Math.random() < 0.04) addFirefly();
     if (Math.random() < 0.02) addPetal();
   }
-  raf = requestAnimationFrame(loop);
+  if (!reduced) raf = requestAnimationFrame(loop);
+  else raf = 0;
   const dt = performance.now() - t0;
   if (dt > 50) lowPower = true;
 }
@@ -149,7 +163,7 @@ export function burstHearts(x, y) {
 }
 
 export function boostEmbers() {
-  if (!ctx) return;
+  if (!ctx || reduced) return;
   for (let i = 0; i < 20; i++) {
     particles.push({
       kind: "ember",

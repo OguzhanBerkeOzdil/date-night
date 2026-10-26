@@ -31,8 +31,14 @@ export function disarmHonestLink() {
   const link = document.getElementById("realNoLink");
   if (!link) return;
   link.classList.remove("honest-link--armed");
-  link.classList.add("hidden");
-  link.setAttribute("hidden", "");
+}
+
+export function showHonestDeclineLink() {
+  const link = document.getElementById("realNoLink");
+  if (!link) return;
+  link.classList.remove("hidden");
+  link.removeAttribute("hidden");
+  window.dispatchEvent(new Event("dragon-honest-resize"));
 }
 
 function armHonestLinkIfReady() {
@@ -48,32 +54,24 @@ function armHonestLinkIfReady() {
   link.classList.add("honest-link--armed");
 }
 
-function tryRevealHonestLink() {
-  if (document.body.dataset.screen !== "dragon") return;
-  const quietMs = Date.now() - lastNayPointerMs;
-  if (pointerOnNay && quietMs < 400) {
-    honestRevealTimer = window.setTimeout(tryRevealHonestLink, 120);
-    return;
-  }
-  const link = document.getElementById("realNoLink");
-  if (!link) return;
-  link.classList.remove("hidden");
-  link.removeAttribute("hidden");
-  window.dispatchEvent(new Event("dragon-honest-resize"));
+export function scheduleHonestLinkArm() {
+  if (honestRevealTimer) clearTimeout(honestRevealTimer);
   honestRevealTimer = window.setTimeout(() => {
     honestRevealTimer = null;
     armHonestLinkIfReady();
   }, 500);
 }
 
+/** @deprecated kept for tests that import the name */
 export function scheduleHonestLinkReveal() {
-  if (honestRevealTimer) clearTimeout(honestRevealTimer);
-  honestRevealTimer = window.setTimeout(() => {
-    honestRevealTimer = null;
-    tryRevealHonestLink();
-  }, 500);
+  showHonestDeclineLink();
+  scheduleHonestLinkArm();
 }
 
 export function honestLinkIsArmed() {
   return honestLinkArmed;
+}
+
+export function honestDeclineClickAllowed(e) {
+  return Boolean(e?.isTrusted);
 }
