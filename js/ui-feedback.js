@@ -2,6 +2,7 @@
 
 let saveWarned = false;
 let undoTimer = null;
+let confirmAbort = null;
 
 function $(id) {
   return document.getElementById(id);
@@ -61,12 +62,22 @@ export function showUndoToast(message, onUndo, durationMs = 6000) {
   }, durationMs);
 }
 
+export function countUndoToasts() {
+  return document.querySelectorAll(".app-toast__action").length;
+}
+
 export function showNewQuestConfirm({ onKeep, onStartOver }) {
   const root = $("questConfirm");
   if (!root) {
     onStartOver();
     return;
   }
+
+  confirmAbort?.abort();
+  const ac = new AbortController();
+  confirmAbort = ac;
+  const { signal } = ac;
+
   const keep = $("questConfirmKeep");
   const start = $("questConfirmStart");
   const close = () => {
@@ -77,6 +88,15 @@ export function showNewQuestConfirm({ onKeep, onStartOver }) {
   root.removeAttribute("hidden");
   const prevFocus = document.activeElement;
   start?.focus();
+
+  const finish = (cb) => {
+    if (confirmAbort === ac) confirmAbort = null;
+    ac.abort();
+    close();
+    if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    cb?.();
+  };
+
   const trap = (e) => {
     if (e.key !== "Tab" || !root.contains(document.activeElement)) return;
     const focusable = root.querySelectorAll(
@@ -94,26 +114,16 @@ export function showNewQuestConfirm({ onKeep, onStartOver }) {
       first.focus();
     }
   };
-  const cleanup = () => {
-    document.removeEventListener("keydown", onKey);
-    close();
-    if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
-  };
+
   const onKey = (e) => {
     if (e.key === "Escape") {
       e.preventDefault();
-      cleanup();
-      onKeep();
+      finish(onKeep);
     }
     trap(e);
   };
-  document.addEventListener("keydown", onKey);
-  keep?.addEventListener("click", () => {
-    cleanup();
-    onKeep();
-  }, { once: true });
-  start?.addEventListener("click", () => {
-    cleanup();
-    onStartOver();
-  }, { once: true });
+
+  document.addEventListener("keydown", onKey, { signal });
+  keep?.addEventListener("click", () => finish(onKeep), { signal });
+  start?.addEventListener("click", () => finish(onStartOver), { signal });
 }

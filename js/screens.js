@@ -17,6 +17,7 @@ import {
   swallowGhostClick,
 } from "./dragon-guards.js";
 import { updateEpigraph } from "./epigraph.js";
+import { syncContinueButton } from "./app-chrome.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
 import {
   guest,
@@ -150,6 +151,7 @@ function resetQuestSessionFlags() {
 }
 
 function startFreshQuestWithUndo() {
+  const hadSave = hasQuestSave();
   beginNewQuest();
   resetQuestSessionFlags();
   unlockAudio();
@@ -158,13 +160,17 @@ function startFreshQuestWithUndo() {
     playHorn();
   }
   navigate("summons");
-  showUndoToast("Quest reset — progress cleared.", () => {
-    if (undoLastNewQuest()) {
-      const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
-      navigate(target);
-      import("./main.js").then((m) => m.syncContinueButton());
-    }
-  });
+  if (hadSave) {
+    showUndoToast("Quest reset — progress cleared.", () => {
+      if (undoLastNewQuest()) {
+        const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
+        navigate(target);
+        syncContinueButton();
+      }
+    });
+  } else {
+    syncContinueButton();
+  }
 }
 
 /** New Game / Begin anew — confirm when a quest save exists, then optional undo toast. */
@@ -489,8 +495,49 @@ function capYesScale(btnYes, arena, scale) {
 
 function measureNay(btnNo) {
   if (!btnNo) return { w: 96, h: 48 };
-  const r = btnNo.getBoundingClientRect();
-  return { w: r.width, h: r.height };
+  return { w: btnNo.offsetWidth, h: btnNo.offsetHeight };
+}
+
+function applyNayLabelConstraints(btnNo, arena) {
+  if (!btnNo || !arena) return;
+  const pad = 10;
+  const maxW = Math.max(120, arena.clientWidth - pad * 2);
+  btnNo.style.maxWidth = `${maxW}px`;
+  btnNo.style.boxSizing = "border-box";
+}
+
+function enforceNayWithinBounds(btnYes, btnNo, arena) {
+  if (!btnYes || !btnNo || !arena) return;
+  applyNayLabelConstraints(btnNo, arena);
+  const pad = 10;
+  let left = Number.parseFloat(btnNo.style.left);
+  let top = Number.parseFloat(btnNo.style.top);
+  if (!Number.isFinite(left)) left = pad;
+  if (!Number.isFinite(top)) top = pad;
+  clampNayPosition(btnYes, btnNo, arena, left, top);
+  const arenaRect = arena.getBoundingClientRect();
+  let noRect = btnNo.getBoundingClientRect();
+  if (noRect.right > arenaRect.right - pad) {
+    left -= noRect.right - (arenaRect.right - pad);
+  }
+  if (noRect.left < arenaRect.left + pad) {
+    left = pad;
+  }
+  if (noRect.right > window.innerWidth - 8) {
+    left -= noRect.right - (window.innerWidth - 8);
+  }
+  clampNayPosition(btnYes, btnNo, arena, Math.max(pad, left), top);
+  noRect = btnNo.getBoundingClientRect();
+  if (noRect.right > window.innerWidth - 4 || noRect.left < 4) {
+    placeNayBelowYes(btnYes, btnNo, arena);
+    clampNayPosition(
+      btnYes,
+      btnNo,
+      arena,
+      Number.parseFloat(btnNo.style.left) || pad,
+      Number.parseFloat(btnNo.style.top) || pad
+    );
+  }
 }
 
 function clampNayPosition(btnYes, btnNo, arena, x, y) {
@@ -517,6 +564,7 @@ function clampNayPosition(btnYes, btnNo, arena, x, y) {
   let top = Math.min(Math.max(y, minY), maxY);
   btnNo.style.left = `${left}px`;
   btnNo.style.top = `${top}px`;
+  applyNayLabelConstraints(btnNo, arena);
 }
 
 function placeNayBelowYes(btnYes, btnNo, arena) {
@@ -672,7 +720,7 @@ function initDragon() {
     }
     clampNayPosition(btnYes, btnNo, arena, x, y);
     fitDragonArena();
-    clampNayPosition(btnYes, btnNo, arena, x, y);
+    enforceNayWithinBounds(btnYes, btnNo, arena);
     ensureDragonInViewport();
     const nayRect = btnNo.getBoundingClientRect();
     const arenaBounds = arena.getBoundingClientRect();
@@ -710,6 +758,8 @@ function initDragon() {
       }
       unlock("stubborn");
     }
+    enforceNayWithinBounds(btnYes, btnNo, arena);
+    syncDragonLayout();
   }
 
   btnNo?.addEventListener("pointerdown", onNayInteract, { passive: false });

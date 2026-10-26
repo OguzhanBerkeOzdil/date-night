@@ -7,7 +7,11 @@ import { initHud, updateHud } from "./hud.js";
 import { hideDialogue, initDialogue } from "./dialogue.js";
 import { initParticles } from "./particles.js";
 import { initScreens, onScreenEnter } from "./screens.js";
-import { guest, hasQuestSave, questOfTitle, saveState, state } from "./state.js";
+import { syncContinueButton } from "./app-chrome.js";
+
+export { syncContinueButton };
+import { APP_CACHE_VERSION } from "./cache-version.js";
+import { guest, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
 
@@ -138,13 +142,6 @@ function initSoundToggle() {
   });
 }
 
-export function syncContinueButton() {
-  const btn = $("btnContinue");
-  if (!btn) return;
-  if (hasQuestSave()) btn.classList.remove("hidden");
-  else btn.classList.add("hidden");
-}
-
 function boot() {
   personalize();
   syncContinueButton();
@@ -175,7 +172,9 @@ else boot();
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(() => {});
+    navigator.serviceWorker
+      .register(`./sw.js?v=${APP_CACHE_VERSION}`, { scope: "./", type: "module" })
+      .catch(() => {});
   });
 }
 

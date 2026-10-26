@@ -54,3 +54,13 @@ Playwright mobile flow (iPhone + Pixel viewports).
 ## Deploy
 
 GitHub Pages → `main` / root. `.nojekyll` included.
+
+### Cache version (required on every deploy)
+
+Bump **`APP_CACHE_VERSION`** in `js/cache-version.js` (single source of truth). Match that value on every `?v=` query in `index.html` (CSS, `main.js`, manifest). The service worker imports the same constant for `quest-shell-*` / `quest-assets-*` cache names and deletes older `quest-*` caches on activate so returning visitors load fresh assets.
+
+## npm tests
+
+```bash
+npm ci && npx playwright install chromium && npm test
+```

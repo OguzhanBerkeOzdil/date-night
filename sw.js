@@ -1,6 +1,7 @@
-const CACHE_VERSION = "20261026";
-const SHELL_CACHE = `quest-shell-${CACHE_VERSION}`;
-const ASSET_CACHE = `quest-assets-${CACHE_VERSION}`;
+import { APP_CACHE_VERSION } from "./js/cache-version.js";
+
+const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
+const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
 
 const SHELL = [
   "./",
@@ -9,7 +10,9 @@ const SHELL = [
   "./css/styles.css",
   "./css/v2.css",
   "./css/desktop.css",
+  "./js/cache-version.js",
   "./js/main.js",
+  "./js/app-chrome.js",
   "./js/config.js",
   "./js/copy-data.js",
   "./js/state.js",
@@ -60,6 +63,12 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+async function matchCached(request) {
+  const hit = await caches.match(request);
+  if (hit) return hit;
+  return caches.match(request, { ignoreSearch: true });
+}
+
 async function networkFirst(request) {
   try {
     const res = await fetch(request);
@@ -71,12 +80,6 @@ async function networkFirst(request) {
     if (cached) return cached;
     return caches.match("./index.html", { ignoreSearch: true });
   }
-}
-
-async function matchCached(request) {
-  const hit = await caches.match(request);
-  if (hit) return hit;
-  return caches.match(request, { ignoreSearch: true });
 }
 
 async function cacheFirst(request) {
