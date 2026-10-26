@@ -577,12 +577,15 @@ textarea#notesInput {
 
 .date-buttons .btn--no {
   z-index: 12;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.25;
   font-size: clamp(0.69rem, 2.6vw, 0.82rem);
   padding: 10px 12px;
   max-width: calc(100% - 16px);
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 3.5rem;
+  min-height: 44px;
+  box-sizing: border-box;
   transform-origin: top left;
 }
 

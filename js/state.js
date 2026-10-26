@@ -3,6 +3,19 @@ import { showSaveWarningToast } from "./ui-feedback.js";
 
 const KEY = "questLady_v2";
 
+const PROGRESS_SCREENS = [
+  "steed",
+  "sheet",
+  "rating",
+  "journal",
+  "dragon",
+  "tavern",
+  "potion",
+  "stars",
+  "oracle",
+  "decree",
+];
+
 export function parseGuestName() {
   const raw = (new URLSearchParams(location.search).get("name") || "").trim();
   let name = raw.replace(/^lady\s+/i, "").trim();
@@ -63,33 +76,29 @@ export function defaultState() {
   };
 }
 
-export function hasQuestSave() {
+function snapshotIsUndoable(snap) {
+  return Boolean(snap && PROGRESS_SCREENS.includes(snap.lastScreen));
+}
+
+function readSnapshotFromStorage() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (!raw) return false;
-    const d = JSON.parse(raw);
-    const progressed = [
-      "steed",
-      "sheet",
-      "rating",
-      "journal",
-      "dragon",
-      "tavern",
-      "potion",
-      "stars",
-      "oracle",
-      "decree",
-    ];
-    return progressed.includes(d.lastScreen);
+    if (!raw) return null;
+    return { ...defaultState(), ...JSON.parse(raw) };
   } catch (_) {
-    return false;
+    return null;
   }
+}
+
+export function hasQuestSave() {
+  return snapshotIsUndoable(readSnapshotFromStorage());
 }
 
 export let state = loadState();
 export const guest = parseGuestName();
 
 let pendingUndoSnapshot = null;
+let questResetInFlight = false;
 
 export function loadState() {
   try {
@@ -129,17 +138,25 @@ export function clearPendingUndo() {
   pendingUndoSnapshot = null;
 }
 
-/** Fresh quest progress; keeps sound preferences in localStorage. */
+/**
+ * Fresh quest progress; keeps sound preferences in localStorage.
+ * Snapshots at most one undoable save; ignores re-entry and empty overwrites.
+ */
 export function beginNewQuest() {
-  pendingUndoSnapshot = { ...state };
+  if (questResetInFlight) return false;
+  questResetInFlight = true;
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) pendingUndoSnapshot = { ...defaultState(), ...JSON.parse(raw) };
-  } catch (_) {
-    pendingUndoSnapshot = { ...state };
+    const snap = readSnapshotFromStorage();
+    if (snapshotIsUndoable(snap)) {
+      const pendingOk = snapshotIsUndoable(pendingUndoSnapshot);
+      if (!pendingOk) pendingUndoSnapshot = snap;
+    }
+    state = defaultState();
+    saveState();
+    return true;
+  } finally {
+    questResetInFlight = false;
   }
-  state = defaultState();
-  saveState();
 }
 
 /** Test helpers */
@@ -154,4 +171,9 @@ export function __getStorageKey() {
 export function __resetModuleForTest() {
   state = defaultState();
   pendingUndoSnapshot = null;
+  questResetInFlight = false;
+}
+
+export function __getPendingUndoSnapshot() {
+  return pendingUndoSnapshot;
 }

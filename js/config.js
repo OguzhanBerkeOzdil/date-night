@@ -1,3 +1,5 @@
+export { APP_CACHE_VERSION } from "./cache-version.js";
+
 import {
   BARD_LINES,
   CLOVER_EPIGRAPH,
