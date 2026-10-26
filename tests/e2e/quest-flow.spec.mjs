@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { reachDecreeMouse } from "./helpers/quest-path.mjs";
 
 async function breakSeal(page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -53,6 +54,16 @@ test("new game confirm when save exists", async ({ page }) => {
   await page.waitForSelector('[data-screen="summons"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v2") || "{}"));
   expect(saved.steedName).toBe("Clover");
+});
+
+test("begin anew uses confirm when save exists", async ({ page }) => {
+  await reachDecreeMouse(page);
+  await page.locator("#btnReplay").click();
+  await expect(page.locator("#questConfirm")).toBeVisible();
+  await page.locator("#questConfirmStart").click();
+  await page.waitForSelector('[data-screen="summons"].screen--active');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v2") || "{}"));
+  expect(saved.lastScreen).toBe("summons");
 });
 
 test("wax seal keyboard activation", async ({ page }) => {

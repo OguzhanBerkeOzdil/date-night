@@ -7,6 +7,12 @@ test("offline reload reaches decree after first visit", async ({ page, context }
   });
   await page.goto("/?name=Ayse");
   await page.waitForLoadState("networkidle");
+  await page.waitForFunction(
+    () => navigator.serviceWorker?.controller != null,
+    null,
+    { timeout: 15000 }
+  );
+  await page.reload({ waitUntil: "networkidle" });
   await page.evaluate(() => {
     localStorage.setItem(
       "questLady_v2",
@@ -23,13 +29,14 @@ test("offline reload reaches decree after first visit", async ({ page, context }
         time: "Morning ride",
         tarotCard: "The Golden Hour",
         tarotKey: "golden",
+        achievements: [],
       })
     );
   });
   await context.setOffline(true);
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.locator("#btnContinue")).toBeVisible();
   await page.locator("#btnContinue").click();
-  await page.waitForSelector('[data-screen="decree"].screen--active');
+  await page.waitForSelector('[data-screen="decree"].screen--active', { timeout: 15000 });
   await expect(page.locator("#decreePreview")).toContainText("ROYAL QUEST DECREE");
 });

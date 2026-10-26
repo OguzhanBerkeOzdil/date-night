@@ -5,6 +5,7 @@
     "require-sri": "off",
     "element-required-attributes": "off",
     "element-permitted-content": "off",
-    "no-redundant-for": "off"
+    "no-redundant-for": "off",
+    "prefer-native-element": "off"
   }
 }

@@ -139,40 +139,50 @@ function selectChip(row, chosen) {
   chosen?.classList.add("chip-select--on");
 }
 
+function resetQuestSessionFlags() {
+  stirCount = 0;
+  potionBottled = false;
+  letterStarted = false;
+  sealing = false;
+  pickSteedIx = 0;
+  yesScale = 1;
+  noScale = 1;
+}
+
+function startFreshQuestWithUndo() {
+  beginNewQuest();
+  resetQuestSessionFlags();
+  unlockAudio();
+  if (isSoundOn()) {
+    startAmbience();
+    playHorn();
+  }
+  navigate("summons");
+  showUndoToast("Quest reset — progress cleared.", () => {
+    if (undoLastNewQuest()) {
+      const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
+      navigate(target);
+      import("./main.js").then((m) => m.syncContinueButton());
+    }
+  });
+}
+
+/** New Game / Begin anew — confirm when a quest save exists, then optional undo toast. */
+function requestFreshQuestStart() {
+  if (hasQuestSave()) {
+    showNewQuestConfirm({ onKeep: () => {}, onStartOver: startFreshQuestWithUndo });
+  } else {
+    startFreshQuestWithUndo();
+  }
+}
+
 function initTitle() {
   document.querySelectorAll("[data-lady]").forEach((el) => {
     el.textContent = questOfTitle();
   });
 
   $("btnNewGame")?.addEventListener("click", () => {
-    const startFresh = () => {
-      beginNewQuest();
-      stirCount = 0;
-      potionBottled = false;
-      letterStarted = false;
-      sealing = false;
-      pickSteedIx = 0;
-      yesScale = 1;
-      noScale = 1;
-      unlockAudio();
-      if (isSoundOn()) {
-        startAmbience();
-        playHorn();
-      }
-      navigate("summons");
-      showUndoToast("Quest reset — progress cleared.", () => {
-        if (undoLastNewQuest()) {
-          const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
-          navigate(target);
-          import("./main.js").then((m) => m.syncContinueButton());
-        }
-      });
-    };
-    if (hasQuestSave()) {
-      showNewQuestConfirm({ onKeep: () => {}, onStartOver: startFresh });
-    } else {
-      startFresh();
-    }
+    requestFreshQuestStart();
   });
 
   $("btnContinue")?.addEventListener("click", () => {
@@ -1054,9 +1064,7 @@ function initDecree() {
     setTimeout(() => hide(toast), 2000);
   });
   $("btnReplay")?.addEventListener("click", () => {
-    beginNewQuest();
-    const base = location.pathname + (location.search || "");
-    location.replace(base);
+    requestFreshQuestStart();
   });
 }
 

@@ -67,24 +67,34 @@ async function networkFirst(request) {
     cache.put(request, res.clone());
     return res;
   } catch (_) {
-    const cached = await caches.match(request);
+    const cached = await matchCached(request);
     if (cached) return cached;
-    return caches.match("./index.html");
+    return caches.match("./index.html", { ignoreSearch: true });
   }
 }
 
+async function matchCached(request) {
+  const hit = await caches.match(request);
+  if (hit) return hit;
+  return caches.match(request, { ignoreSearch: true });
+}
+
 async function cacheFirst(request) {
-  const cached = await caches.match(request);
+  const cached = await matchCached(request);
   if (cached) return cached;
   try {
     const res = await fetch(request);
     if (res.ok) {
       const cache = await caches.open(ASSET_CACHE);
       cache.put(request, res.clone());
+      const pathKey = new URL(request.url).pathname;
+      if (pathKey !== request.url) {
+        cache.put(pathKey, res.clone());
+      }
     }
     return res;
   } catch (_) {
-    return cached;
+    return matchCached(request);
   }
 }
 

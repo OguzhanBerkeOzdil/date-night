@@ -32,31 +32,42 @@ export function detachSteedDialogue() {
   document.getElementById("steedDialogueAnchor")?.setAttribute("aria-hidden", "true");
 }
 
+function advanceDialogue() {
+  const box = document.getElementById("dialogueBox");
+  if (!box || box.classList.contains("hidden")) return;
+  if (document.body.dataset.screen === "steed") {
+    if (typing) {
+      skipLine();
+      return;
+    }
+    if (queue.length) {
+      showNext();
+      return;
+    }
+    hideDialogue();
+    return;
+  }
+  if (typing) {
+    skipLine();
+  } else if (queue.length) {
+    showNext();
+  } else if (onDone) {
+    const fn = onDone;
+    onDone = null;
+    fn();
+  }
+}
+
 export function initDialogue() {
   const box = document.getElementById("dialogueBox");
   if (!box) return;
+  box.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    advanceDialogue();
+  });
   box.addEventListener("click", () => {
-    if (document.body.dataset.screen === "steed") {
-      if (typing) {
-        skipLine();
-        return;
-      }
-      if (queue.length) {
-        showNext();
-        return;
-      }
-      hideDialogue();
-      return;
-    }
-    if (typing) {
-      skipLine();
-    } else if (queue.length) {
-      showNext();
-    } else if (onDone) {
-      const fn = onDone;
-      onDone = null;
-      fn();
-    }
+    advanceDialogue();
   });
 }
 
@@ -85,7 +96,10 @@ export function say(lines, done) {
   if (document.body.dataset.screen === "steed") attachSteedDialogue();
   queue = lines.map(stripDuplicateName);
   onDone = done || null;
-  document.getElementById("dialogueBox")?.classList.remove("hidden");
+  const box = document.getElementById("dialogueBox");
+  box?.classList.remove("hidden");
+  box?.setAttribute("tabindex", "0");
+  box?.focus();
   showNext();
 }
 
@@ -93,7 +107,9 @@ export function hideDialogue() {
   if (steedHideTimer) clearTimeout(steedHideTimer);
   steedHideTimer = null;
   detachSteedDialogue();
-  document.getElementById("dialogueBox")?.classList.add("hidden");
+  const box = document.getElementById("dialogueBox");
+  box?.classList.add("hidden");
+  box?.setAttribute("tabindex", "-1");
   queue = [];
   typing = false;
   onDone = null;
