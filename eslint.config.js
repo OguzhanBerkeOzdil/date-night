@@ -4,7 +4,7 @@ import globals from "globals";
 export default [
   js.configs.recommended,
   {
-    ignores: ["node_modules/**", "package-lock.json"],
+    ignores: ["node_modules/**", "package-lock.json", "tests/fixtures/.sw-upgrade-cache/**"],
   },
   {
     files: ["**/*.js", "**/*.mjs"],

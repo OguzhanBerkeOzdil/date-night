@@ -46,12 +46,14 @@ export function showAppToast(message, { duration = 4000, actionLabel, onAction }
   }, duration);
 }
 
-export function showUndoToast(message, onUndo, durationMs = 6000) {
+export function showUndoToast(message, onUndo, { durationMs = 6000, onExpire } = {}) {
   if (undoTimer) clearTimeout(undoTimer);
+  let undone = false;
   showAppToast(message, {
     duration: durationMs,
     actionLabel: "Undo",
     onAction: () => {
+      undone = true;
       if (undoTimer) clearTimeout(undoTimer);
       undoTimer = null;
       onUndo();
@@ -59,6 +61,7 @@ export function showUndoToast(message, onUndo, durationMs = 6000) {
   });
   undoTimer = window.setTimeout(() => {
     undoTimer = null;
+    if (!undone) onExpire?.();
   }, durationMs);
 }
 

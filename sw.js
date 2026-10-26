@@ -1,4 +1,5 @@
-import { APP_CACHE_VERSION } from "./js/cache-version.js";
+/* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
+const APP_CACHE_VERSION = "20261031";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -44,7 +45,9 @@ self.addEventListener("install", (event) => {
       .open(SHELL_CACHE)
       .then((cache) => cache.addAll(SHELL.map((u) => new Request(u, { cache: "reload" }))))
       .then(() => self.skipWaiting())
-      .catch(() => {})
+      .catch((err) => {
+        console.warn("[quest-sw] install failed", err);
+      })
   );
 });
 
@@ -53,51 +56,41 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(
-          keys
-            .filter((k) => k.startsWith("quest-") && k !== SHELL_CACHE && k !== ASSET_CACHE)
-            .map((k) => caches.delete(k))
-        )
+        Promise.all(keys.filter((k) => k !== SHELL_CACHE && k !== ASSET_CACHE).map((k) => caches.delete(k)))
       )
       .then(() => self.clients.claim())
   );
 });
 
-async function matchCached(request) {
-  const hit = await caches.match(request);
-  if (hit) return hit;
-  return caches.match(request, { ignoreSearch: true });
-}
-
 async function networkFirst(request) {
   try {
     const res = await fetch(request);
-    const cache = await caches.open(SHELL_CACHE);
-    cache.put(request, res.clone());
+    if (res.ok) {
+      const cache = await caches.open(SHELL_CACHE);
+      await cache.put(request, res.clone());
+    }
     return res;
-  } catch (_) {
-    const cached = await matchCached(request);
+  } catch (err) {
+    const cached = await caches.match(request);
     if (cached) return cached;
-    return caches.match("./index.html", { ignoreSearch: true });
+    const index = await caches.match("./index.html");
+    if (index) return index;
+    throw err;
   }
 }
 
-async function cacheFirst(request) {
-  const cached = await matchCached(request);
-  if (cached) return cached;
+async function versionedAsset(request) {
   try {
     const res = await fetch(request);
     if (res.ok) {
       const cache = await caches.open(ASSET_CACHE);
-      cache.put(request, res.clone());
-      const pathKey = new URL(request.url).pathname;
-      if (pathKey !== request.url) {
-        cache.put(pathKey, res.clone());
-      }
+      await cache.put(request, res.clone());
     }
     return res;
-  } catch (_) {
-    return matchCached(request);
+  } catch (err) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    throw err;
   }
 }
 
@@ -117,7 +110,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.includes("/js/") ||
     url.pathname.includes("/assets/")
   ) {
-    event.respondWith(cacheFirst(request));
+    event.respondWith(versionedAsset(request));
     return;
   }
 });

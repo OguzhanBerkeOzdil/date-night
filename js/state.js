@@ -111,6 +111,9 @@ export function loadState() {
 export function saveState() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
+    if (snapshotIsUndoable(state)) {
+      clearPendingUndo();
+    }
   } catch (_) {
     showSaveWarningToast();
   }
@@ -148,8 +151,7 @@ export function beginNewQuest() {
   try {
     const snap = readSnapshotFromStorage();
     if (snapshotIsUndoable(snap)) {
-      const pendingOk = snapshotIsUndoable(pendingUndoSnapshot);
-      if (!pendingOk) pendingUndoSnapshot = snap;
+      pendingUndoSnapshot = snap;
     }
     state = defaultState();
     saveState();
