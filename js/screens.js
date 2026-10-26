@@ -10,6 +10,8 @@ import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
 import {
   disarmHonestLink,
+  dismissDragonChoicesOnYes,
+  resetDragonChoiceVisibility,
   honestDeclineClickAllowed,
   scheduleHonestLinkArm,
   setPointerOnNay,
@@ -653,6 +655,7 @@ function initDragon() {
       btnNo.textContent = COPY.noLabels[0];
       hide($("dragonFoolCaption"));
     }
+    resetDragonChoiceVisibility();
     disarmHonestLink();
     showHonestDeclineLink();
     scheduleHonestLinkArm();
@@ -776,8 +779,7 @@ function initDragon() {
     $("dragonImg").src = "assets/images/dragon-befriended.webp";
     $("horseQuestImg").src = "assets/images/horse-rear.webp";
     $("horseQuest")?.classList.add("horse-mascot--hop");
-    disarmHonestLink();
-    hide(btnNo);
+    dismissDragonChoicesOnYes();
     unlock("dragon");
     burstHearts(window.innerWidth / 2, window.innerHeight / 2);
     vibrate([60, 30, 120]);

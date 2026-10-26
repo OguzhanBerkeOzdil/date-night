@@ -56,6 +56,12 @@
   opacity: 1;
 }
 
+#realNoLink.dragon-resolved-hide,
+#btnNo.dragon-resolved-hide {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .journal-panel,
 .letter-panel,
 .sheet-panel,

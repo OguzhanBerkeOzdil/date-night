@@ -10,7 +10,6 @@ import { initScreens, onScreenEnter } from "./screens.js";
 import { syncContinueButton } from "./app-chrome.js";
 
 export { syncContinueButton };
-import { APP_CACHE_VERSION } from "./cache-version.js";
 import { guest, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
@@ -172,17 +171,43 @@ else boot();
 
 if ("serviceWorker" in navigator) {
   const SW_RELOAD_KEY = "quest-sw-pending-reload";
+  const SW_SESSION_RELOADED_KEY = "quest-sw-session-reloaded";
+  const SW_AUTO_RELOAD_COUNT_KEY = "quest-sw-auto-reload-count";
   let swReloading = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (sessionStorage.getItem(SW_SESSION_RELOADED_KEY) === "1") return;
     if (sessionStorage.getItem(SW_RELOAD_KEY) !== "1") return;
     sessionStorage.removeItem(SW_RELOAD_KEY);
+    sessionStorage.setItem(SW_SESSION_RELOADED_KEY, "1");
+    const count = Number(sessionStorage.getItem(SW_AUTO_RELOAD_COUNT_KEY) || 0) + 1;
+    sessionStorage.setItem(SW_AUTO_RELOAD_COUNT_KEY, String(count));
     if (swReloading) return;
     swReloading = true;
     window.location.reload();
   });
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register(`./sw.js?v=${APP_CACHE_VERSION}`, { scope: "./" })
+      .getRegistrations()
+      .then((regs) =>
+        Promise.all(
+          regs
+            .filter((reg) => {
+              const script =
+                reg.active?.scriptURL ||
+                reg.waiting?.scriptURL ||
+                reg.installing?.scriptURL ||
+                "";
+              return /\/sw\.js\?/.test(script);
+            })
+            .map((reg) => reg.unregister())
+        )
+      )
+      .then(() =>
+        navigator.serviceWorker.register("./sw.js", {
+          scope: "./",
+          updateViaCache: "none",
+        })
+      )
       .then((reg) => {
         reg.addEventListener("updatefound", () => {
           const worker = reg.installing;
