@@ -43,6 +43,20 @@ test("beginNewQuest and undo restore prior save", async () => {
   assert.equal(S.state.noAttempts, 2);
 });
 
+test("undo restores latest quest after toast expired and new progress", async () => {
+  const { beginNewQuest, undoLastNewQuest, saveState, clearPendingUndo, __setStateForTest } = S;
+  __setStateForTest({ lastScreen: "decree", steedName: "QuestA", secondDate: "yes" });
+  saveState();
+  beginNewQuest();
+  clearPendingUndo();
+  __setStateForTest({ lastScreen: "decree", steedName: "QuestB", secondDate: "yes", tarotKey: "golden" });
+  saveState();
+  beginNewQuest();
+  assert.ok(undoLastNewQuest());
+  assert.equal(S.state.steedName, "QuestB");
+  assert.equal(S.state.tarotKey, "golden");
+});
+
 test("second beginNewQuest does not overwrite undo snapshot with empty save", async () => {
   const { beginNewQuest, undoLastNewQuest, saveState, __setStateForTest, __getPendingUndoSnapshot } = S;
   __setStateForTest({ lastScreen: "oracle", steedName: "Thunder", tarotKey: "golden" });

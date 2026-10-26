@@ -171,10 +171,32 @@ if (document.readyState === "loading") document.addEventListener("DOMContentLoad
 else boot();
 
 if ("serviceWorker" in navigator) {
+  const SW_RELOAD_KEY = "quest-sw-pending-reload";
+  let swReloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (sessionStorage.getItem(SW_RELOAD_KEY) !== "1") return;
+    sessionStorage.removeItem(SW_RELOAD_KEY);
+    if (swReloading) return;
+    swReloading = true;
+    window.location.reload();
+  });
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register(`./sw.js?v=${APP_CACHE_VERSION}`, { scope: "./", type: "module" })
-      .catch(() => {});
+      .register(`./sw.js?v=${APP_CACHE_VERSION}`, { scope: "./" })
+      .then((reg) => {
+        reg.addEventListener("updatefound", () => {
+          const worker = reg.installing;
+          if (!worker) return;
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+              sessionStorage.setItem(SW_RELOAD_KEY, "1");
+            }
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn("[quest-sw] register failed", err);
+      });
   });
 }
 

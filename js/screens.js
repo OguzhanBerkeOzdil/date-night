@@ -24,6 +24,7 @@ import {
   questOfTitle,
   letterSalutation,
   beginNewQuest,
+  clearPendingUndo,
   hasQuestSave,
   saveState,
   state,
@@ -161,13 +162,17 @@ function startFreshQuestWithUndo() {
   }
   navigate("summons");
   if (hadSave) {
-    showUndoToast("Quest reset — progress cleared.", () => {
-      if (undoLastNewQuest()) {
-        const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
-        navigate(target);
-        syncContinueButton();
-      }
-    });
+    showUndoToast(
+      "Quest reset — progress cleared.",
+      () => {
+        if (undoLastNewQuest()) {
+          const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
+          navigate(target);
+          syncContinueButton();
+        }
+      },
+      { onExpire: clearPendingUndo }
+    );
   } else {
     syncContinueButton();
   }
