@@ -7,11 +7,29 @@ test("offline reload reaches decree after first visit", async ({ page, context }
   });
   await page.goto("/?name=Ayse");
   await page.waitForLoadState("networkidle");
+  await page.evaluate(() => {
+    localStorage.setItem(
+      "questLady_v2",
+      JSON.stringify({
+        steedName: "Clover",
+        steedClass: "Knight of the Wildflowers",
+        lastScreen: "decree",
+        secondDate: "yes",
+        rating: 10,
+        todayVibe: "A rom-com, but medieval",
+        food: ["Pizza"],
+        potionName: "Elixir of Hearth Ember",
+        day: "Saturday",
+        time: "Morning ride",
+        tarotCard: "The Golden Hour",
+        tarotKey: "golden",
+      })
+    );
+  });
   await context.setOffline(true);
   await page.reload();
-  await expect(page.locator("#btnNewGame")).toBeVisible();
-  await page.locator("#btnNewGame").click();
-  await page.waitForSelector('[data-screen="summons"].screen--active');
-  await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
-  await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 20000 });
+  await expect(page.locator("#btnContinue")).toBeVisible();
+  await page.locator("#btnContinue").click();
+  await page.waitForSelector('[data-screen="decree"].screen--active');
+  await expect(page.locator("#decreePreview")).toContainText("ROYAL QUEST DECREE");
 });
