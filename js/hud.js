@@ -6,6 +6,58 @@ const NODE_X = [4, 14, 28, 42, 56, 70, 84, 92, 98];
 const NODE_Y = [72, 48, 68, 58, 52, 42, 46, 38, 62];
 
 let trailLength = 100;
+let mapTrigger = null;
+
+function getFocusable(root) {
+  return [...root.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(
+    (n) => !n.disabled && !n.closest("[hidden]")
+  );
+}
+
+function trapFocus(e, root) {
+  if (e.key !== "Tab") return;
+  const list = getFocusable(root);
+  if (!list.length) return;
+  const first = list[0];
+  const last = list[list.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
+function openMapOverlay(overlay) {
+  ensureHudTokenImage();
+  ensureQuestMapImage();
+  overlay.classList.add("map-overlay--open");
+  overlay.removeAttribute("hidden");
+  const closeBtn = document.getElementById("mapClose");
+  closeBtn?.focus();
+  const onKey = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeMapOverlay(overlay);
+    } else {
+      trapFocus(e, overlay);
+    }
+  };
+  overlay.dataset.keyHandler = "1";
+  overlay._onKey = onKey;
+  document.addEventListener("keydown", onKey);
+}
+
+function closeMapOverlay(overlay) {
+  overlay.classList.remove("map-overlay--open");
+  overlay.setAttribute("hidden", "");
+  if (overlay._onKey) {
+    document.removeEventListener("keydown", overlay._onKey);
+    overlay._onKey = null;
+  }
+  mapTrigger?.focus();
+}
 
 export function initHud() {
   const hud = document.getElementById("questHud");
@@ -29,14 +81,13 @@ export function initHud() {
   }
 
   hud?.addEventListener("click", () => {
-    ensureHudTokenImage();
-    ensureQuestMapImage();
-    overlay?.classList.add("map-overlay--open");
+    mapTrigger = hud;
+    openMapOverlay(overlay);
   });
   overlay?.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.classList.remove("map-overlay--open");
+    if (e.target === overlay) closeMapOverlay(overlay);
   });
-  document.getElementById("mapClose")?.addEventListener("click", () => overlay?.classList.remove("map-overlay--open"));
+  document.getElementById("mapClose")?.addEventListener("click", () => closeMapOverlay(overlay));
 }
 
 function ensureHudTokenImage() {

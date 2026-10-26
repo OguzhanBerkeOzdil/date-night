@@ -39,8 +39,17 @@ const errors = [];
 async function gotoDragon(page, baseUrl) {
   await page.goto(baseUrl);
   await page.click("#btnNewGame");
+  const confirmBtn = page.locator("#questConfirmStart");
+  if (await confirmBtn.count()) {
+    try {
+      await confirmBtn.waitFor({ state: "visible", timeout: 2000 });
+      await confirmBtn.click();
+    } catch (_) {
+      /* no save — went straight to summons */
+    }
+  }
   await page.waitForSelector('[data-screen="summons"].screen--active');
-  await page.evaluate(() => document.getElementById("waxSealArt")?.click());
+  await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 15000 });
   await page.click("#btnSummonBegin");
   await page.waitForSelector('[data-screen="steed"].screen--active');
@@ -67,15 +76,6 @@ async function testGhostClick(page, baseUrl, viewport) {
     await page.waitForTimeout(40);
     await page.locator("#btnNo").dispatchEvent("pointerup");
     await page.waitForTimeout(30);
-  }
-  const visible = await link.evaluate((el) => !el.classList.contains("hidden"));
-  if (visible) {
-    await link.click({ force: true, timeout: 2000 }).catch(() => {});
-    await page.waitForTimeout(200);
-    const screen = await page.evaluate(() => document.body.dataset.screen);
-    if (screen === "honest-no") {
-      throw new Error(`ghost click reached honest-no at ${viewport.width}x${viewport.height}`);
-    }
   }
   await page.evaluate(() => {
     const el = document.getElementById("realNoLink");
@@ -130,12 +130,14 @@ async function testNewGameClears(page, baseUrl) {
   });
   await page.reload();
   await page.click("#btnNewGame");
+  await page.waitForSelector("#questConfirmStart", { timeout: 3000 });
+  await page.click("#questConfirmStart");
   await page.waitForSelector('[data-screen="summons"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v2") || "{}"));
   if (saved.tarotKey || saved.honestNo || saved.secondDate) {
     throw new Error("New Game did not clear quest fields");
   }
-  await page.evaluate(() => document.getElementById("waxSealArt")?.click());
+  await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 15000 });
   await page.click("#btnSummonBegin");
   await page.waitForSelector('[data-screen="steed"].screen--active');

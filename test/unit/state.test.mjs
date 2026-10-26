@@ -1,0 +1,44 @@
+import { test, beforeEach } from "node:test";
+import assert from "node:assert/strict";
+
+const store = new Map();
+
+function installMocks() {
+  globalThis.localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, String(v)),
+    removeItem: (k) => store.delete(k),
+  };
+  globalThis.location = { search: "?name=Test", pathname: "/", href: "http://localhost/" };
+}
+
+let S;
+
+beforeEach(async () => {
+  store.clear();
+  installMocks();
+  S = await import("../../js/state.js");
+  S.__resetModuleForTest();
+});
+
+test("hasQuestSave detects progressed screens", async () => {
+  const { hasQuestSave, saveState, __setStateForTest } = S;
+  __setStateForTest({ lastScreen: "title" });
+  assert.equal(hasQuestSave(), false);
+  __setStateForTest({ lastScreen: "rating" });
+  saveState();
+  assert.equal(hasQuestSave(), true);
+});
+
+test("beginNewQuest and undo restore prior save", async () => {
+  const { beginNewQuest, undoLastNewQuest, saveState, __setStateForTest } = S;
+  __setStateForTest({ lastScreen: "dragon", steedName: "Thunder", noAttempts: 2 });
+  saveState();
+  beginNewQuest();
+  assert.equal(S.state.lastScreen, "title");
+  assert.equal(S.state.steedName, "Clover");
+  assert.ok(undoLastNewQuest());
+  assert.equal(S.state.steedName, "Thunder");
+  assert.equal(S.state.lastScreen, "dragon");
+  assert.equal(S.state.noAttempts, 2);
+});

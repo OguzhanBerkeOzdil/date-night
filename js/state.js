@@ -1,4 +1,5 @@
 import { CONFIG } from "./config.js";
+import { showSaveWarningToast } from "./ui-feedback.js";
 
 const KEY = "questLady_v2";
 
@@ -88,6 +89,8 @@ export function hasQuestSave() {
 export let state = loadState();
 export const guest = parseGuestName();
 
+let pendingUndoSnapshot = null;
+
 export function loadState() {
   try {
     const raw = localStorage.getItem(KEY);
@@ -99,16 +102,56 @@ export function loadState() {
 export function saveState() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
-  } catch (_) {}
+  } catch (_) {
+    showSaveWarningToast();
+  }
 }
 
 export function resetState() {
   state = defaultState();
-  localStorage.removeItem(KEY);
+  try {
+    localStorage.removeItem(KEY);
+  } catch (_) {
+    showSaveWarningToast();
+  }
+}
+
+/** Restore quest after a New Game undo (in-memory snapshot). */
+export function undoLastNewQuest() {
+  if (!pendingUndoSnapshot) return false;
+  state = { ...defaultState(), ...pendingUndoSnapshot };
+  pendingUndoSnapshot = null;
+  saveState();
+  return true;
+}
+
+export function clearPendingUndo() {
+  pendingUndoSnapshot = null;
 }
 
 /** Fresh quest progress; keeps sound preferences in localStorage. */
 export function beginNewQuest() {
+  pendingUndoSnapshot = { ...state };
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) pendingUndoSnapshot = { ...defaultState(), ...JSON.parse(raw) };
+  } catch (_) {
+    pendingUndoSnapshot = { ...state };
+  }
   state = defaultState();
   saveState();
+}
+
+/** Test helpers */
+export function __setStateForTest(next) {
+  state = { ...defaultState(), ...next };
+}
+
+export function __getStorageKey() {
+  return KEY;
+}
+
+export function __resetModuleForTest() {
+  state = defaultState();
+  pendingUndoSnapshot = null;
 }

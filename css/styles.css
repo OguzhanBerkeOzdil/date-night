@@ -71,6 +71,12 @@ body {
   animation: sceneKenBurns 36s ease-in-out infinite alternate;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .scene-bg__kenburns {
+    animation: none !important;
+  }
+}
+
 .scene-bg__kenburns--slow {
   animation-duration: 44s;
 }

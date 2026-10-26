@@ -10,13 +10,24 @@ import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
 import {
   disarmHonestLink,
-  honestLinkIsArmed,
-  scheduleHonestLinkReveal,
+  honestDeclineClickAllowed,
+  scheduleHonestLinkArm,
   setPointerOnNay,
+  showHonestDeclineLink,
   swallowGhostClick,
 } from "./dragon-guards.js";
 import { updateEpigraph } from "./epigraph.js";
-import { guest, questOfTitle, letterSalutation, beginNewQuest, saveState, state } from "./state.js";
+import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
+import {
+  guest,
+  questOfTitle,
+  letterSalutation,
+  beginNewQuest,
+  hasQuestSave,
+  saveState,
+  state,
+  undoLastNewQuest,
+} from "./state.js";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A peasant classic with a royal taste" },
@@ -134,20 +145,34 @@ function initTitle() {
   });
 
   $("btnNewGame")?.addEventListener("click", () => {
-    beginNewQuest();
-    stirCount = 0;
-    potionBottled = false;
-    letterStarted = false;
-    sealing = false;
-    pickSteedIx = 0;
-    yesScale = 1;
-    noScale = 1;
-    unlockAudio();
-    if (isSoundOn()) {
-      startAmbience();
-      playHorn();
+    const startFresh = () => {
+      beginNewQuest();
+      stirCount = 0;
+      potionBottled = false;
+      letterStarted = false;
+      sealing = false;
+      pickSteedIx = 0;
+      yesScale = 1;
+      noScale = 1;
+      unlockAudio();
+      if (isSoundOn()) {
+        startAmbience();
+        playHorn();
+      }
+      navigate("summons");
+      showUndoToast("Quest reset — progress cleared.", () => {
+        if (undoLastNewQuest()) {
+          const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "title";
+          navigate(target);
+          import("./main.js").then((m) => m.syncContinueButton());
+        }
+      });
+    };
+    if (hasQuestSave()) {
+      showNewQuestConfirm({ onKeep: () => {}, onStartOver: startFresh });
+    } else {
+      startFresh();
     }
-    navigate("summons");
   });
 
   $("btnContinue")?.addEventListener("click", () => {
@@ -164,16 +189,20 @@ function initTitle() {
 }
 
 function initSummons() {
-  const seal = $("waxSealArt");
-  const breakSeal = () => {
-    if (seal?.classList.contains("cracked")) return;
-    seal.classList.add("cracked");
+  const sealBtn = $("waxSealBtn");
+  const sealArt = $("waxSealArt");
+  const breakSeal = (e) => {
+    if (e?.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+    if (e?.type === "keydown") e.preventDefault();
+    if (sealBtn?.classList.contains("cracked") || sealArt?.classList.contains("cracked")) return;
+    sealBtn?.classList.add("cracked");
+    sealArt?.classList.add("cracked");
     unlock("seal");
     show($("loadingQuest"));
     runOracleLoad();
   };
-  seal?.addEventListener("click", breakSeal);
-  seal?.addEventListener("pointerdown", breakSeal);
+  sealBtn?.addEventListener("click", breakSeal);
+  sealBtn?.addEventListener("keydown", breakSeal);
   $("btnSummonBegin")?.addEventListener("click", () => navigate("steed"));
 }
 
@@ -360,6 +389,7 @@ function initRating() {
       bonusShown = true;
       show(chip11);
       show($("ratingChips"));
+      show($("ratingChipsField"));
       show($("ratingChipLead"));
     }
   };
@@ -422,9 +452,7 @@ export function fitDragonArena() {
   if (!arena) return;
   const top = arena.getBoundingClientRect().top;
   const safeBottom = 12;
-  const linkHidden = document.getElementById("realNoLink")?.classList.contains("hidden");
-  const honestReserve =
-    linkHidden ? 10 : Math.max(honestWrap?.offsetHeight || 0, HONEST_LINK_SLOT_PX) + 8;
+  const honestReserve = Math.max(honestWrap?.offsetHeight || 0, HONEST_LINK_SLOT_PX) + 8;
   const maxBottom = window.innerHeight - honestReserve - safeBottom;
   const maxByViewport = Math.max(96, maxBottom - top);
   if (btnNo) btnNo.style.transform = noScale === 1 ? "" : `scale(${noScale})`;
@@ -540,6 +568,7 @@ function initDragon() {
   const arena = $("dateButtons");
   const hp = $("dragonHp");
   let hpVal = 100;
+  let nayDodgedThisVisit = false;
 
   function layoutDragon() {
     btnYes.style.transform = yesScale === 1 ? "" : `scale(${yesScale})`;
@@ -552,6 +581,7 @@ function initDragon() {
 
   syncDragonLayout = layoutDragon;
   enterDragonScreen = () => {
+    nayDodgedThisVisit = false;
     if (state.noAttempts === 0) {
       yesScale = 1;
       noScale = 1;
@@ -561,6 +591,8 @@ function initDragon() {
       hide($("dragonFoolCaption"));
     }
     disarmHonestLink();
+    showHonestDeclineLink();
+    scheduleHonestLinkArm();
     hide($("yesToast"));
     $("dragonScene")?.classList.remove("dragon-win");
     if ($("dragonImg")) $("dragonImg").src = "assets/images/dragon-doubt.webp";
@@ -643,19 +675,34 @@ function initDragon() {
       ensureDragonInViewport();
     }
 
-    if (state.noAttempts >= 7) {
-      scheduleHonestLinkReveal();
-      requestAnimationFrame(() => {
-        fitDragonArena();
-        ensureDragonInViewport();
-      });
-    } else {
-      disarmHonestLink();
-    }
+    scheduleHonestLinkArm();
     if (state.noAttempts >= 3) unlock("stubborn");
   }
 
-  btnNo?.addEventListener("pointerdown", dodge, { passive: false });
+  function onNayInteract(e) {
+    if (!nayDodgedThisVisit) {
+      nayDodgedThisVisit = true;
+      dodge(e);
+      return;
+    }
+    e?.preventDefault?.();
+    state.noAttempts++;
+    hpVal = Math.min(100, hpVal + 5);
+    if (hp) hp.style.width = hpVal + "%";
+    saveState();
+    const i = Math.min(state.noAttempts, COPY.noLabels.length) - 1;
+    btnNo.textContent = (COPY.noLabels[i] || "nay").replace(/\{steed\}/g, state.steedName);
+    if (state.noAttempts >= 3) {
+      const cap = $("dragonFoolCaption");
+      if (cap) {
+        cap.textContent = COPY.dragonFoolQuote;
+        show(cap);
+      }
+      unlock("stubborn");
+    }
+  }
+
+  btnNo?.addEventListener("pointerdown", onNayInteract, { passive: false });
   btnYes?.addEventListener("click", () => {
     state.secondDate = "yes";
     state.honestNo = false;
@@ -678,7 +725,7 @@ function initDragon() {
   });
 
   $("realNoLink")?.addEventListener("click", (e) => {
-    if (!honestLinkIsArmed()) {
+    if (!honestDeclineClickAllowed(e)) {
       e.preventDefault();
       e.stopPropagation();
       return;

@@ -1251,3 +1251,161 @@ body[data-screen="decree"] .achievement-wrap {
 body {
   --sky-tint: calc(var(--sky-phase, 0) * 1);
 }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wax-seal-btn {
+  display: block;
+  margin: 16px auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  animation: wiggleSeal 1.4s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+.wax-seal-btn:focus-visible {
+  outline: 3px solid var(--gold-light, #e8c547);
+  outline-offset: 6px;
+}
+
+.wax-seal-btn.cracked,
+.wax-seal-btn.cracked .wax-seal-art {
+  animation: sealBreak 0.6s forwards;
+}
+
+.wax-seal-btn .wax-seal-art {
+  margin: 0;
+  pointer-events: none;
+}
+
+.chip-field,
+.name-chips-field {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.chip-field legend,
+.name-chips-field legend {
+  padding: 0;
+}
+
+.quest-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(10, 18, 12, 0.72);
+}
+
+.quest-confirm.hidden {
+  display: none;
+}
+
+.quest-confirm__panel {
+  max-width: 360px;
+  width: 100%;
+  padding: 24px 20px;
+  position: relative;
+}
+
+.quest-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.app-toast-wrap {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 56px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(92vw, 380px);
+  pointer-events: none;
+}
+
+.app-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius, 12px);
+  background: rgba(26, 46, 31, 0.94);
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  color: #f4e8d0;
+  font-size: 0.9rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: toastIn 0.35s ease;
+}
+
+.app-toast--out {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: 0.3s ease;
+}
+
+.app-toast__text {
+  flex: 1;
+}
+
+.app-toast__action {
+  flex-shrink: 0;
+  border: 1px solid rgba(201, 162, 39, 0.6);
+  background: rgba(201, 162, 39, 0.15);
+  color: #f4e8d0;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-family: var(--font-display);
+  cursor: pointer;
+}
+
+.app-toast__action:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 2px;
+}
+
+.map-overlay[hidden]:not(.map-overlay--open) {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wax-seal-btn,
+  .wax-seal-art,
+  .scene-bg__kenburns,
+  .btn--primary.pulse,
+  .cauldron-glow,
+  .candle-glow {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
