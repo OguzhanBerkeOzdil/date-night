@@ -33,6 +33,33 @@ export function disarmHonestLink() {
   link.classList.remove("honest-link--armed");
 }
 
+export function resetDragonChoiceVisibility() {
+  for (const id of ["realNoLink", "btnNo"]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.removeAttribute("aria-hidden");
+    el.removeAttribute("tabindex");
+    el.classList.remove("dragon-resolved-hide");
+  }
+  const nay = document.getElementById("btnNo");
+  if (nay) {
+    nay.classList.remove("hidden");
+    nay.removeAttribute("hidden");
+  }
+}
+
+/** Hide Nay + honest link immediately on Yes (keep layout; no focus). */
+export function dismissDragonChoicesOnYes() {
+  disarmHonestLink();
+  for (const id of ["realNoLink", "btnNo"]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.setAttribute("aria-hidden", "true");
+    el.setAttribute("tabindex", "-1");
+    el.classList.add("dragon-resolved-hide");
+  }
+}
+
 export function showHonestDeclineLink() {
   const link = document.getElementById("realNoLink");
   if (!link) return;
