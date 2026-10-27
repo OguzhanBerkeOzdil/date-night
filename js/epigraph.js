@@ -29,8 +29,8 @@ const PANEL_EPIGRAPH_SCREENS = new Set([
 ]);
 
 const HONEST_EPIGRAPH = {
-  text: "I had rather hear my dog bark at a crow than a man swear he loves me.",
-  by: "Shakespeare, Much Ado About Nothing (Beatrice)",
+  text: "No pressure, no sequel bait — the gate stays open if you change your mind.",
+  by: "Berke, in the margin",
 };
 
 function isShortViewport() {

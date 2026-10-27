@@ -70,13 +70,14 @@
   }
 
   .achievement-wrap {
-    width: min(260px, max(140px, calc(var(--column-left) - 20px)));
-    left: auto;
-    right: max(12px, calc(100vw - var(--column-right) - 272px));
+    width: auto;
+    max-width: min(300px, calc(var(--game-column) - 16px));
+    left: max(12px, calc(var(--column-left) - 8px));
+    right: auto;
     transform: none;
-    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    top: calc(env(safe-area-inset-top, 0px) + 76px);
     bottom: auto;
-    align-items: flex-end;
+    align-items: stretch;
   }
 
   .achievement-wrap--shift {
@@ -146,6 +147,24 @@
 }
 
 @media (min-aspect-ratio: 1/1) and (min-width: 1200px) {
+  .scene-bg,
+  .scene-bg__kenburns,
+  .scene-bg picture,
+  .scene-bg__img {
+    min-height: 100dvh;
+    height: 100%;
+  }
+
+  [data-screen="oracle"] .letter-body {
+    padding: 14px 16px;
+    color: var(--ink);
+  }
+
+  [data-screen="oracle"] .tarot-fortune {
+    color: var(--ink);
+    text-shadow: none;
+  }
+
   .scene-bg__readability {
     background:
       linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, transparent 22%, transparent 78%, rgba(0, 0, 0, 0.42) 100%),

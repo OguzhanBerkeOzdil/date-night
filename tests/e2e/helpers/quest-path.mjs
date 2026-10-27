@@ -1,4 +1,4 @@
-import { tabTo, activate, dismissSteedDialogue, waitForScreen, confirmNewQuestIfShown } from "./keyboard.mjs";
+import { tabTo, activate, dismissSteedDialogue, waitForScreen } from "./keyboard.mjs";
 import { completeEveMouse } from "./eve-path.mjs";
 
 export async function breakSealKeyboard(page) {
@@ -9,13 +9,13 @@ export async function breakSealKeyboard(page) {
 
 export async function runQuestToDragonKeyboard(page) {
   await page.goto("/?name=Ayse");
-  await tabTo(page, "#btnNewGame");
-  await activate(page);
-  await confirmNewQuestIfShown(page);
   await completeEveMouse(page);
   await waitForScreen(page, "summons");
   await breakSealKeyboard(page);
   await tabTo(page, "#btnSummonBegin");
+  await activate(page);
+  await waitForScreen(page, "gerald-toll");
+  await tabTo(page, "#btnPayPotatoes");
   await activate(page);
   await waitForScreen(page, "steed");
   await dismissSteedDialogue(page);
@@ -27,9 +27,6 @@ export async function runQuestToDragonKeyboard(page) {
   await tabTo(page, '[data-class="Knight of the Wildflowers"]');
   await activate(page);
   await tabTo(page, "#btnSheetNext");
-  await activate(page);
-  await waitForScreen(page, "rating");
-  await tabTo(page, "#btnRatingNext");
   await activate(page);
   await waitForScreen(page, "journal");
   await tabTo(page, ".journal-entry");
@@ -70,18 +67,22 @@ export async function runQuestToDecreeKeyboard(page) {
   await page.waitForSelector("#btnToDecree:not(.hidden)", { timeout: 8000 });
   await tabTo(page, "#btnToDecree");
   await activate(page);
+  await waitForScreen(page, "rating");
+  await tabTo(page, "#btnRatingNext");
+  await activate(page);
   await waitForScreen(page, "decree");
 }
 
 export async function reachDecreeMouse(page) {
   await page.goto("/?name=Ayse");
-  await page.locator("#btnNewGame").click();
   await completeEveMouse(page);
   await page.waitForSelector('[data-screen="summons"].screen--active');
   await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 20000 });
   await page.locator("#btnSummonBegin").click();
-  await page.waitForSelector('[data-screen="steed"].screen--active');
+  await page.waitForSelector('[data-screen="gerald-toll"].screen--active');
+  await page.locator("#btnPayPotatoes").click();
+  await page.waitForSelector('[data-screen="steed"].screen--active', { timeout: 15000 });
   for (let i = 0; i < 4; i++) {
     const box = page.locator("#dialogueBox:not(.hidden)");
     if (await box.count()) await box.click();
@@ -90,7 +91,6 @@ export async function reachDecreeMouse(page) {
   await page.locator("#btnRoll").click();
   await page.locator('[data-class="Knight of the Wildflowers"]').click();
   await page.locator("#btnSheetNext").click();
-  await page.locator("#btnRatingNext").click();
   await page.locator(".journal-entry").first().click();
   await page.locator("#btnYes").click();
   await page.locator(".menu-item").first().click();
@@ -104,5 +104,7 @@ export async function reachDecreeMouse(page) {
   await page.locator(".tarot-card").first().click();
   await page.locator("#btnOpenLetter").click();
   await page.locator("#btnToDecree").click();
+  await page.waitForSelector('[data-screen="rating"].screen--active');
+  await page.locator("#btnRatingNext").click();
   await page.waitForSelector('[data-screen="decree"].screen--active');
 }

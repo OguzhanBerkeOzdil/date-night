@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261113">
+  <link rel="manifest" href="manifest.webmanifest?v=20261118">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261113">
-  <link rel="stylesheet" href="css/styles.css?v=20261113">
-  <link rel="stylesheet" href="css/v2.css?v=20261113">
-  <link rel="stylesheet" href="css/desktop.css?v=20261113">
-  <link rel="stylesheet" href="css/today.css?v=20261113">
+  <link rel="stylesheet" href="css/fonts.css?v=20261118">
+  <link rel="stylesheet" href="css/styles.css?v=20261118">
+  <link rel="stylesheet" href="css/v2.css?v=20261118">
+  <link rel="stylesheet" href="css/desktop.css?v=20261118">
+  <link rel="stylesheet" href="css/today.css?v=20261118">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -207,7 +207,7 @@
     <section class="screen" data-screen="summons">
       <div class="screen__inner parchment-textured ornate">
         <p class="kicker">Chapter II · the full quest</p>
-        <h2 class="title">A small summons for <span data-lady>my lady</span></h2>
+        <h2 class="title" id="summonsTitle">A small summons for you</h2>
         <p class="body-text">The seal is open. The horse, the oracle and several questionable decisions are waiting.</p>
         <p class="small-print">Estimated time: a few minutes. Emotional paperwork: intentionally low.</p>
         <div class="wax-art-wrap">
@@ -224,6 +224,18 @@
       </div>
     </section>
 
+    <section class="screen" data-screen="gerald-toll">
+      <div class="screen__inner ornate chapter-panel">
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
+        <img class="today-character" src="assets/characters/gerald-accountant.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
+        <h2 class="title">Gerald the Dragon's accountant</h2>
+        <p class="body-text" id="geraldTollInvoice"></p>
+        <p class="sub" id="geraldTollReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary" id="btnPayPotatoes">Pay in potatoes</button>
+        <button type="button" class="btn btn--secondary" id="btnDisputeGoose">Dispute with the goose</button>
+      </div>
+    </section>
+
     <section class="screen" data-screen="steed">
       <div class="screen__inner steed-screen">
         <fieldset class="horse-breed-field">
@@ -237,7 +249,7 @@
           <div id="steedDialogueAnchor" class="steed-dialogue-anchor" aria-hidden="true"></div>
         </div>
         <p class="horse-personality" id="horsePersonality" aria-live="polite"></p>
-        <p class="affection" id="affectionBar" aria-live="polite">♡♡♡♡♡</p>
+        <p class="affection" id="affectionBar" aria-live="polite">○○○○○</p>
         <button type="button" class="carrot-btn" id="carrotBtn">🥕 Feed carrot</button>
         <fieldset class="name-chips-field">
           <legend class="sub-label">Name your steed</legend>
@@ -267,30 +279,6 @@
       </div>
     </section>
 
-    <section class="screen" data-screen="rating">
-      <div class="screen__inner ornate parchment">
-        <h2 class="title">Pick the quest's energy</h2>
-        <p class="sub">This rates the adventure level, not a person. The horse insisted we clarify.</p>
-        <div class="slider-wrap">
-          <label class="field-label" for="ratingSlider">Adventure energy</label>
-          <input type="range" id="ratingSlider" min="1" max="5" value="3" aria-describedby="ratingCaption">
-          <div class="slider-value" id="ratingValue" aria-hidden="true">3</div>
-          <p id="ratingCaption" class="caption">Balanced: room for fun and a snack break.</p>
-          <p class="sub-label hidden" id="ratingChipLead">Optional quest modifier</p>
-          <fieldset id="ratingChipsField" class="chip-field hidden" hidden>
-            <legend class="sub-label" id="ratingChipsLegend">Optional quest modifier</legend>
-          <div id="ratingChips" class="chip-row" role="group" aria-labelledby="ratingChipsLegend">
-            <button type="button" class="chip-select" data-rating-chip="keep it spontaneous">Keep it spontaneous</button>
-            <button type="button" class="chip-select" data-rating-chip="leave room for snacks">Leave room for snacks</button>
-            <button type="button" class="chip-select" data-rating-chip="gentle pace">Gentle pace</button>
-            <button type="button" class="chip-select" data-rating-chip="surprise me">Surprise me</button>
-          </div>
-          </fieldset>
-        </div>
-        <button type="button" class="btn btn--primary" id="btnRatingNext">Save the energy</button>
-      </div>
-    </section>
-
     <section class="screen" data-screen="journal">
       <div class="screen__inner journal-panel ornate">
         <h2 class="title">The quest could feel like…</h2>
@@ -305,8 +293,10 @@
         <picture class="horse-mascot horse-mascot--quest" id="horseQuest">
           <img id="horseQuestImg" class="horse-cutout small" src="assets/images/horse-idle.webp" alt="">
         </picture>
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
+        <img class="today-character goose-cameo hidden" id="royalGooseCameo" src="assets/characters/royal-goose.webp" alt="" width="88" height="88" loading="lazy" decoding="async">
         <h2 class="title">A quick quest checkpoint</h2>
-        <p class="privacy-note">Still comfortable continuing? Your choices help Berke prepare. No tracking.</p>
+        <p class="privacy-note" id="dragonCompanionLine">Still comfortable continuing? Your choices help Berke prepare. No tracking.</p>
         <div class="date-buttons" id="dateButtons">
           <button type="button" class="btn btn--yes" id="btnYes">Charge onward</button>
           <button type="button" class="btn btn--secondary" id="btnMaybe">Proceed, but blame the horse</button>
@@ -329,7 +319,9 @@
         <h2 class="title">Provisions for the journey</h2>
         <p class="sub">The innkeeper awaits your order. Pick as many as you like.</p>
         <div id="tavernMenu" class="menu-list"></div>
+        <p class="small-print" id="fanumTaxExplain"></p>
         <label class="fanum-tax" id="fanumTaxLabel" for="fanumTax"><input type="checkbox" id="fanumTax" checked> I grant the fanum tax: one bite from my plate (non-negotiable, per ancient law)</label>
+        <p class="sub hidden" id="tavernMartaLine"></p>
         <button type="button" class="btn btn--primary" id="btnTavernNext">Onward →</button>
       </div>
     </section>
@@ -382,7 +374,30 @@
         <div class="letter-panel hidden" id="letterPanel">
           <div id="letterBody" class="letter-body"></div>
         </div>
-        <button type="button" class="btn btn--primary hidden" id="btnToDecree">Create adventurer's pass</button>
+        <button type="button" class="btn btn--primary hidden" id="btnToDecree">Continue to the quest log</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="rating">
+      <div class="screen__inner ornate parchment">
+        <h2 class="title">Pick the quest's energy</h2>
+        <p class="sub">This rates the adventure level, not a person. The horse insisted we clarify.</p>
+        <div class="slider-wrap">
+          <label class="field-label" for="ratingSlider">Adventure energy</label>
+          <input type="range" id="ratingSlider" min="1" max="5" value="3" aria-describedby="ratingCaption">
+          <div class="slider-value" id="ratingValue" aria-hidden="true">3</div>
+          <p id="ratingCaption" class="caption">Balanced: room for fun and a snack break.</p>
+          <fieldset id="ratingChipsField" class="chip-field hidden" hidden>
+            <legend class="sub-label" id="ratingChipsLegend">Optional quest modifier</legend>
+          <div id="ratingChips" class="chip-row" role="group" aria-labelledby="ratingChipsLegend">
+            <button type="button" class="chip-select" data-rating-chip="keep it spontaneous">Keep it spontaneous</button>
+            <button type="button" class="chip-select" data-rating-chip="leave room for snacks">Leave room for snacks</button>
+            <button type="button" class="chip-select" data-rating-chip="gentle pace">Gentle pace</button>
+            <button type="button" class="chip-select" data-rating-chip="surprise me">Surprise me</button>
+          </div>
+          </fieldset>
+        </div>
+        <button type="button" class="btn btn--primary" id="btnRatingNext">Stamp the quest log →</button>
       </div>
     </section>
 
@@ -390,11 +405,15 @@
       <div class="screen__inner celebration">
         <p class="kicker light">Chapter II complete</p>
         <h2 class="title light">The full quest is complete</h2>
-        <div class="decree-wrap parchment-textured ornate">
-          <img id="waxStampAnim" class="wax-stamp-anim" src="assets/images/wax-seal.webp" alt="">
+        <div class="decree-wrap decree-wrap--card">
+          <div id="waxStampAnim" class="decree-corner-seal wax-stamp-anim" role="presentation" aria-hidden="true">
+            <img class="decree-corner-seal__img" src="assets/images/wax-seal.webp" alt="" width="80" height="80" decoding="async">
+          </div>
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
         <p class="chapter-teaser">The horse files this adventure under: surprisingly successful paperwork.</p>
+        <button type="button" class="btn btn--primary" id="btnDecreeToPause">Quest in progress — phones away</button>
         <div class="action-row">
           <button type="button" class="btn btn--secondary" id="btnShare">Share the quest log</button>
           <button type="button" class="btn btn--secondary" id="btnSavePng">Save quest log as image</button>
@@ -422,6 +441,7 @@
       <div class="screen__inner ornate chapter-panel">
         <p class="kicker">Chapter II · the full quest</p>
         <h2 class="title">The seal is ready to break</h2>
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="quest-recap" id="questRecap"></div>
         <p class="body-text">Yesterday was the invitation. Today the complete adventure begins.</p>
         <button type="button" class="btn btn--primary" id="btnStartAdventure">Break the seal and begin</button>
@@ -434,7 +454,7 @@
         <h2 class="title">Phones away. Adventure starts now.</h2>
         <p class="body-text" id="activeBuffText">Your party buff is active.</p>
         <p class="sub">Come back here together at the end. The horse will keep the page warm.</p>
-        <button type="button" class="btn btn--primary" id="btnFinishQuest">Finish the quest later</button>
+        <button type="button" class="btn btn--primary" id="btnFinishQuest">We're back — debrief</button>
       </div>
     </section>
 
@@ -471,7 +491,7 @@
         <p class="kicker light">Chapter II complete</p>
         <h2 class="title light">Second quest complete</h2>
         <p class="sub light center">We survived the sequel.</p>
-        <div class="decree-wrap parchment-textured ornate">
+        <div class="decree-wrap decree-wrap--card">
           <pre class="ticket decree" id="finalPreview"></pre>
         </div>
         <div class="action-row">
@@ -508,6 +528,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261113"></script>
+  <script type="module" src="js/main.js?v=20261118"></script>
 </body>
 </html>

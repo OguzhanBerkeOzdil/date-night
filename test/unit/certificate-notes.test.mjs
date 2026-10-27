@@ -17,16 +17,20 @@ beforeEach(async () => {
   globalThis.location = { search: "", pathname: "/", href: "http://localhost/" };
 });
 
-test("realm certificate notes include base lines and pacifist personalization", async () => {
+test("realm certificate notes include data-driven potato + sword line", async () => {
   const stateMod = await import("../../js/state.js");
   stateMod.__resetModuleForTest();
   stateMod.__setStateForTest({
-    chapter1Answers: { weapon: { id: "pacifist", label: "I'm a pacifist" } },
+    chapter1Answers: {
+      class: { id: "potato", label: "Pacifist potato farmer" },
+      weapon: { id: "sword", label: "Sword" },
+    },
+    steedName: "Clover",
   });
   const { buildRealmCertificateNotes } = await import("../../js/certificate-notes.js");
   const notes = buildRealmCertificateNotes();
-  assert.ok(notes.some((n) => n.includes("frying pan")));
-  assert.ok(notes.some((n) => n.includes("Reginald is still crying")));
+  assert.ok(notes.some((n) => n.includes("decorative sword")));
+  assert.ok(notes.length >= 3 && notes.length <= 5);
 });
 
 test("buildCertificateLines includes official notes section", async () => {
@@ -35,5 +39,5 @@ test("buildCertificateLines includes official notes section", async () => {
   const { buildCertificateLines } = await import("../../js/certificate.js");
   const lines = buildCertificateLines();
   assert.ok(lines.some((l) => l.startsWith("Official notes from the realm")));
-  assert.ok(lines.some((l) => l.includes("Not redeemable for dragons")));
+  assert.ok(lines.some((l) => l.includes("Gerald has filed")));
 });

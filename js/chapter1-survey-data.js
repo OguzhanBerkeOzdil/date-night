@@ -78,7 +78,7 @@ export const CHAPTER1_QUESTIONS = [
   {
     id: "census",
     character: "Royal census",
-    portrait: "assets/characters/gerald-accountant.webp",
+    portrait: "assets/characters/lucius-bard.webp",
     prompt: "The royal census lists you as…",
     type: "choices",
     choices: [

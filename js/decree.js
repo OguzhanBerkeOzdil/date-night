@@ -1,5 +1,11 @@
 import { CONFIG, tarotForKey } from "./config.js";
-import { grantedToLabel, state } from "./state.js";
+import {
+  adventurerDisplayName,
+  decreeCompanionLogLine,
+  decreeSteedClassLine,
+  provisionsForDecree,
+} from "./chapter2-callbacks.js";
+import { state } from "./state.js";
 import { achievementCount } from "./achievements.js";
 import { showAppToast } from "./ui-feedback.js";
 
@@ -39,12 +45,13 @@ export function buildPassText() {
   const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
   return [
     "FULL QUEST COMPLETE · LOG NO. 002",
-    `Issued to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
+    `Issued to: ${adventurerDisplayName(state)}, ${decreeSteedClassLine(state)}`,
+    decreeCompanionLogLine(state.chapter1Answers),
     `Steed: ${state.steedName}`,
     `Adventure energy: ${state.rating || 3}/5${state.ratingChip ? ` · ${state.ratingChip}` : ""}`,
     `The quest could feel like: ${state.todayVibe || "—"}`,
     questAnswerLine(),
-    `Provisions: ${state.food.join("; ") || "—"}`,
+    `Provisions: ${provisionsForDecree(state).join("; ") || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
     `Potion: ${state.potionName || "—"}`,
     whenWeRideLine(),
@@ -60,7 +67,7 @@ export function buildPassText() {
 export function buildCompletionText() {
   return [
     "SECOND QUEST COMPLETE · LOG NO. 002",
-    `Adventurer: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
+    `Adventurer: ${adventurerDisplayName(state)}, ${decreeSteedClassLine(state)}`,
     `Steed: ${state.steedName}`,
     `Party buff: ${state.partyBuff || "Improvised courage"}`,
     `Favourite moment: ${state.favoriteMoment || "Not recorded"}`,
@@ -146,7 +153,7 @@ export async function renderDecreeCanvas(mode = "auto") {
   }
 
   ctx.font = 'italic 26px "Dancing Script", cursive';
-  ctx.fillText(grantedToLabel(), innerX, sigY);
+  ctx.fillText(adventurerDisplayName(state), innerX, sigY);
   ctx.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);
   return canvas;
 }

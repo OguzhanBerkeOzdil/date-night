@@ -85,6 +85,13 @@ export const HORSE_ART_IDS = new Set([
   "definitely-a-horse",
 ]);
 
+/** Chapter II steed picker — breeds with art only (no Bay / Blue roan). */
+export const HORSE_SELECTABLE_IDS = HORSE_ART_IDS;
+
+export function selectableHorseBreeds() {
+  return HORSE_BREEDS.filter((breed) => HORSE_SELECTABLE_IDS.has(breed.id));
+}
+
 export function horseHasArt(id) {
   return HORSE_ART_IDS.has(id);
 }

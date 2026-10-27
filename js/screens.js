@@ -14,7 +14,7 @@ import {
 import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js";
 import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood } from "./icons.js";
-import { burstHearts, boostEmbers } from "./particles.js";
+import { spawnSparkles, boostEmbers } from "./particles.js";
 import { downloadCertificatePng } from "./certificate.js";
 import {
   buildCompletionText,
@@ -23,12 +23,31 @@ import {
   shareDecree,
 } from "./decree.js";
 import {
-  HORSE_BREEDS,
   horseById,
   horseImageUrl,
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
+  selectableHorseBreeds,
 } from "./horses.js";
+import {
+  adventurerDisplayName,
+  buildChapter2RecapRows,
+  chapter1Label,
+  chapter1Id,
+  chapter1TavernDrinkItem,
+  ensureChapter1TavernPreselect,
+  dragonGooseCheckpointLine,
+  fanumTaxExplanation,
+  geraldTollInvoiceLine,
+  geraldTollPayReaction,
+  potionSongSideEffect,
+  presetHorseIdFromChapter1,
+  sheetClassPrefillLine,
+  steedHorseColorNote,
+  tavernMartaTestimonyLine,
+} from "./chapter2-callbacks.js";
+import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
+import { chapterLockMessage } from "./quest-date.js";
 import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
@@ -40,7 +59,6 @@ import { chapterTwoIsAvailable, formatQuestDate } from "./quest-date.js";
 import { queueQuestSync } from "./sync.js";
 import {
   guest,
-  questOfTitle,
   letterSalutation,
   beginNewQuest,
   clearPendingUndo,
@@ -107,16 +125,19 @@ let pickSteedIx = 0;
 
 const MAIN_QUEST_SCREENS = new Set([
   "summons",
+  "gerald-toll",
   "steed",
   "sheet",
-  "rating",
   "journal",
   "dragon",
   "tavern",
   "potion",
   "stars",
   "oracle",
+  "rating",
   "decree",
+  "chapter-two-pause",
+  "chapter-two-finish",
 ]);
 
 function $(id) {
@@ -173,7 +194,7 @@ export function chapterTwoAvailable() {
 export function resumeTarget() {
   if (state.chapter === "declined" || state.honestNo) return "honest-no";
   if ((state.chapterTwoStarted || state.chapterTwoComplete) && !chapterTwoAvailable()) return "chapter-lock";
-  if (state.chapterTwoComplete) return "decree";
+  if (state.chapterTwoComplete) return "quest-complete";
   if (state.chapterTwoStarted) {
     return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
   }
@@ -258,12 +279,29 @@ function initSummons() {
     tick();
   };
   sealBtn?.addEventListener("click", breakSeal);
-  $("btnSummonBegin")?.addEventListener("click", () => navigate("steed"));
+  $("btnSummonBegin")?.addEventListener("click", () => navigate("gerald-toll"));
 }
+
+function initGeraldToll() {
+  $("btnPayPotatoes")?.addEventListener("click", () => {
+    $("geraldTollReaction").textContent = geraldTollPayReaction("potatoes");
+    window.setTimeout(() => navigate("steed"), 420);
+  });
+  $("btnDisputeGoose")?.addEventListener("click", () => {
+    $("geraldTollReaction").textContent = geraldTollPayReaction("goose");
+    window.setTimeout(() => navigate("steed"), 420);
+  });
+}
+
+const BOND_EMPTY = "○";
+const BOND_FILLED = "🥕";
 
 function renderAffection() {
   const el = $("affectionBar");
-  if (el) el.textContent = "♡".repeat(5 - state.affection) + "♥".repeat(state.affection);
+  if (el) {
+    el.textContent = BOND_EMPTY.repeat(5 - state.affection) + BOND_FILLED.repeat(state.affection);
+    el.setAttribute("aria-label", `Horse bond: ${state.affection} of 5 carrots`);
+  }
 }
 
 function applyHorseImg(img, horseId, { lazy = false, variant = "cutout" } = {}) {
@@ -314,7 +352,7 @@ function renderHorseBreedGrid() {
   const grid = $("horseBreedGrid");
   if (!grid || grid.dataset.rendered) return;
   grid.dataset.rendered = "1";
-  HORSE_BREEDS.forEach((breed) => {
+  selectableHorseBreeds().forEach((breed) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "horse-breed-card";
@@ -324,7 +362,7 @@ function renderHorseBreedGrid() {
     const thumb = document.createElement("img");
     thumb.className = "horse-breed-card__img";
     thumb.alt = "";
-    applyHorseImg(thumb, breed.id, { lazy: true, variant: "thumb" });
+    applyHorseImg(thumb, breed.id, { lazy: false, variant: "thumb" });
     const label = document.createElement("span");
     label.className = "horse-breed-card__label";
     label.textContent = breed.coat;
@@ -342,7 +380,7 @@ function pickHorseBreed(id) {
     el.setAttribute("aria-selected", el.dataset.horseId === id ? "true" : "false");
   });
   const breed = horseById(id);
-  if (state.steedName === "Clover" || HORSE_BREEDS.some((h) => h.defaultName === state.steedName)) {
+  if (state.steedName === "Clover" || selectableHorseBreeds().some((h) => h.defaultName === state.steedName)) {
     state.steedName = breed.defaultName;
     saveState();
     setSteedName(state.steedName);
@@ -370,7 +408,7 @@ function initSteed() {
     const horse = $("horseIdle");
     horse?.classList.add("horse-pet");
     window.setTimeout(() => horse?.classList.remove("horse-pet"), 300);
-    if (horse) burstHearts(horse.getBoundingClientRect().x + 80, horse.getBoundingClientRect().y + 40);
+    if (horse) spawnSparkles(horse.getBoundingClientRect().x + 80, horse.getBoundingClientRect().y + 40);
     if (state.affection >= 5) {
       unlock("whisperer");
       say([COPY.steedWhispererLine]);
@@ -401,26 +439,75 @@ function initSteed() {
 
 export function onEnterSteed() {
   attachSteedDialogue();
+  if (!state.horseId || !horseHasArt(state.horseId)) {
+    state.horseId = presetHorseIdFromChapter1(state.chapter1Answers);
+    saveState();
+  }
   const hid = state.horseId || "chestnut";
   setPortrait(horseHasArt(hid) ? horseImageUrl(hid) : HORSE_PLACEHOLDER_SRC);
   setHorsePreview(hid);
+  document.querySelectorAll(".horse-breed-card").forEach((el) => {
+    el.setAttribute("aria-selected", el.dataset.horseId === hid ? "true" : "false");
+  });
   setSteedName(state.steedName);
+  const name = adventurerDisplayName(state);
+  const horseNote = steedHorseColorNote(state.chapter1Answers);
   say([
-    `*soft neigh* Oh! You must be ${questOfTitle()}. I've heard a responsibly small amount about you.`,
-    "I'm your steed for this quest. A head scratch is optional but politically wise.",
+    `*soft neigh* Oh! You must be ${name}. I've heard a responsibly small amount about you.`,
+    horseNote || "I'm your steed for this quest. A head scratch is optional but politically wise.",
   ]);
+}
+
+function renderClassPickGrid() {
+  const grid = $("classPick");
+  if (!grid) return;
+  const ch1Label = chapter1Label(state.chapter1Answers, "class", "");
+  const esc = (value) => value.replace(/"/g, "&quot;");
+  const ch1Button = ch1Label
+    ? `<button type="button" data-class="${esc(ch1Label)}"><strong>${ch1Label}</strong><em>From your Chapter I census</em></button>`
+    : "";
+  grid.innerHTML =
+    ch1Button +
+    CLASSES.map(
+      (item) =>
+        `<button type="button" data-class="${item.title}"><strong>${item.title}</strong><em>${item.desc}</em></button>`
+    ).join("");
+}
+
+function applySheetClassUi() {
+  const grid = $("classPick");
+  if (!state.steedClass) return;
+  const match = [...(grid?.querySelectorAll("[data-class]") || [])].find(
+    (el) => el.dataset.class === state.steedClass
+  );
+  if (match) selectChip(grid, match);
+  $("classChosen").textContent = state.steedClassPicked
+    ? `Class chosen: ${state.steedClass}.`
+    : `Class on file: ${state.steedClass} (from Chapter I). Pick below to change.`;
+  show($("btnSheetNext"));
+}
+
+function prefillSheetClassFromChapter1() {
+  const label = chapter1Label(state.chapter1Answers, "class", "");
+  if (!label || state.steedClassPicked) return;
+  state.steedClass = label;
+  saveState();
+  applySheetClassUi();
+}
+
+function onEnterSheet() {
+  renderClassPickGrid();
+  prefillSheetClassFromChapter1();
+  if (state.steedClass) applySheetClassUi();
 }
 
 function initSheet() {
   const grid = $("classPick");
-  if (grid) {
-    grid.innerHTML = CLASSES.map(
-      (item) => `<button type="button" data-class="${item.title}"><strong>${item.title}</strong><em>${item.desc}</em></button>`
-    ).join("");
-  }
+  renderClassPickGrid();
   $("btnRoll")?.addEventListener("click", () => {
     show($("d20Result"));
-    $("d20Result").textContent = "Natural 20. The dice appear professionally biased.";
+    $("d20Result").textContent = sheetClassPrefillLine(state.chapter1Answers);
+    prefillSheetClassFromChapter1();
     unlock("charm");
     const stats = $("statList");
     if (stats && !stats.dataset.rolled) {
@@ -439,29 +526,37 @@ function initSheet() {
     const button = event.target.closest("[data-class]");
     if (!button) return;
     state.steedClass = button.dataset.class;
+    state.steedClassPicked = true;
     saveState();
     selectChip(grid, button);
-    $("classChosen").textContent = `Class chosen: ${state.steedClass}.`;
-    show($("btnSheetNext"));
+    applySheetClassUi();
   });
-  $("btnSheetNext")?.addEventListener("click", () => navigate("rating"));
+  $("btnSheetNext")?.addEventListener("click", () => navigate("journal"));
+}
+
+const RATING_CAPTIONS = {
+  1: "Very calm: short plan, plenty of breathing room.",
+  2: "Easy pace: one plan and a reliable snack.",
+  3: "Balanced: room for fun and a snack break.",
+  4: "Adventurous: a little surprise is welcome.",
+  5: "Full quest energy: the horse packed extra courage.",
+};
+
+function syncRatingUi() {
+  const slider = $("ratingSlider");
+  const value = Number(state.rating) || 3;
+  if (slider) slider.value = String(value);
+  if ($("ratingValue")) $("ratingValue").textContent = String(value);
+  if ($("ratingCaption")) $("ratingCaption").textContent = RATING_CAPTIONS[value] || RATING_CAPTIONS[3];
 }
 
 function initRating() {
   const slider = $("ratingSlider");
-  const captions = {
-    1: "Very calm: short plan, plenty of breathing room.",
-    2: "Easy pace: one plan and a reliable snack.",
-    3: "Balanced: room for fun and a snack break.",
-    4: "Adventurous: a little surprise is welcome.",
-    5: "Full quest energy: the horse packed extra courage.",
-  };
   show($("ratingChipsField"));
-  show($("ratingChipLead"));
   slider?.addEventListener("input", () => {
     state.rating = Number(slider.value);
     $("ratingValue").textContent = slider.value;
-    $("ratingCaption").textContent = captions[slider.value];
+    $("ratingCaption").textContent = RATING_CAPTIONS[slider.value];
     saveState();
   });
   $("ratingChips")?.addEventListener("click", (event) => {
@@ -471,7 +566,7 @@ function initRating() {
     selectChip($("ratingChips"), button);
     saveState();
   });
-  $("btnRatingNext")?.addEventListener("click", () => navigate("journal"));
+  $("btnRatingNext")?.addEventListener("click", () => navigate("decree"));
 }
 
 function initJournal() {
@@ -525,7 +620,14 @@ function initHonest() {
 
 function initTavern() {
   const menu = $("tavernMenu");
+  const ch1Drink = chapter1TavernDrinkItem(state.chapter1Answers);
+  const items = [];
+  if (ch1Drink) items.push(ch1Drink);
   FOOD.forEach((item) => {
+    if (ch1Drink && item.name === ch1Drink.name) return;
+    items.push(item);
+  });
+  items.forEach((item) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "menu-item";
@@ -610,7 +712,8 @@ function initPotion() {
     state.potionName = buildPotionName();
     potionBottled = true;
     unlock("alchemist");
-    $("potionResult").textContent = `${state.potionName}. Possible side effects: giggling and stolen fries.`;
+    const side = potionSongSideEffect(state.chapter1Answers);
+    $("potionResult").textContent = `${state.potionName}. Possible side effects: giggling, stolen fries, and ${side}.`;
     show($("potionResult"));
     $("btnStir").textContent = "Bottle it and continue";
     saveState();
@@ -689,7 +792,7 @@ function typeLetter() {
   const full = CONFIG.letter
     .map((paragraph) => paragraph
       .replace(/^Dear \{name\},$/, letterSalutation())
-      .replace("{name}", guest.isLady ? guest.formal : "my lady")
+      .replace("{name}", adventurerDisplayName(state))
       .replace("{fromName}", CONFIG.fromName)
       .replace("{steedName}", state.steedName))
     .join("\n\n");
@@ -727,7 +830,7 @@ function initOracle() {
   });
   $("btnToDecree")?.addEventListener("click", () => {
     duckMusic(false);
-    navigate("decree");
+    navigate("rating");
   });
 }
 
@@ -751,6 +854,9 @@ function openChapterTwo() {
 
 function reportMainFeedback() {
   if (RUNTIME_CONFIG.questApiUrl) return;
+  if (state.feedbackDecreeSent) return;
+  state.feedbackDecreeSent = true;
+  saveState();
   submitFeedback({
     _subject: "Quest answers",
     idempotencyId: `main-${guest.formal || "guest"}-decree-${APP_CACHE_VERSION}`,
@@ -808,11 +914,16 @@ function initChapterLock() {
 
 function renderRecap() {
   const rows = [
-    ["Adventurer", state.eveAdventurerName || guest.formal || "Guest"],
-    ["Excitement", `${state.eveExcitement || 3}/5`],
-    ["Status", "Invitation accepted · horse notified"],
+    { label: "Adventurer", value: adventurerDisplayName(state) },
+    { label: "Excitement", value: `${state.eveExcitement || 3}/5` },
+    ...buildChapter2RecapRows(state.chapter1Answers),
   ];
-  $("questRecap").innerHTML = rows.map(([label, value]) => `<div class="quest-recap__item"><span>${label}</span><strong>${value}</strong></div>`).join("");
+  $("questRecap").innerHTML = rows
+    .map(
+      ({ label, value }) =>
+        `<div class="quest-recap__item quest-recap__item--stack"><span class="quest-recap__label">${label}</span><p class="quest-recap__value">${value}</p></div>`
+    )
+    .join("");
 }
 
 function initChapterTwo() {
@@ -824,6 +935,7 @@ function initChapterTwo() {
     navigate("summons");
   });
   $("btnFinishQuest")?.addEventListener("click", () => navigate("chapter-two-finish"));
+  $("btnDecreeToPause")?.addEventListener("click", () => navigate("chapter-two-pause"));
   $("favoriteMoment")?.addEventListener("input", (event) => {
     state.favoriteMoment = event.target.value.trim();
     saveState();
@@ -856,7 +968,7 @@ function initChapterTwo() {
     navigate("quest-complete");
   });
   $("btnShareFinal")?.addEventListener("click", () => shareDecree("completion"));
-  $("btnSaveFinal")?.addEventListener("click", () => downloadDecreePng("completion"));
+  $("btnSaveFinal")?.addEventListener("click", () => downloadCertificatePng("completion"));
   $("btnCopyFinal")?.addEventListener("click", () => copyText(buildCompletionText(), $("finalPreview"), $("finalCopyToast")));
 }
 
@@ -881,18 +993,51 @@ export function onScreenEnter(id) {
   syncEveHonestButton(id);
   if (id.startsWith("eve-")) onEnterEve(id);
   if (id === "steed") onEnterSteed();
+  if (id === "sheet") onEnterSheet();
   if (id === "oracle") restoreOracleFromState();
+  if (id === "rating") syncRatingUi();
   if (id === "potion") {
     stirCount = state.potionName ? 3 : 0;
     potionBottled = Boolean(state.potionName);
     $("notesInput").value = state.notes || "";
     $("btnStir").textContent = potionBottled ? "Bottle it and continue" : "Stir the cauldron";
   }
+  if (id === "summons") {
+    const title = $("summonsTitle");
+    if (title) title.textContent = `A small summons for ${adventurerDisplayName(state)}`;
+  }
+  if (id === "gerald-toll") {
+    $("geraldTollInvoice").textContent = geraldTollInvoiceLine(state.chapter1Answers);
+    $("geraldTollReaction").textContent = "";
+  }
+  if (id === "dragon") {
+    const line = dragonGooseCheckpointLine(state.chapter1Answers);
+    const el = $("dragonCompanionLine");
+    if (el) el.textContent = line;
+    const goose = $("royalGooseCameo");
+    if (goose) {
+      goose.classList.toggle("hidden", chapter1Id(state.chapter1Answers, "companion") !== "goose");
+    }
+    paintSirBerkeCameo({ screenId: "dragon" });
+  }
+  if (id === "tavern") {
+    $("fanumTaxExplain").textContent = fanumTaxExplanation();
+    const marta = $("tavernMartaLine");
+    if (marta) {
+      marta.textContent = tavernMartaTestimonyLine(state.chapter1Answers);
+      marta.classList.remove("hidden");
+    }
+    const nextFood = ensureChapter1TavernPreselect(state);
+    if (nextFood.length !== (state.food || []).length) {
+      state.food = nextFood;
+      saveState();
+    }
+    restoreSelections();
+  }
   if (id === "decree") {
-    state.chapter = "complete";
+    state.chapter = "chapter-two-active";
     state.chapterOneComplete = true;
     state.chapterTwoStarted = true;
-    state.chapterTwoComplete = true;
     saveState();
     queueQuestSync({ immediate: true });
     reportMainFeedback();
@@ -900,11 +1045,20 @@ export function onScreenEnter(id) {
     boostEmbers();
     playStamp();
     $("waxStampAnim")?.classList.add("stamped");
+    paintSirBerkeCameo({ screenId: "decree" });
   }
   if (id === "chapter-lock") {
-    $("chapterLockDate").textContent = `Berke will unseal Chapter II on ${formatQuestDate(state.scheduledDate, state.timeZone)} morning.`;
+    $("chapterLockDate").textContent = chapterLockMessage({
+      scheduledDate: state.scheduledDate,
+      timeZone: state.timeZone,
+    });
   }
-  if (id === "chapter-two-start") renderRecap();
+  if (id === "chapter-two-start") {
+    renderRecap();
+    paintSirBerkeCameo({ screenId: "chapter-two-start" });
+  } else if (!["decree", "dragon", "chapter-two-start", "eve-name", "eve-pass", "eve-survey"].includes(id)) {
+    hideSirBerkeCameo();
+  }
   if (id === "chapter-two-pause") {
     $("activeBuffText").textContent = `${state.partyBuff || "Improvised courage"} is active.`;
   }
@@ -922,6 +1076,7 @@ export function initScreens(nav) {
   initEvePrelude(navigate);
   initTitle();
   initSummons();
+  initGeraldToll();
   initSteed();
   initSheet();
   initRating();

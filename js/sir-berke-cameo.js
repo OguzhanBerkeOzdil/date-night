@@ -1,4 +1,4 @@
-/** Sir Berke decorative cameos — Chapter I only. */
+/** Sir Berke decorative cameos — Chapter I & II. */
 
 export const SIR_BERKE_BASE = "assets/characters";
 
@@ -10,6 +10,18 @@ export const BERKE_CAMEO_BY_SCREEN = {
   "eve-pass": {
     image: `${SIR_BERKE_BASE}/sir-berke-wave.webp`,
     line: "Sir Berke approves this paperwork.",
+  },
+  "chapter-two-start": {
+    image: `${SIR_BERKE_BASE}/sir-berke-stand.webp`,
+    line: "Sir Berke brought snacks. The horse brought opinions.",
+  },
+  dragon: {
+    image: `${SIR_BERKE_BASE}/sir-berke-shield.webp`,
+    line: "Sir Berke recommends reading the fine print. Then ignoring it.",
+  },
+  decree: {
+    image: `${SIR_BERKE_BASE}/sir-berke-wave.webp`,
+    line: "Sir Berke will file this under \"mostly successful chaos.\"",
   },
 };
 
@@ -41,7 +53,9 @@ export function paintSirBerkeCameo({ screenId, questionId } = {}) {
   const slot = document.querySelector(".screen.screen--active [data-sir-berke-slot]");
   if (slot) slot.append(root);
 
-  const panel = document.querySelector(".screen.screen--active .today-panel");
+  const panel = document.querySelector(
+    ".screen.screen--active .today-panel, .screen.screen--active .screen__inner.ornate"
+  );
   panel?.classList.toggle("today-panel--berke", Boolean(cfg));
 
   if (!cfg) {
@@ -62,7 +76,9 @@ export function paintSirBerkeCameo({ screenId, questionId } = {}) {
 export function hideSirBerkeCameo() {
   const root = $("sirBerkeCameo");
   if (!root) return;
-  document.querySelector(".screen.screen--active .today-panel")?.classList.remove("today-panel--berke");
+  document
+    .querySelector(".screen.screen--active .today-panel, .screen.screen--active .screen__inner.ornate")
+    ?.classList.remove("today-panel--berke");
   root.classList.add("hidden");
   root.setAttribute("hidden", "");
   root.setAttribute("aria-hidden", "true");

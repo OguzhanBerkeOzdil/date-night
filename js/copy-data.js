@@ -15,7 +15,7 @@ export const BARD_LINES = [
   "You don't need a crest on your shield. You're doing fine without one.",
   "Even the castle cat sat up straight when you walked by. High praise.",
   "Charisma roll: natural 20. Every single time.",
-  "Rare drop: someone who loves horses AND laughs at bad jokes.",
+  "Rare drop: someone who rates horses highly AND laughs at bad jokes.",
   "If kindness were armour, you'd be overencumbered. In a good way.",
   "The scribes ran out of ink describing today. They just wrote \"solid quest\".",
   "Hay there. You're officially the mane event.",
@@ -94,8 +94,8 @@ export const EPIGRAPHS = {
     "by": "W. B. Yeats"
   },
   "decree": {
-    "text": "Gather ye rosebuds while ye may, / Old Time is still a-flying",
-    "by": "Robert Herrick, 1648"
+    "text": "The horse has filed this quest under: completed, with snacks.",
+    "by": "Berke, unofficial quest clerk"
   }
 };
 
@@ -108,7 +108,7 @@ export const LOADING_STEPS = [
   { p: 34, t: "Consulting the oracle…" },
   { p: 67, t: "Polishing the armour… 67%…" },
   { p: 88, t: "Asking the horse… the horse said 'neigh-ce'…" },
-  { p: 100, t: "Scroll unlocked. Proceed, my lady." },
+  { p: 100, t: "Scroll unlocked. Proceed, adventurer." },
 ];
 
 export const TAROT_FORTUNES = {
@@ -136,7 +136,7 @@ export const YES_TOASTS = [
 ];
 
 export const STEED_PICK_LINES = [
-  "{name}? I LOVE it. Very noble. Let's go!",
+  "{name}? Approved by the stable council. Very noble. Let's go!",
   "{name}… I feel faster already.",
   "{name}! Finally, a name worthy of my mane.",
 ];

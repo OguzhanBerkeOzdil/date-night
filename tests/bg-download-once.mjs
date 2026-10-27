@@ -74,13 +74,13 @@ async function run(deviceLabel, ctx) {
     "summons",
     "steed",
     "sheet",
-    "rating",
     "journal",
     "dragon",
     "tavern",
     "potion",
     "stars",
     "oracle",
+    "rating",
     "decree",
   ];
   for (const id of screens) {

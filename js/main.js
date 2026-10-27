@@ -14,6 +14,7 @@ import { initQuestSync } from "./sync.js";
 import { syncEveHonestButton } from "./eve-prelude.js";
 
 export { syncContinueButton };
+import { applyQuestSeedFromUrl } from "./seed-link.js";
 import { guest, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
@@ -40,6 +41,17 @@ function preloadScreenAssets(screenId) {
   const next = SCREENS[SCREENS.indexOf(screenId) + 1];
   if (next) preloadBg(BG_BY_SCREEN[next]);
   if (screenId === "stars" || next === "oracle") preloadTarotAssets();
+}
+
+function syncSceneBgCover() {
+  const layer = $("bgLayer");
+  if (!layer) return;
+  const docH = Math.max(
+    document.documentElement.scrollHeight,
+    document.documentElement.clientHeight,
+    window.innerHeight || 0
+  );
+  layer.style.height = `${docH}px`;
 }
 
 function resetScroll() {
@@ -107,6 +119,10 @@ export function navigate(screenId) {
     syncBardQuill(screenId);
     if (screenId === "decree") document.body.classList.add("bg-celebration");
     else document.body.classList.remove("bg-celebration");
+    requestAnimationFrame(() => {
+      syncSceneBgCover();
+      requestAnimationFrame(syncSceneBgCover);
+    });
   };
 
   const useVt =
@@ -147,6 +163,7 @@ function initSoundToggle() {
 
 async function boot() {
   if (!RUNTIME_CONFIG.questApiUrl) flushFeedbackQueue();
+  applyQuestSeedFromUrl(() => state, saveState);
   personalize();
   initParticles();
   initDialogue();
@@ -170,6 +187,8 @@ async function boot() {
     navigate(resumeTarget());
   }
   syncEveHonestButton(document.body.dataset.screen || "title");
+  window.addEventListener("resize", syncSceneBgCover, { passive: true });
+  syncSceneBgCover();
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void boot());
