@@ -8,7 +8,7 @@ import { startDualBuildServer } from "../helpers/dual-build-server.mjs";
 const workspace = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const PORT = 4175;
 const baseURL = `http://127.0.0.1:${PORT}`;
-const TARGET_VERSION = "202610273";
+const TARGET_VERSION = "202610274";
 
 async function extractCommit(commit, dest) {
   await rm(dest, { recursive: true, force: true });

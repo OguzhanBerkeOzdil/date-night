@@ -314,6 +314,8 @@ body[data-screen="title"] #dialogueBox {
 
 .horse-cutout {
   width: min(280px, 75vw);
+  height: auto;
+  object-fit: contain;
   margin: 0 auto;
   display: block;
   filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
