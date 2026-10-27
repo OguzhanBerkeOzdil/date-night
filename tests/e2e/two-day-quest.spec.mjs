@@ -37,6 +37,26 @@ test("today ends at an owner-controlled lock and release starts the full quest",
   expect(afterOpening.lastScreen).toBe("summons");
 });
 
+test("an old early-open save is forced back behind the owner lock", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("questLady_v3", JSON.stringify({
+      schemaVersion: 3,
+      chapter: "chapter-two-active",
+      chapterOneComplete: true,
+      chapterTwoStarted: true,
+      chapterTwoComplete: false,
+      chapterTwoOpenedEarly: true,
+      scheduledDate: "2026-10-28",
+      timeZone: "Europe/Warsaw",
+      lastScreen: "steed",
+    }));
+  });
+  await page.goto("/");
+  await expect(page.locator('section[data-screen="chapter-lock"]')).toHaveClass(/screen--active/);
+  await expect(page.locator('section[data-screen="steed"]')).not.toHaveClass(/screen--active/);
+  await expect(page.locator("#btnOpenEarly")).toHaveCount(0);
+});
+
 test("the full quest ends with the final log", async ({ page }) => {
   await reachDecreeMouse(page);
   await expect(page.locator("#decreePreview")).toContainText("FULL QUEST COMPLETE");
