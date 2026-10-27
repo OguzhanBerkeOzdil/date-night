@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   buildChapter2RecapLines,
+  buildChapter2RecapRows,
   chapter1Label,
   chapter1TavernDrinkItem,
   decreeCompanionLogLine,
@@ -30,6 +31,14 @@ test("recap uses stored labels for potato + sword", () => {
   assert.ok(lines[0].includes("Pacifist potato farmer"));
   assert.ok(lines[0].includes("Sword"));
   assert.ok(lines[0].includes("decoration"));
+});
+
+test("recap rows use meaningful labels without duplicated goose prefix", () => {
+  const rows = buildChapter2RecapRows(SAMPLE);
+  assert.equal(rows[2].label, "Goose verdict");
+  assert.ok(!rows[2].value.toLowerCase().startsWith("goose verdict:"));
+  assert.equal(rows[3].label, "Companion");
+  assert.ok(!rows[3].value.toLowerCase().startsWith("companion:"));
 });
 
 test("gerald toll invoice uses potato farmer payable line", () => {

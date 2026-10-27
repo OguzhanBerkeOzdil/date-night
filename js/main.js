@@ -42,6 +42,17 @@ function preloadScreenAssets(screenId) {
   if (screenId === "stars" || next === "oracle") preloadTarotAssets();
 }
 
+function syncSceneBgCover() {
+  const layer = $("bgLayer");
+  if (!layer) return;
+  const docH = Math.max(
+    document.documentElement.scrollHeight,
+    document.documentElement.clientHeight,
+    window.innerHeight || 0
+  );
+  layer.style.height = `${docH}px`;
+}
+
 function resetScroll() {
   try {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -107,6 +118,10 @@ export function navigate(screenId) {
     syncBardQuill(screenId);
     if (screenId === "decree") document.body.classList.add("bg-celebration");
     else document.body.classList.remove("bg-celebration");
+    requestAnimationFrame(() => {
+      syncSceneBgCover();
+      requestAnimationFrame(syncSceneBgCover);
+    });
   };
 
   const useVt =
@@ -170,6 +185,8 @@ async function boot() {
     navigate(resumeTarget());
   }
   syncEveHonestButton(document.body.dataset.screen || "title");
+  window.addEventListener("resize", syncSceneBgCover, { passive: true });
+  syncSceneBgCover();
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void boot());

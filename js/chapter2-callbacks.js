@@ -49,18 +49,18 @@ const WEAPON_RECAP = {
 };
 
 const GOOSE_VERDICT = {
-  fight: "Goose verdict: you chose violence. The goose respects the honesty.",
-  bribe: "Goose verdict: bribery accepted. The goose is corrupt now.",
-  negotiate: "Goose verdict: talks stalled. Bread remains on the table.",
-  run: "Goose verdict: tactical retreat. Respectable.",
-  become: "Goose verdict: you became the goose. HR is confused.",
+  fight: "You chose violence. The goose respects the honesty.",
+  bribe: "Bribery accepted. The goose is corrupt now.",
+  negotiate: "Talks stalled. Bread remains on the table.",
+  run: "Tactical retreat. Respectable.",
+  become: "You became the goose. HR is confused.",
 };
 
 const COMPANION_RECAP = {
-  horse: "Companion: Horse (approved by Gerald).",
-  cat: "Companion: Cat (judgmental but present).",
-  raven: "Companion: Raven (ominous, on schedule).",
-  goose: "Companion: Goose (traitor — will betray you).",
+  horse: "Horse (approved by Gerald).",
+  cat: "Cat (judgmental but present).",
+  raven: "Raven (ominous, on schedule).",
+  goose: "Goose (traitor — will betray you).",
 };
 
 export function adventurerDisplayName(state) {
@@ -71,7 +71,7 @@ export function adventurerDisplayName(state) {
   return "Adventurer";
 }
 
-export function buildChapter2RecapLines(answers = {}) {
+export function buildChapter2RecapRows(answers = {}) {
   const classId = chapter1Id(answers, "class");
   const classLine = CLASS_RECAP[classId] || chapter1Label(answers, "class", "class");
   const weaponLine = WEAPON_RECAP[chapter1Id(answers, "weapon")] || chapter1Label(answers, "weapon", "weapon");
@@ -79,9 +79,23 @@ export function buildChapter2RecapLines(answers = {}) {
     classId === "potato" && chapter1Id(answers, "weapon") === "sword"
       ? `${classLine}. Armed with: ${weaponLine}. For decoration, presumably.`
       : `${classLine}. Armed with: ${weaponLine}.`;
-  const goose = GOOSE_VERDICT[chapter1Id(answers, "goose")] || `Goose verdict: ${chapter1Label(answers, "goose", "goose")}.`;
-  const companion = COMPANION_RECAP[chapter1Id(answers, "companion")] || `Companion: ${chapter1Label(answers, "companion", "companion")}.`;
-  return [armed, goose, companion];
+  const gooseId = chapter1Id(answers, "goose");
+  const goose =
+    GOOSE_VERDICT[gooseId] || `${chapter1Label(answers, "goose", "goose")}.`;
+  const companionId = chapter1Id(answers, "companion");
+  const companion =
+    COMPANION_RECAP[companionId] || chapter1Label(answers, "companion", "companion");
+  return [
+    { label: "Class & arms", value: armed },
+    { label: "Census record", value: chapter1Label(answers, "census", "census") },
+    { label: "Goose verdict", value: goose },
+    { label: "Companion", value: companion },
+  ];
+}
+
+/** @deprecated Use buildChapter2RecapRows */
+export function buildChapter2RecapLines(answers = {}) {
+  return buildChapter2RecapRows(answers).map((row) => row.value);
 }
 
 export function geraldTollAmount(answers) {

@@ -34,7 +34,7 @@ export const COPY = {
   loadingSteps: LOADING_STEPS,
   yesToasts: YES_TOASTS,
   steedPickLines: STEED_PICK_LINES,
-  steedWhispererLine: "Okay, you're officially my favourite human. Don't tell him.",
+  steedWhispererLine: "Okay, you're officially head scratcher in chief. Don't tell the groom.",
   steedCarrotLine: "*crunch* …That carrot was acceptable. I will not trip you on purpose today.",
   benedickQuip: "I would my horse had the speed of your tongue.",
 };

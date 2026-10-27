@@ -14,7 +14,7 @@ import {
 import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js";
 import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood } from "./icons.js";
-import { burstHearts, boostEmbers } from "./particles.js";
+import { spawnSparkles, boostEmbers } from "./particles.js";
 import { downloadCertificatePng } from "./certificate.js";
 import {
   buildCompletionText,
@@ -31,7 +31,7 @@ import {
 } from "./horses.js";
 import {
   adventurerDisplayName,
-  buildChapter2RecapLines,
+  buildChapter2RecapRows,
   chapter1Id,
   chapter1TavernDrinkItem,
   dragonGooseCheckpointLine,
@@ -291,9 +291,15 @@ function initGeraldToll() {
   });
 }
 
+const BOND_EMPTY = "○";
+const BOND_FILLED = "🥕";
+
 function renderAffection() {
   const el = $("affectionBar");
-  if (el) el.textContent = "♡".repeat(5 - state.affection) + "♥".repeat(state.affection);
+  if (el) {
+    el.textContent = BOND_EMPTY.repeat(5 - state.affection) + BOND_FILLED.repeat(state.affection);
+    el.setAttribute("aria-label", `Horse bond: ${state.affection} of 5 carrots`);
+  }
 }
 
 function applyHorseImg(img, horseId, { lazy = false, variant = "cutout" } = {}) {
@@ -400,7 +406,7 @@ function initSteed() {
     const horse = $("horseIdle");
     horse?.classList.add("horse-pet");
     window.setTimeout(() => horse?.classList.remove("horse-pet"), 300);
-    if (horse) burstHearts(horse.getBoundingClientRect().x + 80, horse.getBoundingClientRect().y + 40);
+    if (horse) spawnSparkles(horse.getBoundingClientRect().x + 80, horse.getBoundingClientRect().y + 40);
     if (state.affection >= 5) {
       unlock("whisperer");
       say([COPY.steedWhispererLine]);
@@ -858,11 +864,16 @@ function initChapterLock() {
 
 function renderRecap() {
   const rows = [
-    ["Adventurer", adventurerDisplayName(state)],
-    ["Excitement", `${state.eveExcitement || 3}/5`],
-    ...buildChapter2RecapLines(state.chapter1Answers).map((line, i) => [`Chapter I · ${i + 1}`, line]),
+    { label: "Adventurer", value: adventurerDisplayName(state) },
+    { label: "Excitement", value: `${state.eveExcitement || 3}/5` },
+    ...buildChapter2RecapRows(state.chapter1Answers),
   ];
-  $("questRecap").innerHTML = rows.map(([label, value]) => `<div class="quest-recap__item"><span>${label}</span><strong>${value}</strong></div>`).join("");
+  $("questRecap").innerHTML = rows
+    .map(
+      ({ label, value }) =>
+        `<div class="quest-recap__item quest-recap__item--stack"><span class="quest-recap__label">${label}</span><p class="quest-recap__value">${value}</p></div>`
+    )
+    .join("");
 }
 
 function initChapterTwo() {

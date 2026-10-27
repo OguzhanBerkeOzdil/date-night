@@ -15,7 +15,7 @@ export const BARD_LINES = [
   "You don't need a crest on your shield. You're doing fine without one.",
   "Even the castle cat sat up straight when you walked by. High praise.",
   "Charisma roll: natural 20. Every single time.",
-  "Rare drop: someone who loves horses AND laughs at bad jokes.",
+  "Rare drop: someone who rates horses highly AND laughs at bad jokes.",
   "If kindness were armour, you'd be overencumbered. In a good way.",
   "The scribes ran out of ink describing today. They just wrote \"solid quest\".",
   "Hay there. You're officially the mane event.",
@@ -136,7 +136,7 @@ export const YES_TOASTS = [
 ];
 
 export const STEED_PICK_LINES = [
-  "{name}? I LOVE it. Very noble. Let's go!",
+  "{name}? Approved by the stable council. Very noble. Let's go!",
   "{name}… I feel faster already.",
   "{name}! Finally, a name worthy of my mane.",
 ];
