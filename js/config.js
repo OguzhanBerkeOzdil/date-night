@@ -35,7 +35,7 @@ export const COPY = {
   yesToasts: YES_TOASTS,
   steedPickLines: STEED_PICK_LINES,
   steedWhispererLine: "Okay, you're officially my favourite human. Don't tell him.",
-  steedCarrotLine: "*crunch* …I would follow you into any forest now.",
+  steedCarrotLine: "*crunch* …That carrot was acceptable. I will not trip you on purpose today.",
   benedickQuip: "I would my horse had the speed of your tongue.",
 };
 
@@ -52,6 +52,7 @@ export const SCREENS = [
   "eve-pass",
   "eve-honest",
   "summons",
+  "gerald-toll",
   "steed",
   "sheet",
   "rating",
@@ -79,6 +80,7 @@ export const MAP_NODE = {
   "eve-pass": 0,
   "eve-honest": 0,
   summons: 0,
+  "gerald-toll": 1,
   steed: 1,
   sheet: 2,
   rating: 2,
@@ -107,6 +109,7 @@ export const BG_BY_SCREEN = {
   "eve-pass": "bg-celebration",
   "eve-honest": "bg-forest",
   summons: "bg-forest",
+  "gerald-toll": "bg-meadow-stable",
   steed: "bg-meadow-stable",
   sheet: "bg-meadow-stable",
   rating: "bg-meadow-stable",

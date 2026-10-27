@@ -17,6 +17,9 @@ export async function runQuestToDragonKeyboard(page) {
   await breakSealKeyboard(page);
   await tabTo(page, "#btnSummonBegin");
   await activate(page);
+  await waitForScreen(page, "gerald-toll");
+  await tabTo(page, "#btnPayPotatoes");
+  await activate(page);
   await waitForScreen(page, "steed");
   await dismissSteedDialogue(page);
   await tabTo(page, "#btnSteedNext");
@@ -75,13 +78,14 @@ export async function runQuestToDecreeKeyboard(page) {
 
 export async function reachDecreeMouse(page) {
   await page.goto("/?name=Ayse");
-  await page.locator("#btnNewGame").click();
   await completeEveMouse(page);
   await page.waitForSelector('[data-screen="summons"].screen--active');
   await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 20000 });
   await page.locator("#btnSummonBegin").click();
-  await page.waitForSelector('[data-screen="steed"].screen--active');
+  await page.waitForSelector('[data-screen="gerald-toll"].screen--active');
+  await page.locator("#btnPayPotatoes").click();
+  await page.waitForSelector('[data-screen="steed"].screen--active', { timeout: 15000 });
   for (let i = 0; i < 4; i++) {
     const box = page.locator("#dialogueBox:not(.hidden)");
     if (await box.count()) await box.click();

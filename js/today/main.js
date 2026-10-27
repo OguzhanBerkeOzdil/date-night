@@ -9,7 +9,7 @@ import {
   EXCITEMENT_TIERS,
   HERALD_QUESTIONS,
   PACKING_ITEMS,
-  PASS_CLOSING,
+  passClosingLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
 } from "./copy.js";
@@ -130,7 +130,7 @@ function finishHonest() {
 function finishPass() {
   sendFeedback("completed");
   $("passName").textContent = state.name;
-  $("passClosing").textContent = PASS_CLOSING;
+  $("passClosing").textContent = passClosingLine();
   showScreen("pass");
 }
 

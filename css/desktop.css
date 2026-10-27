@@ -146,6 +146,24 @@
 }
 
 @media (min-aspect-ratio: 1/1) and (min-width: 1200px) {
+  .scene-bg,
+  .scene-bg__kenburns,
+  .scene-bg picture,
+  .scene-bg__img {
+    min-height: 100dvh;
+    height: 100%;
+  }
+
+  [data-screen="oracle"] .letter-body {
+    padding: 14px 16px;
+    color: var(--ink);
+  }
+
+  [data-screen="oracle"] .tarot-fortune {
+    color: var(--ink);
+    text-shadow: none;
+  }
+
   .scene-bg__readability {
     background:
       linear-gradient(90deg, rgba(0, 0, 0, 0.42) 0%, transparent 22%, transparent 78%, rgba(0, 0, 0, 0.42) 100%),

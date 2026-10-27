@@ -8,7 +8,7 @@ import { startDualBuildServer } from "../helpers/dual-build-server.mjs";
 const workspace = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const PORT = 4175;
 const baseURL = `http://127.0.0.1:${PORT}`;
-const TARGET_VERSION = "20261113";
+const TARGET_VERSION = "20261114";
 
 function assertCommitExists(commit) {
   try {

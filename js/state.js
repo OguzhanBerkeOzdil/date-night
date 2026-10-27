@@ -105,6 +105,7 @@ export function defaultState() {
     chapterOneComplete: false,
     chapterTwoStarted: false,
     chapterTwoComplete: false,
+    feedbackDecreeSent: false,
     consentShared: false,
     scheduledDate: CONFIG.scheduledDate,
     timeZone: CONFIG.timeZone,

@@ -1368,17 +1368,30 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  max-height: min(42vh, 320px);
-  overflow-y: auto;
-  scroll-snap-type: y proximity;
   padding: 4px 2px 8px;
 }
 
 @media (min-width: 900px) {
   .horse-breed-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-height: 280px;
   }
+}
+
+[data-screen="steed"] .horse-breed-field legend.sub-label {
+  color: #f4e8d0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+
+[data-screen="chapter-two-start"] .sir-berke-slot,
+[data-screen="dragon"] .sir-berke-slot,
+[data-screen="decree"] .sir-berke-slot,
+[data-screen="gerald-toll"] .sir-berke-slot {
+  position: static;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  display: flex;
+  justify-content: center;
 }
 
 .horse-breed-card {

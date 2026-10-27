@@ -94,8 +94,8 @@ export const EPIGRAPHS = {
     "by": "W. B. Yeats"
   },
   "decree": {
-    "text": "Gather ye rosebuds while ye may, / Old Time is still a-flying",
-    "by": "Robert Herrick, 1648"
+    "text": "The horse has filed this quest under: completed, with snacks.",
+    "by": "Berke, unofficial quest clerk"
   }
 };
 
@@ -108,7 +108,7 @@ export const LOADING_STEPS = [
   { p: 34, t: "Consulting the oracle…" },
   { p: 67, t: "Polishing the armour… 67%…" },
   { p: 88, t: "Asking the horse… the horse said 'neigh-ce'…" },
-  { p: 100, t: "Scroll unlocked. Proceed, my lady." },
+  { p: 100, t: "Scroll unlocked. Proceed, adventurer." },
 ];
 
 export const TAROT_FORTUNES = {

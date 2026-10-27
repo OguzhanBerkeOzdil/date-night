@@ -19,7 +19,6 @@ test.beforeEach(async ({ page }) => {
 
 test("today ends at an owner-controlled lock and release starts the full quest", async ({ page }) => {
   await page.goto("/");
-  await page.locator("#btnNewGame").click();
   await completeEveToLock(page);
   await expect(page.locator('section[data-screen="chapter-lock"]')).toHaveClass(/screen--active/);
   const afterToday = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
@@ -60,6 +59,13 @@ test("an old early-open save is forced back behind the owner lock", async ({ pag
 test("the full quest ends with the final log", async ({ page }) => {
   await reachDecreeMouse(page);
   await expect(page.locator("#decreePreview")).toContainText("FULL QUEST COMPLETE");
+  await page.locator("#btnDecreeToPause").click();
+  await page.waitForSelector('[data-screen="chapter-two-pause"].screen--active');
+  await page.locator("#btnFinishQuest").click();
+  await page.waitForSelector('[data-screen="chapter-two-finish"].screen--active');
+  await page.locator('[data-future="yes"]').click();
+  await page.locator("#btnCompleteQuest").click();
+  await page.waitForSelector('[data-screen="quest-complete"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
   expect(saved.chapterTwoComplete).toBe(true);
   expect(saved.chapter).toBe("complete");

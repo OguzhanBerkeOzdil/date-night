@@ -68,8 +68,13 @@ export const PACKING_ITEMS = [
 ];
 
 export const PASS_TITLE = "Summoned for tomorrow's quest";
-export const PASS_CLOSING =
-  "Chapter II opens tomorrow. Rest, hydrate, and do not let the horse plan the whole date.";
+import { chapterTwoPassClosingLine } from "../quest-date.js";
+
+export function passClosingLine() {
+  return chapterTwoPassClosingLine();
+}
+
+export const PASS_CLOSING = chapterTwoPassClosingLine();
 
 export const HONEST_EXIT_LABEL = "Not today / maybe another time";
 export const HONEST_EXIT_BODY =

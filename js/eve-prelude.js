@@ -19,7 +19,7 @@ import { showAppToast } from "./ui-feedback.js";
 import {
   EXCITEMENT_TIERS,
   PACKING_ITEMS,
-  PASS_CLOSING,
+  passClosingLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
 } from "./today/copy.js";
@@ -193,7 +193,7 @@ function paintPassScreen() {
   const name =
     state.eveAdventurerName || state.chapter1SealedName || "Adventurer";
   $("passName").textContent = name;
-  $("passClosing").textContent = PASS_CLOSING;
+  $("passClosing").textContent = passClosingLine();
 }
 
 function completeChapter1Invitation() {
