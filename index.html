@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261115">
+  <link rel="manifest" href="manifest.webmanifest?v=20261116">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261115">
-  <link rel="stylesheet" href="css/styles.css?v=20261115">
-  <link rel="stylesheet" href="css/v2.css?v=20261115">
-  <link rel="stylesheet" href="css/desktop.css?v=20261115">
-  <link rel="stylesheet" href="css/today.css?v=20261115">
+  <link rel="stylesheet" href="css/fonts.css?v=20261116">
+  <link rel="stylesheet" href="css/styles.css?v=20261116">
+  <link rel="stylesheet" href="css/v2.css?v=20261116">
+  <link rel="stylesheet" href="css/desktop.css?v=20261116">
+  <link rel="stylesheet" href="css/today.css?v=20261116">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -406,7 +406,12 @@
         <p class="kicker light">Chapter II complete</p>
         <h2 class="title light">The full quest is complete</h2>
         <div class="decree-wrap parchment-textured ornate">
-          <img id="waxStampAnim" class="wax-stamp-anim" src="assets/images/wax-seal.webp" alt="">
+          <div id="waxStampAnim" class="decree-wax-seal wax-stamp-anim" role="presentation" aria-hidden="true">
+            <span class="decree-wax-seal__shine"></span>
+            <svg class="decree-wax-seal__emblem" viewBox="0 0 64 64" aria-hidden="true">
+              <path fill="currentColor" d="M18 38c0-14 8-22 14-26 6 4 14 12 14 26H18zm6-2h16c-1-10-6-16-8-18-2 2-7 8-8 18zm-4 4h24v4H20v-4z"/>
+            </svg>
+          </div>
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
         <div class="sir-berke-slot" data-sir-berke-slot></div>
@@ -526,6 +531,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261115"></script>
+  <script type="module" src="js/main.js?v=20261116"></script>
 </body>
 </html>

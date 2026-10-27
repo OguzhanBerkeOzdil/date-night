@@ -14,6 +14,7 @@ import { initQuestSync } from "./sync.js";
 import { syncEveHonestButton } from "./eve-prelude.js";
 
 export { syncContinueButton };
+import { applyQuestSeedFromUrl } from "./seed-link.js";
 import { guest, questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
@@ -162,6 +163,7 @@ function initSoundToggle() {
 
 async function boot() {
   if (!RUNTIME_CONFIG.questApiUrl) flushFeedbackQueue();
+  applyQuestSeedFromUrl(() => state, saveState);
   personalize();
   initParticles();
   initDialogue();

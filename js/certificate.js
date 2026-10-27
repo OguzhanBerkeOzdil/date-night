@@ -1,19 +1,23 @@
 import { QUEST_DATE_LABEL } from "./app-config.js";
+import { adventurerDisplayName } from "./chapter2-callbacks.js";
 import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
 import { buildRealmCertificateNotes } from "./certificate-notes.js";
 import { horseById } from "./horses.js";
-import { parseGuestName, state } from "./state.js";
+import { state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
 import { showAppToast } from "./ui-feedback.js";
+import { drawDecreeWaxSeal } from "./wax-seal-art.js";
 
-export function buildCertificateLines() {
+export function buildCertificateLines(mode = "pass") {
   const horse = horseById(state.horseId || "chestnut");
   const rideDay = dayLabelForDecree() || QUEST_DATE_LABEL;
   const profile = adventurerProfileFromAnswers(state.chapter1Answers);
-  const adventurer = parseGuestName().formal;
+  const adventurer = adventurerDisplayName(state);
+  const subtitle =
+    mode === "completion" ? "Second quest: survived (snacks included)" : "Second quest: officially unlocked";
   return [
     "ROYAL QUEST CERTIFICATE",
-    "Second quest: officially unlocked",
+    subtitle,
     "",
     `Adventurer: ${adventurer}`,
     `Steed: ${horse.coat} — named "${state.steedName || horse.defaultName}"`,
@@ -67,17 +71,17 @@ function drawBodyLines(g, lines, startY, maxW) {
   return y;
 }
 
-export async function renderCertificateCanvas() {
+export async function renderCertificateCanvas(mode = "pass") {
   await document.fonts.ready;
   const w = 1080;
+  const lines = buildCertificateLines(mode);
+  const subtitle = lines[1];
   const measureCanvas = document.createElement("canvas");
   measureCanvas.width = w;
   measureCanvas.height = 400;
   const measureG = measureCanvas.getContext("2d");
   measureG.fillStyle = "#4a1f28";
-  const bodyLines = buildCertificateLines().filter(
-    (l) => l !== "ROYAL QUEST CERTIFICATE" && l !== "Second quest: officially unlocked"
-  );
+  const bodyLines = lines.filter((l) => l !== "ROYAL QUEST CERTIFICATE" && l !== subtitle);
   const contentEnd = drawBodyLines(measureG, bodyLines, 0, w - 280);
   const h = Math.max(1120, Math.round(contentEnd + 200));
 
@@ -102,17 +106,18 @@ export async function renderCertificateCanvas() {
   g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 120);
 
   g.font = '600 28px "Cinzel", serif';
-  g.fillText("Second quest: officially unlocked", w / 2, 168);
+  g.fillText(subtitle, w / 2, 168);
 
   g.textAlign = "left";
-  drawBodyLines(g, bodyLines, 220, w - 280);
+  const endY = drawBodyLines(g, bodyLines, 220, w - 280);
+  drawDecreeWaxSeal(g, w - 118, Math.min(h - 100, endY + 40), 38);
 
   return c;
 }
 
-export async function downloadCertificatePng() {
+export async function downloadCertificatePng(mode = "pass") {
   try {
-    const c = await renderCertificateCanvas();
+    const c = await renderCertificateCanvas(mode);
     const blob = await new Promise((resolve, reject) => {
       c.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob null"))), "image/png");
     });

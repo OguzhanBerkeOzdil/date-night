@@ -1,4 +1,5 @@
 import { CONFIG, tarotForKey } from "./config.js";
+import { drawDecreeWaxSeal } from "./wax-seal-art.js";
 import {
   adventurerDisplayName,
   decreeCompanionLogLine,
@@ -155,6 +156,7 @@ export async function renderDecreeCanvas(mode = "auto") {
   ctx.font = 'italic 26px "Dancing Script", cursive';
   ctx.fillText(adventurerDisplayName(state), innerX, sigY);
   ctx.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);
+  drawDecreeWaxSeal(ctx, canvas.width - frame - 52, flatBottom - 28, 36);
   return canvas;
 }
 

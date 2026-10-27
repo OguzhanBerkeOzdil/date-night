@@ -968,7 +968,7 @@ function initChapterTwo() {
     navigate("quest-complete");
   });
   $("btnShareFinal")?.addEventListener("click", () => shareDecree("completion"));
-  $("btnSaveFinal")?.addEventListener("click", () => downloadDecreePng("completion"));
+  $("btnSaveFinal")?.addEventListener("click", () => downloadCertificatePng("completion"));
   $("btnCopyFinal")?.addEventListener("click", () => copyText(buildCompletionText(), $("finalPreview"), $("finalCopyToast")));
 }
 
