@@ -1,6 +1,8 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
 import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
+import { flushFeedbackQueue } from "./feedback.js";
+import { RUNTIME_CONFIG } from "./runtime-config.js";
 import { initBardQuill, syncBardQuill } from "./bard.js";
 import { initEpigraphs, updateEpigraph } from "./epigraph.js";
 import { initHud, updateHud } from "./hud.js";
@@ -143,6 +145,7 @@ function initSoundToggle() {
 }
 
 async function boot() {
+  if (!RUNTIME_CONFIG.questApiUrl) flushFeedbackQueue();
   personalize();
   initParticles();
   initDialogue();

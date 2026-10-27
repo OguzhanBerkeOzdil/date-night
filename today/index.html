@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a2e1f">
+  <meta name="description" content="The Eve of the Quest — a short, silly warm-up for tomorrow's adventure. No spoilers.">
+  <title>The Eve of the Quest</title>
+  <link rel="stylesheet" href="../css/fonts.css?v=20261105">
+  <link rel="stylesheet" href="../css/styles.css?v=20261105">
+  <link rel="stylesheet" href="../css/today.css?v=20261105">
+</head>
+<body class="today-app" data-screen="gate">
+  <header class="today-top">
+    <p class="today-kicker">Part A · tonight only</p>
+    <div class="today-top__tools">
+      <button type="button" class="sound-btn" id="btnSoundToday" aria-label="Sound">🔇</button>
+      <button type="button" class="link-btn today-honest" id="stickyHonestExit">Not today / maybe another time</button>
+    </div>
+  </header>
+
+  <main class="today-main">
+    <section class="today-screen today-screen--active" data-screen="gate">
+      <div class="today-panel ornate">
+        <img class="today-character" src="../assets/characters/sir-hoots.webp" alt="" width="120" height="120" loading="eager" decoding="async">
+        <h1 class="title">The Eve of the Quest</h1>
+        <p class="body-text" id="owlLine">Hoot! Who goes there?</p>
+        <label class="field-label" for="guestNameInput">Your name</label>
+        <input type="text" id="guestNameInput" class="today-input" maxlength="40" autocomplete="name" placeholder="Adventurer">
+        <button type="button" class="btn btn--primary" id="btnGateNext">Announce me to the owl</button>
+      </div>
+    </section>
+
+    <section class="today-screen" data-screen="excitement">
+      <div class="today-panel ornate">
+        <h2 class="title">How excited for tomorrow?</h2>
+        <p class="sub">On a scale from mildly curious to already packed.</p>
+        <label class="field-label" for="excitementSlider">Excitement level</label>
+        <input type="range" id="excitementSlider" min="1" max="5" value="3" class="today-slider">
+        <p class="today-reaction" id="excitementReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary" id="btnExcitementNext">Continue</button>
+      </div>
+    </section>
+
+    <section class="today-screen" data-screen="herald">
+      <div class="today-panel ornate">
+        <img class="today-character" src="../assets/characters/goblin-herald.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
+        <h2 class="title">Royal herald goblin</h2>
+        <p class="sub" id="heraldPrompt"></p>
+        <div class="today-choice-row" id="heraldChoices"></div>
+        <p class="today-reaction hidden" id="heraldReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary hidden" id="btnHeraldNext">On to packing</button>
+      </div>
+    </section>
+
+    <section class="today-screen" data-screen="packing">
+      <div class="today-panel ornate">
+        <h2 class="title">What to bring on the quest</h2>
+        <p class="sub">Tick what applies. One tip is actually useful.</p>
+        <div class="today-pack-list" id="packingList"></div>
+        <button type="button" class="btn btn--primary" id="btnPackingNext">Seal my pass</button>
+      </div>
+    </section>
+
+    <section class="today-screen" data-screen="pass">
+      <div class="today-panel ornate today-panel--pass">
+        <h2 class="title">Quest Pass</h2>
+        <p class="pass-name" id="passName"></p>
+        <p class="sub">Summoned for tomorrow's quest</p>
+        <button type="button" class="btn btn--primary" id="btnSavePass">Save pass as PNG</button>
+        <p class="body-text" id="passClosing"></p>
+        <p class="small-print" id="feedbackNote"></p>
+      </div>
+    </section>
+
+    <section class="today-screen" data-screen="honest">
+      <div class="today-panel ornate">
+        <h2 class="title">No worries at all</h2>
+        <p class="body-text" id="honestBody"></p>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../js/today/main.js?v=20261105"></script>
+</body>
+</html>

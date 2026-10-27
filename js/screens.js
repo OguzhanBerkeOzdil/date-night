@@ -15,12 +15,24 @@ import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.
 import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
+import { downloadCertificatePng } from "./certificate.js";
 import {
   buildCompletionText,
   buildSummaryText,
   downloadDecreePng,
   shareDecree,
 } from "./decree.js";
+import {
+  HORSE_BREEDS,
+  horseById,
+  horseImageUrl,
+  horseHasArt,
+  HORSE_PLACEHOLDER_SRC,
+} from "./horses.js";
+import { initEvePrelude, onEnterEve } from "./eve-prelude.js";
+import { submitFeedback } from "./feedback.js";
+import { RUNTIME_CONFIG } from "./runtime-config.js";
+import { APP_CACHE_VERSION } from "./cache-version.js";
 import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
@@ -154,6 +166,11 @@ export function resumeTarget() {
       : "chapter-two-pause";
   }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
+  if (!state.eveComplete) {
+    const eveScreens = ["eve-gate", "eve-excitement", "eve-herald", "eve-packing", "eve-pass"];
+    if (eveScreens.includes(state.lastScreen)) return state.lastScreen;
+    return "eve-gate";
+  }
   return state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "summons";
 }
 
@@ -166,7 +183,7 @@ function startFreshQuestWithUndo() {
     startAmbience();
     playHorn();
   }
-  navigate("summons");
+  navigate("eve-gate");
   if (hadSave) {
     showUndoToast(
       "Quest reset — progress cleared.",
@@ -237,6 +254,76 @@ function renderAffection() {
   if (el) el.textContent = "♡".repeat(5 - state.affection) + "♥".repeat(state.affection);
 }
 
+function applyHorseImg(img, horseId, { lazy = false } = {}) {
+  const breed = horseById(horseId);
+  const useArt = horseHasArt(horseId);
+  if (lazy) {
+    img.loading = "lazy";
+    img.decoding = "async";
+  } else {
+    img.loading = "eager";
+    img.decoding = "async";
+  }
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = HORSE_PLACEHOLDER_SRC;
+    img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+  };
+  img.onload = () => {
+    if (img.src.includes("/horses/") && useArt) img.className = "horse-cutout";
+    else img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+  };
+  img.src = useArt ? horseImageUrl(horseId) : HORSE_PLACEHOLDER_SRC;
+  if (!useArt) img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+}
+
+function setHorsePreview(horseId) {
+  const img = $("horseIdleImg");
+  if (!img) return;
+  applyHorseImg(img, horseId, { lazy: false });
+  const pers = $("horsePersonality");
+  if (pers) pers.textContent = horseById(horseId).personality;
+}
+
+function renderHorseBreedGrid() {
+  const grid = $("horseBreedGrid");
+  if (!grid || grid.dataset.rendered) return;
+  grid.dataset.rendered = "1";
+  HORSE_BREEDS.forEach((breed) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "horse-breed-card";
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", breed.id === state.horseId ? "true" : "false");
+    btn.dataset.horseId = breed.id;
+    const thumb = document.createElement("img");
+    thumb.className = "horse-breed-card__img";
+    thumb.alt = "";
+    applyHorseImg(thumb, breed.id, { lazy: true });
+    const label = document.createElement("span");
+    label.className = "horse-breed-card__label";
+    label.textContent = breed.coat;
+    btn.append(thumb, label);
+    btn.addEventListener("click", () => pickHorseBreed(breed.id));
+    grid.appendChild(btn);
+  });
+}
+
+function pickHorseBreed(id) {
+  state.horseId = id;
+  saveState();
+  setHorsePreview(id);
+  document.querySelectorAll(".horse-breed-card").forEach((el) => {
+    el.setAttribute("aria-selected", el.dataset.horseId === id ? "true" : "false");
+  });
+  const breed = horseById(id);
+  if (state.steedName === "Clover" || HORSE_BREEDS.some((h) => h.defaultName === state.steedName)) {
+    state.steedName = breed.defaultName;
+    saveState();
+    setSteedName(state.steedName);
+  }
+}
+
 function pickSteed(name) {
   state.steedName = name;
   saveState();
@@ -247,6 +334,8 @@ function pickSteed(name) {
 }
 
 function initSteed() {
+  renderHorseBreedGrid();
+  setHorsePreview(state.horseId || "chestnut");
   renderAffection();
   $("horseIdle")?.addEventListener("click", () => {
     if (state.affection >= 5) return;
@@ -287,7 +376,9 @@ function initSteed() {
 
 export function onEnterSteed() {
   attachSteedDialogue();
-  setPortrait("assets/images/horse-idle.webp");
+  const hid = state.horseId || "chestnut";
+  setPortrait(horseHasArt(hid) ? horseImageUrl(hid) : HORSE_PLACEHOLDER_SRC);
+  setHorsePreview(hid);
   setSteedName(state.steedName);
   say([
     `*soft neigh* Oh! You must be ${questOfTitle()}. I've heard a responsibly small amount about you.`,
@@ -634,10 +725,55 @@ function openChapterTwo() {
   navigate(chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock");
 }
 
+function reportMainFeedback() {
+  if (RUNTIME_CONFIG.questApiUrl) return;
+  submitFeedback({
+    _subject: "Quest answers",
+    idempotencyId: `main-${guest.formal || "guest"}-decree-${APP_CACHE_VERSION}`,
+    part: "main",
+    name: guest.formal || guest.display,
+    excitement: "",
+    choices: JSON.stringify({
+      rating: state.rating,
+      food: state.food,
+      activities: state.activities,
+      tarot: state.tarotKey,
+    }),
+    horse: state.horseId || "",
+    steedName: state.steedName || "",
+    date: state.day || "",
+    timestamp: new Date().toISOString(),
+    outcome: "decree",
+  });
+}
+
 function initDecree() {
   $("btnShare")?.addEventListener("click", () => shareDecree("pass"));
   $("btnSavePng")?.addEventListener("click", () => downloadDecreePng("pass"));
-  $("btnCopy")?.addEventListener("click", () => copyText(buildSummaryText("pass"), $("decreePreview"), $("copyToast")));
+  $("btnSaveCertificate")?.addEventListener("click", () => downloadCertificatePng());
+  $("btnCopy")?.addEventListener("click", async () => {
+    const text = buildSummaryText("pass");
+    const toast = $("copyToast");
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch {
+      const pre = $("decreePreview");
+      if (pre) {
+        const range = document.createRange();
+        range.selectNodeContents(pre);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }
+    if (toast) {
+      toast.textContent = copied ? "Copied!" : "Select the decree text and copy manually";
+      show(toast);
+      window.setTimeout(() => hide(toast), 2000);
+    }
+  });
   $("btnChapterTwo")?.addEventListener("click", openChapterTwo);
   $("btnReplay")?.addEventListener("click", requestFreshQuestStart);
 }
@@ -755,6 +891,7 @@ function restoreSelections() {
 export function onScreenEnter(id) {
   hydrateLazyImages(document.querySelector(`[data-screen="${id}"]`));
   restoreSelections();
+  if (id.startsWith("eve-")) onEnterEve(id);
   if (id === "steed") onEnterSteed();
   if (id === "oracle") restoreOracleFromState();
   if (id === "potion") {
@@ -768,6 +905,7 @@ export function onScreenEnter(id) {
     state.chapterOneComplete = true;
     saveState();
     queueQuestSync({ immediate: true });
+    reportMainFeedback();
     $("decreePreview").textContent = buildSummaryText("pass");
     boostEmbers();
     playStamp();
@@ -791,6 +929,7 @@ export function onScreenEnter(id) {
 
 export function initScreens(nav) {
   navigate = nav;
+  initEvePrelude(navigate);
   initTitle();
   initSummons();
   initSteed();

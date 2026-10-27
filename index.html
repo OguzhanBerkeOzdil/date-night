@@ -4,14 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a2e1f">
-  <link rel="manifest" href="manifest.webmanifest?v=202610274">
+  <meta name="description" content="A short, silly medieval quest — steeds, snacks, and one very official survey. Finish in a few minutes.">
+  <meta property="og:title" content="The Quest">
+  <meta property="og:description" content="A playful court survey disguised as a fantasy adventure. Scan, laugh, seal your decree.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/icons/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Quest">
+  <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
+  <meta name="twitter:image" content="assets/icons/icon-512.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest?v=20261105">
   <title>The Quest</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=202610274">
-  <link rel="stylesheet" href="css/v2.css?v=202610274">
-  <link rel="stylesheet" href="css/desktop.css?v=202610274">
+  <link rel="stylesheet" href="css/fonts.css?v=20261105">
+  <link rel="stylesheet" href="css/styles.css?v=20261105">
+  <link rel="stylesheet" href="css/v2.css?v=20261105">
+  <link rel="stylesheet" href="css/desktop.css?v=20261105">
+  <link rel="stylesheet" href="css/today.css?v=20261105">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -52,6 +63,7 @@
       </div>
     </button>
     <div class="top-bar__tools">
+      <button type="button" class="link-btn today-honest hidden" id="btnEveHonest">Not today / maybe another time</button>
       <span class="sync-status hidden" id="syncStatus" role="status" aria-live="polite"></span>
       <button type="button" class="bard-quill bard-quill--hud hidden" id="btnBardHud" aria-label="The bard recites a line">🪶</button>
       <button type="button" class="sound-btn" id="btnSoundHud" aria-label="Sound">🔇</button>
@@ -99,6 +111,69 @@
       </div>
     </section>
 
+    <section class="screen" data-screen="eve-gate">
+      <div class="screen__inner today-panel ornate">
+        <p class="kicker">Tonight · eve of the quest</p>
+        <img class="today-character" src="assets/characters/sir-hoots.webp" alt="" width="120" height="120" loading="eager" decoding="async">
+        <h2 class="title">Sir Hoots, night watch</h2>
+        <p class="body-text" id="owlLine">Hoot! Who goes there?</p>
+        <label class="field-label" for="guestNameInput">Your name</label>
+        <input type="text" id="guestNameInput" class="today-input" maxlength="40" autocomplete="name" placeholder="Adventurer">
+        <button type="button" class="btn btn--primary" id="btnGateNext">Announce me to the owl</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-excitement">
+      <div class="screen__inner today-panel ornate">
+        <h2 class="title">How excited for tomorrow?</h2>
+        <p class="sub">On a scale from mildly curious to already packed.</p>
+        <label class="field-label" for="excitementSlider">Excitement level</label>
+        <input type="range" id="excitementSlider" min="1" max="5" value="3" class="today-slider">
+        <p class="today-reaction" id="excitementReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary" id="btnExcitementNext">Continue</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-herald">
+      <div class="screen__inner today-panel ornate">
+        <img class="today-character" src="assets/characters/goblin-herald.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
+        <h2 class="title">Royal herald goblin</h2>
+        <p class="sub" id="heraldPrompt"></p>
+        <div class="today-choice-row" id="heraldChoices"></div>
+        <p class="today-reaction hidden" id="heraldReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary hidden" id="btnHeraldNext">On to packing</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-packing">
+      <div class="screen__inner today-panel ornate">
+        <h2 class="title">What to bring on the quest</h2>
+        <p class="sub">Tick what applies. One tip is actually useful.</p>
+        <div class="today-pack-list" id="packingList"></div>
+        <button type="button" class="btn btn--primary" id="btnPackingNext">Seal my pass</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-pass">
+      <div class="screen__inner today-panel ornate today-panel--pass">
+        <h2 class="title">Quest Pass</h2>
+        <p class="pass-name" id="passName"></p>
+        <p class="sub">Summoned for tomorrow's quest</p>
+        <button type="button" class="btn btn--primary" id="btnSavePass">Save pass as PNG</button>
+        <p class="body-text" id="passClosing"></p>
+        <button type="button" class="btn btn--secondary" id="btnEveContinue">Continue to tomorrow's briefing</button>
+        <p class="small-print" id="eveFeedbackNote"></p>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-honest">
+      <div class="screen__inner today-panel ornate">
+        <h2 class="title">No worries at all</h2>
+        <p class="body-text" id="eveHonestBody"></p>
+        <button type="button" class="btn btn--primary" id="btnEveHonestDone">Back to the gate</button>
+      </div>
+    </section>
+
     <section class="screen" data-screen="summons">
       <div class="screen__inner parchment-textured ornate">
         <p class="kicker">Tomorrow's quest briefing</p>
@@ -121,12 +196,17 @@
 
     <section class="screen" data-screen="steed">
       <div class="screen__inner steed-screen">
+        <fieldset class="horse-breed-field">
+          <legend class="sub-label">Choose your steed</legend>
+          <div id="horseBreedGrid" class="horse-breed-grid" role="listbox" aria-label="Horse breeds"></div>
+        </fieldset>
         <div class="steed-hero-row">
           <div class="horse-stage" id="horseIdle">
             <img id="horseIdleImg" class="horse-cutout" src="assets/images/horse-idle.webp" alt="" width="559" height="560">
           </div>
           <div id="steedDialogueAnchor" class="steed-dialogue-anchor" aria-hidden="true"></div>
         </div>
+        <p class="horse-personality" id="horsePersonality" aria-live="polite"></p>
         <p class="affection" id="affectionBar" aria-live="polite">♡♡♡♡♡</p>
         <button type="button" class="carrot-btn" id="carrotBtn">🥕 Feed carrot</button>
         <fieldset class="name-chips-field">
@@ -153,7 +233,7 @@
         <div id="statList" class="stat-list"></div>
         <div id="classPick" class="class-grid hidden"></div>
         <p id="classChosen"></p>
-        <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Accept destiny →</button>
+        <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Roll on →</button>
       </div>
     </section>
 
@@ -289,6 +369,7 @@
           <button type="button" class="btn btn--primary" id="btnChapterTwo">Check chapter II</button>
           <button type="button" class="btn btn--secondary" id="btnShare">Share the pass</button>
           <button type="button" class="btn btn--secondary" id="btnSavePng">Save pass as image</button>
+          <button type="button" class="btn btn--secondary" id="btnSaveCertificate">Save quest certificate</button>
           <button type="button" class="btn btn--secondary" id="btnCopy">Copy pass</button>
           <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew</button>
         </div>
@@ -405,6 +486,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=202610274"></script>
+  <script type="module" src="js/main.js?v=20261105"></script>
 </body>
 </html>
