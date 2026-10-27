@@ -118,7 +118,43 @@ function reportEve(outcome) {
   }
 }
 
+/** Eve decline must not overwrite an accepted or completed quest. */
+export function questProgressBlocksEveDecline() {
+  return (
+    state.chapterOneComplete ||
+    state.chapterTwoStarted ||
+    state.chapterTwoComplete ||
+    state.honestNo ||
+    state.chapter === "declined" ||
+    state.secondDate === "yes" ||
+    state.secondDate === "maybe" ||
+    (state.eveComplete && state.eveOutcome === "completed")
+  );
+}
+
+const EVE_HONEST_SCREENS = new Set(["eve-gate", "eve-excitement", "eve-herald", "eve-packing"]);
+
+/** Keep the sticky honest control scoped to Eve prelude screens only. */
+export function syncEveHonestButton(screenId) {
+  const honest = $("btnEveHonest");
+  if (!honest) return;
+  const visible = EVE_HONEST_SCREENS.has(screenId) && !questProgressBlocksEveDecline();
+  honest.classList.toggle("hidden", !visible);
+  if (visible) {
+    honest.removeAttribute("hidden");
+    honest.setAttribute("aria-hidden", "false");
+    honest.removeAttribute("tabindex");
+    honest.disabled = false;
+  } else {
+    honest.setAttribute("hidden", "");
+    honest.setAttribute("aria-hidden", "true");
+    honest.setAttribute("tabindex", "-1");
+    honest.disabled = true;
+  }
+}
+
 function finishHonest() {
+  if (questProgressBlocksEveDecline()) return;
   state.honestNo = true;
   state.chapter = "declined";
   reportEve("honest-no");
@@ -137,11 +173,6 @@ function finishPass() {
 }
 
 export function onEnterEve(screenId) {
-  const honest = $("btnEveHonest");
-  if (honest) {
-    const onEve = screenId.startsWith("eve-") && screenId !== "eve-honest";
-    honest.classList.toggle("hidden", !onEve);
-  }
   if (screenId === "eve-gate") {
     $("owlLine").textContent = OWL_INTRO;
     const input = $("guestNameInput");

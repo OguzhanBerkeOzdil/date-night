@@ -11,6 +11,7 @@ import { initParticles } from "./particles.js";
 import { initScreens, onScreenEnter, resumeTarget } from "./screens.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { initQuestSync } from "./sync.js";
+import { syncEveHonestButton } from "./eve-prelude.js";
 
 export { syncContinueButton };
 import { guest, questOfTitle, saveState, state } from "./state.js";
@@ -168,6 +169,7 @@ async function boot() {
   } else if (state.chapterOneComplete || state.chapterTwoStarted || state.chapterTwoComplete) {
     navigate(resumeTarget());
   }
+  syncEveHonestButton(document.body.dataset.screen || "title");
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void boot());
