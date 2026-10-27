@@ -1,5 +1,6 @@
 import { QUEST_DATE_LABEL } from "./app-config.js";
 import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
+import { buildRealmCertificateNotes } from "./certificate-notes.js";
 import { horseById } from "./horses.js";
 import { grantedToLabel, state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
@@ -22,6 +23,9 @@ export function buildCertificateLines() {
     `Weapon: ${profile.weapon}`,
     `Companion: ${profile.companion}`,
     "",
+    "Official notes from the realm:",
+    ...buildRealmCertificateNotes().map((n) => `• ${n}`),
+    "",
     "Signed under wax (and mild chaos).",
     "No destiny speeches. Just a good plan.",
   ];
@@ -30,7 +34,7 @@ export function buildCertificateLines() {
 export async function renderCertificateCanvas() {
   await document.fonts.ready;
   const w = 1080;
-  const h = 720;
+  const h = 900;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -62,23 +66,47 @@ export async function renderCertificateCanvas() {
   g.fillText("Second quest: officially unlocked", w / 2, 180);
 
   g.textAlign = "left";
-  g.font = '400 26px "Crimson Pro", serif';
   const lines = buildCertificateLines().filter((l) => !l.startsWith("ROYAL QUEST"));
   let y = 240;
   for (const line of lines) {
     if (!line) {
-      y += 12;
+      y += 10;
       continue;
     }
-    g.fillText(line, 100, y);
-    y += 36;
+    const isNote = line.startsWith("• ");
+    g.font = isNote
+      ? '400 20px "Crimson Pro", serif'
+      : line.startsWith("Official notes")
+        ? '600 22px "Cinzel", serif'
+        : '400 24px "Crimson Pro", serif';
+    const maxW = w - 280;
+    if (isNote && g.measureText(line).width > maxW) {
+      const words = line.slice(2).split(" ");
+      let row = "• ";
+      for (const word of words) {
+        const test = `${row}${word} `;
+        if (g.measureText(test).width > maxW && row !== "• ") {
+          g.fillText(row.trimEnd(), 100, y);
+          y += 26;
+          row = `• ${word} `;
+        } else {
+          row = test;
+        }
+      }
+      g.fillText(row.trimEnd(), 100, y);
+      y += 28;
+    } else {
+      g.fillText(line, 100, y);
+      y += isNote ? 28 : 32;
+    }
   }
 
   const seal = new Image();
   seal.src = "assets/images/wax-seal.webp";
   await seal.decode().catch(() => {});
   if (seal.complete && seal.naturalWidth) {
-    g.drawImage(seal, w - 220, h - 200, 120, 120);
+    const sealSize = 110;
+    g.drawImage(seal, w - 200, h - 150, sealSize, sealSize);
   }
 
   return c;

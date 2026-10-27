@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261109";
+const APP_CACHE_VERSION = "20261110";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -34,6 +34,10 @@ const ASSET_PRECACHE = [
   "./js/eve-prelude.js",
   "./js/chapter1-survey-data.js",
   "./js/chapter1-survey.js",
+  "./js/sir-berke-cameo.js",
+  "./js/certificate-notes.js",
+  "./js/quest-pass-layout.js",
+  "./js/pass-seal-analysis.js",
   "./js/ui-feedback.js",
   "./js/hud.js",
   "./js/audio.js",
@@ -67,6 +71,9 @@ const ASSET_PRECACHE = [
   "./assets/characters/marta-tavern.webp",
   "./assets/characters/royal-goose.webp",
   "./assets/characters/gerald-accountant.webp",
+  "./assets/characters/sir-berke-stand.webp",
+  "./assets/characters/sir-berke-wave.webp",
+  "./assets/characters/sir-berke-shield.webp",
   "./assets/equipment/sword.webp",
   "./assets/equipment/longbow.webp",
   "./assets/equipment/lute.webp",

@@ -4,6 +4,7 @@ import {
   CHAPTER1_SURVEY_STEPS,
 } from "./chapter1-survey-data.js";
 import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js";
+import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
 import {
@@ -238,6 +239,11 @@ export function onEnterEve(screenId) {
   if (screenId === "eve-packing") renderPacking();
   if (screenId === "eve-survey") onEnterSurvey();
   if (screenId === "eve-pass") completeChapter1Invitation();
+  if (screenId === "eve-name" || screenId === "eve-pass") {
+    paintSirBerkeCameo({ screenId });
+  } else if (screenId !== "eve-survey") {
+    hideSirBerkeCameo();
+  }
 }
 
 let chapter1ReplayConfirmAbort = null;
