@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261108">
+  <link rel="manifest" href="manifest.webmanifest?v=20261109">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261108">
-  <link rel="stylesheet" href="css/styles.css?v=20261108">
-  <link rel="stylesheet" href="css/v2.css?v=20261108">
-  <link rel="stylesheet" href="css/desktop.css?v=20261108">
-  <link rel="stylesheet" href="css/today.css?v=20261108">
+  <link rel="stylesheet" href="css/fonts.css?v=20261109">
+  <link rel="stylesheet" href="css/styles.css?v=20261109">
+  <link rel="stylesheet" href="css/v2.css?v=20261109">
+  <link rel="stylesheet" href="css/desktop.css?v=20261109">
+  <link rel="stylesheet" href="css/today.css?v=20261109">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -78,7 +78,7 @@
       <h2 id="chapter1ReplayTitle" class="title">Reset your adventure?</h2>
       <p class="body-text">The goose will remember.</p>
       <div class="quest-confirm__actions">
-        <button type="button" class="btn btn--ghost" id="chapter1ReplayCancel">Keep my progress</button>
+        <button type="button" class="btn btn--ghost chapter1-replay-cancel" id="chapter1ReplayCancel">Keep my progress</button>
         <button type="button" class="btn btn--primary" id="chapter1ReplayAccept">Play Chapter I again</button>
       </div>
     </div>
@@ -113,6 +113,7 @@
 
     <section class="screen" data-screen="eve-name">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <p class="kicker">Tonight · eve of the quest</p>
         <img class="today-character" src="assets/characters/goblin-herald.webp" alt="" width="120" height="120" loading="eager" decoding="async">
         <h2 class="title">Royal herald</h2>
@@ -128,6 +129,7 @@
 
     <section class="screen" data-screen="eve-excitement">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <h2 class="title">How excited for tomorrow?</h2>
         <p class="sub">On a scale from mildly curious to already packed.</p>
         <label class="field-label" for="excitementSlider">Excitement level</label>
@@ -139,6 +141,7 @@
 
     <section class="screen" data-screen="eve-packing">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <h2 class="title">What to bring on the quest</h2>
         <p class="sub">Tick what applies. One tip is actually useful.</p>
         <div class="today-pack-list" id="packingList"></div>
@@ -148,6 +151,7 @@
 
     <section class="screen" data-screen="eve-survey">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <p class="chapter1-progress" id="chapter1Progress" aria-live="polite">Question 1/9</p>
         <img class="today-character" id="surveyPortrait" src="assets/characters/lucius-bard.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
         <h2 class="title" id="surveyCharacter">Lucius the Bard</h2>
@@ -496,6 +500,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261108"></script>
+  <script type="module" src="js/main.js?v=20261109"></script>
 </body>
 </html>

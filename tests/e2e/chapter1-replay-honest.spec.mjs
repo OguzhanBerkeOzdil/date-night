@@ -1,9 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { completeEveToLock, completeEveName } from "./helpers/eve-path.mjs";
+import { contrastRatio } from "./helpers/contrast.mjs";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     window.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
+    localStorage.clear();
   });
   await page.route("**/formsubmit.co/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
@@ -79,4 +81,73 @@ test("replay confirm dialog has parchment panel over lock screen", async ({ page
 
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
+});
+
+test("replay dialog cancel button meets contrast on parchment panel", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-390");
+  await page.goto("/");
+  await page.locator("#btnNewGame").click();
+  await completeEveToLock(page);
+  await page.locator("#btnPlayChapter1AgainLock").click();
+
+  const cancel = page.locator("#chapter1ReplayCancel");
+  await expect(cancel).toBeVisible();
+  const box = await cancel.boundingBox();
+  expect(box?.height).toBeGreaterThanOrEqual(44);
+
+  const colors = await cancel.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { color: cs.color, backgroundColor: cs.backgroundColor };
+  });
+  expect(contrastRatio(colors.color, colors.backgroundColor)).toBeGreaterThanOrEqual(4.5);
+});
+
+test("scrolled eve-survey: top bar does not overlap question header", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-390" && testInfo.project.name !== "mobile-320");
+  await page.goto("/?name=Ayse");
+  await page.locator("#btnNewGame").click();
+  await page.locator("#btnHeraldNameConfirm").click();
+  await page.locator("#btnExcitementNext").click();
+  await page.locator("#btnPackingNext").click();
+  await page.waitForSelector('[data-screen="eve-survey"].screen--active');
+
+  const honestPlacement = await page.evaluate(() => {
+    const btn = document.getElementById("btnEveHonest");
+    const screen = btn?.closest("[data-screen]");
+    return {
+      screen: screen?.getAttribute("data-screen"),
+      active: screen?.classList.contains("screen--active"),
+      inPanel: btn?.classList.contains("today-honest--in-panel"),
+    };
+  });
+  expect(honestPlacement).toMatchObject({ screen: "eve-survey", active: true, inPanel: true });
+
+  await page.evaluate(() => {
+    const progress = document.getElementById("chapter1Progress");
+    progress?.scrollIntoView({ block: "start", behavior: "instant" });
+    window.scrollBy(0, 120);
+  });
+  await page.waitForTimeout(100);
+
+  const layout = await page.evaluate(() => {
+    const topBar = document.querySelector("header.top-bar");
+    const progress = document.getElementById("chapter1Progress");
+    const prompt = document.getElementById("surveyPrompt");
+    const barStyle = topBar ? getComputedStyle(topBar) : null;
+    const bar = topBar?.getBoundingClientRect();
+    const prog = progress?.getBoundingClientRect();
+    const pr = prompt?.getBoundingClientRect();
+    const overlap = (a, b) =>
+      a &&
+      b &&
+      !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+    return {
+      position: barStyle?.position,
+      overlapsProgress: overlap(bar, prog),
+      overlapsPrompt: overlap(bar, pr),
+    };
+  });
+  expect(layout.position).toBe("relative");
+  expect(layout.overlapsProgress).toBe(false);
+  expect(layout.overlapsPrompt).toBe(false);
 });

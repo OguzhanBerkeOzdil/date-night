@@ -125,21 +125,41 @@ const EVE_HONEST_SCREENS = new Set([
   "eve-survey",
 ]);
 
+const EVE_HONEST_HOME = ".top-bar__tools";
+
 export function syncEveHonestButton(screenId) {
   const honest = $("btnEveHonest");
   if (!honest) return;
   const visible = EVE_HONEST_SCREENS.has(screenId) && !questProgressBlocksEveDecline();
-  honest.classList.toggle("hidden", !visible);
-  if (visible) {
+  const home = document.querySelector(EVE_HONEST_HOME);
+  const slot =
+    visible && EVE_HONEST_SCREENS.has(screenId)
+      ? document.querySelector(".screen.screen--active [data-eve-honest-slot]")
+      : null;
+
+  if (visible && slot) {
+    slot.append(honest);
+    honest.classList.add("today-honest--in-panel");
+    honest.classList.remove("hidden");
     honest.removeAttribute("hidden");
     honest.setAttribute("aria-hidden", "false");
     honest.removeAttribute("tabindex");
     honest.disabled = false;
-  } else {
-    honest.setAttribute("hidden", "");
-    honest.setAttribute("aria-hidden", "true");
-    honest.setAttribute("tabindex", "-1");
-    honest.disabled = true;
+  } else if (home) {
+    home.append(honest);
+    honest.classList.remove("today-honest--in-panel");
+    honest.classList.toggle("hidden", !visible);
+    if (visible) {
+      honest.removeAttribute("hidden");
+      honest.setAttribute("aria-hidden", "false");
+      honest.removeAttribute("tabindex");
+      honest.disabled = false;
+    } else {
+      honest.setAttribute("hidden", "");
+      honest.setAttribute("aria-hidden", "true");
+      honest.setAttribute("tabindex", "-1");
+      honest.disabled = true;
+    }
   }
 }
 
