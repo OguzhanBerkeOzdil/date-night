@@ -45,6 +45,27 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await page.evaluate(() => window.__questNavigate("chapter-two-start"));
     await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
     await expect(page.locator("#questRecap")).toContainText("Pacifist potato farmer");
+    if (testInfo.project.name === "mobile-390") {
+      const widthRatio = await page.evaluate(() => {
+        const card = document.querySelector(
+          '[data-screen="chapter-two-start"].screen--active .screen__inner.chapter-panel'
+        );
+        const recap = document.querySelector(
+          '[data-screen="chapter-two-start"].screen--active #questRecap'
+        );
+        const btn = document.querySelector(
+          '[data-screen="chapter-two-start"].screen--active #btnStartAdventure'
+        );
+        if (!card || !recap || !btn) return 0;
+        const cardW = card.getBoundingClientRect().width;
+        const minChild = Math.min(
+          recap.getBoundingClientRect().width,
+          btn.getBoundingClientRect().width
+        );
+        return cardW > 0 ? minChild / cardW : 0;
+      });
+      expect(widthRatio).toBeGreaterThanOrEqual(0.9);
+    }
     await page.locator("#btnStartAdventure").click();
     await page.waitForSelector('[data-screen="summons"].screen--active');
     await page.evaluate(() => document.getElementById("waxSealBtn")?.click());

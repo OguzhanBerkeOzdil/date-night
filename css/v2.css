@@ -1725,6 +1725,11 @@ body[data-screen="steed"] .horse-breed-grid {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
+  padding-inline: 0.85rem;
+}
+
+[data-screen="chapter-two-start"] .screen__inner.chapter-panel.today-panel--berke {
+  padding-right: 0.85rem;
 }
 
 .quest-recap {

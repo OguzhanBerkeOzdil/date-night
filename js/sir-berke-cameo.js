@@ -53,9 +53,7 @@ export function paintSirBerkeCameo({ screenId, questionId } = {}) {
   const slot = document.querySelector(".screen.screen--active [data-sir-berke-slot]");
   if (slot) slot.append(root);
 
-  const panel = document.querySelector(
-    ".screen.screen--active .today-panel, .screen.screen--active .screen__inner.ornate"
-  );
+  const panel = document.querySelector(".screen.screen--active .today-panel");
   panel?.classList.toggle("today-panel--berke", Boolean(cfg));
 
   if (!cfg) {
@@ -77,7 +75,7 @@ export function hideSirBerkeCameo() {
   const root = $("sirBerkeCameo");
   if (!root) return;
   document
-    .querySelector(".screen.screen--active .today-panel, .screen.screen--active .screen__inner.ornate")
+    .querySelector(".screen.screen--active .today-panel")
     ?.classList.remove("today-panel--berke");
   root.classList.add("hidden");
   root.setAttribute("hidden", "");

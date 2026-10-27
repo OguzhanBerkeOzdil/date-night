@@ -12,7 +12,7 @@ import { showAppToast } from "./ui-feedback.js";
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
 /** Flat parchment starts below the top scroll roll. */
-export const CERT_TOP_RESERVE = 96;
+export const CERT_TOP_RESERVE = 124;
 /** Parchment bottom roll + baked wax seal — keep body text above this. */
 export const CERT_BOTTOM_RESERVE = 210;
 const BODY_MARGIN_X = 100;
