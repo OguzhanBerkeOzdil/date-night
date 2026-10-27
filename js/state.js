@@ -16,9 +16,23 @@ const PROGRESS_SCREENS = [
   "decree",
 ];
 
+const BIDI_OVERRIDE = /[\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
+const CONTROL_CHARS = /[\p{Cc}\p{Cf}]/gu;
+const MAX_GUEST_NAME_LEN = 40;
+
+/** Normalize and strip unsafe chars from the ?name= query (inserted via textContent only). */
+export function sanitizeGuestName(raw) {
+  if (raw == null) return "";
+  let name = String(raw).normalize("NFC");
+  name = name.replace(BIDI_OVERRIDE, "").replace(CONTROL_CHARS, "");
+  name = name.replace(/^lady\s+/i, "").trim();
+  if (name.length > MAX_GUEST_NAME_LEN) name = name.slice(0, MAX_GUEST_NAME_LEN);
+  return name;
+}
+
 export function parseGuestName() {
-  const raw = (new URLSearchParams(location.search).get("name") || "").trim();
-  let name = raw.replace(/^lady\s+/i, "").trim();
+  const raw = new URLSearchParams(location.search).get("name") || "";
+  const name = sanitizeGuestName(raw);
   if (!name) {
     const fallback = CONFIG.defaultTitle || "my lady";
     const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
@@ -85,7 +99,7 @@ function readSnapshotFromStorage() {
     const raw = localStorage.getItem(KEY);
     if (!raw) return null;
     return { ...defaultState(), ...JSON.parse(raw) };
-  } catch (_) {
+  } catch {
     return null;
   }
 }
@@ -104,7 +118,7 @@ export function loadState() {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) return { ...defaultState(), ...JSON.parse(raw) };
-  } catch (_) {}
+  } catch {}
   return defaultState();
 }
 
@@ -114,7 +128,7 @@ export function saveState() {
     if (snapshotIsUndoable(state)) {
       clearPendingUndo();
     }
-  } catch (_) {
+  } catch {
     showSaveWarningToast();
   }
 }
@@ -123,7 +137,7 @@ export function resetState() {
   state = defaultState();
   try {
     localStorage.removeItem(KEY);
-  } catch (_) {
+  } catch {
     showSaveWarningToast();
   }
 }

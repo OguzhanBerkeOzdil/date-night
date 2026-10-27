@@ -3,9 +3,9 @@ import { unlock } from "./achievements.js";
 
 // bonus achievements use same unlock()
 import { playNeigh, playStamp, playHorn, duckMusic, vibrate, unlockAudio, startAmbience, setSoundOn, isSoundOn } from "./audio.js";
-import { say, setSteedName, setPortrait, hideDialogue, attachSteedDialogue } from "./dialogue.js";
+import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js";
 import { hydrateLazyImages } from "./image-utils.js";
-import { iconFood, icons } from "./icons.js";
+import { iconFood } from "./icons.js";
 import { burstHearts, boostEmbers } from "./particles.js";
 import { buildSummaryText, downloadDecreePng, shareDecree } from "./decree.js";
 import {
@@ -133,7 +133,7 @@ function formatPickerDate(iso) {
       day: "numeric",
       month: "long",
     });
-  } catch (_) {
+  } catch {
     return iso;
   }
 }
@@ -970,7 +970,7 @@ function initStars() {
 
   const times = ["Morning ride", "Afternoon", "Golden hour", "Evening stars", "Late-night tales"];
   const sky = $("skyDial");
-  times.forEach((t, i) => {
+  times.forEach((t) => {
     const o = document.createElement("option");
     o.value = t;
     o.textContent = t;
@@ -1105,9 +1105,11 @@ function initDecree() {
   $("btnCopy")?.addEventListener("click", async () => {
     const text = buildSummaryText();
     const toast = $("copyToast");
+    let copied = false;
     try {
       await navigator.clipboard.writeText(text);
-    } catch (_) {
+      copied = true;
+    } catch {
       const pre = $("decreePreview");
       if (pre) {
         const range = document.createRange();
@@ -1117,8 +1119,11 @@ function initDecree() {
         sel?.addRange(range);
       }
     }
-    show(toast);
-    setTimeout(() => hide(toast), 2000);
+    if (toast) {
+      toast.textContent = copied ? "Copied!" : "Select the decree text and copy manually";
+      show(toast);
+      setTimeout(() => hide(toast), 2000);
+    }
   });
   $("btnReplay")?.addEventListener("click", () => {
     requestFreshQuestStart();

@@ -33,10 +33,6 @@ function server() {
   });
 }
 
-function intersects(a, b) {
-  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-}
-
 function blockersFor(screen) {
   if (screen === "potion") {
     return "#btnStir, #notesInput, select, .vial, button.btn--primary, button.btn--secondary, .screen--active .title, .screen--active h2";
@@ -112,7 +108,7 @@ for (const c of CASES) {
       const raw = JSON.parse(localStorage.getItem("questLady_v2") || "{}");
       raw.achievements = (raw.achievements || []).filter((a) => a !== id);
       localStorage.setItem("questLady_v2", JSON.stringify(raw));
-    } catch (_) {}
+    } catch {}
   }, c.unlock);
   await page.reload();
   await page.waitForFunction(() => typeof window.__questUnlock === "function");

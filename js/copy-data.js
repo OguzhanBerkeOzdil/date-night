@@ -58,8 +58,8 @@ export const EPIGRAPHS = {
     "by": "J. R. R. Tolkien, The Fellowship of the Ring"
   },
   "summons": {
-    "text": "Once more unto the breach, dear friends, once more; / Or close the wall up with our English dead.",
-    "by": "Shakespeare, Henry V"
+    "text": "Lord, what fools these mortals be! / (Still, the quest continues.)",
+    "by": "Shakespeare, A Midsummer Night's Dream"
   },
   "steed": {
     "text": "When I bestride him, I soar, I am a hawk: he trots the air; the earth sings when he touches it",

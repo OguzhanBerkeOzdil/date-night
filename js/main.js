@@ -1,6 +1,6 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
-import { loadSoundPref, setSoundOn, isSoundOn, unlockAudio, startAmbience } from "./audio.js";
+import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
 import { initBardQuill, syncBardQuill } from "./bard.js";
 import { initEpigraphs, updateEpigraph } from "./epigraph.js";
 import { initHud, updateHud } from "./hud.js";
@@ -41,7 +41,7 @@ function preloadScreenAssets(screenId) {
 function resetScroll() {
   try {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  } catch (_) {
+  } catch {
     window.scrollTo(0, 0);
   }
   document.documentElement.scrollLeft = 0;

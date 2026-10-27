@@ -114,10 +114,6 @@ async function runViewport(name, viewport) {
   s.close();
 }
 
-function expect(cond) {
-  if (!cond) throw new Error("assertion failed");
-}
-
 await runViewport("iPhone 13", { width: 390, height: 844 });
 await runViewport("Pixel 5", { width: 360, height: 740 });
 
