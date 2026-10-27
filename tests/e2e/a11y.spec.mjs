@@ -3,10 +3,10 @@ import AxeBuilder from "@axe-core/playwright";
 
 const ALL_SCREENS = [
   "title",
-  "eve-gate",
+  "eve-name",
   "eve-excitement",
-  "eve-herald",
   "eve-packing",
+  "eve-survey",
   "eve-pass",
   "summons",
   "steed",

@@ -4,11 +4,12 @@ import { showSaveWarningToast } from "./ui-feedback.js";
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";
 
-const EVE_SCREENS = ["eve-gate", "eve-excitement", "eve-herald", "eve-packing", "eve-pass"];
+const EVE_SCREENS = ["eve-name", "eve-excitement", "eve-packing", "eve-survey", "eve-pass"];
 
 const BIDI_OVERRIDE = /[\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
 const CONTROL_CHARS = /[\p{Cc}\p{Cf}]/gu;
 const MAX_GUEST_NAME_LEN = 40;
+const MAX_HERALD_NAME_LEN = 24;
 
 /** Normalize and strip unsafe chars from guest names (inserted via textContent only). */
 export function sanitizeGuestName(raw) {
@@ -17,6 +18,16 @@ export function sanitizeGuestName(raw) {
   name = name.replace(BIDI_OVERRIDE, "").replace(CONTROL_CHARS, "");
   name = name.replace(/^lady\s+/i, "").trim();
   if (name.length > MAX_GUEST_NAME_LEN) name = name.slice(0, MAX_GUEST_NAME_LEN);
+  return name;
+}
+
+/** Herald name gate — trim leading spaces, max 24. */
+export function sanitizeHeraldName(raw) {
+  if (raw == null) return "";
+  let name = String(raw).normalize("NFC").trim();
+  name = name.replace(BIDI_OVERRIDE, "").replace(CONTROL_CHARS, "");
+  name = name.replace(/^lady\s+/i, "").trim();
+  if (name.length > MAX_HERALD_NAME_LEN) name = name.slice(0, MAX_HERALD_NAME_LEN);
   return name;
 }
 
@@ -102,6 +113,9 @@ export function defaultState() {
     eveHeraldAnswers: {},
     evePacking: [],
     eveOutcome: "",
+    chapter1Step: 0,
+    chapter1Answers: {},
+    chapter1ReplayCount: 0,
     steedName: "Clover",
     steedClass: "",
     affection: 0,
@@ -153,6 +167,12 @@ function normalizeState(value) {
         ? input.eveHeraldAnswers
         : base.eveHeraldAnswers,
     evePacking: Array.isArray(input.evePacking) ? input.evePacking : base.evePacking,
+    chapter1Answers:
+      input.chapter1Answers && typeof input.chapter1Answers === "object"
+        ? input.chapter1Answers
+        : base.chapter1Answers,
+    chapter1Step: Number.isFinite(Number(input.chapter1Step)) ? Number(input.chapter1Step) : base.chapter1Step,
+    chapter1ReplayCount: Number(input.chapter1ReplayCount) || 0,
     food: Array.isArray(input.food) ? input.food : [],
     activities: Array.isArray(input.activities) ? input.activities : [],
     achievements: Array.isArray(input.achievements) ? input.achievements : [],
@@ -257,6 +277,42 @@ export function undoLastNewQuest() {
 
 export function clearPendingUndo() {
   pendingUndoSnapshot = null;
+}
+
+/** Reset Chapter I only; preserve Chapter II progress and schedule metadata. */
+export function resetChapterOneProgress() {
+  const keep = {
+    chapterTwoStarted: state.chapterTwoStarted,
+    chapterTwoComplete: state.chapterTwoComplete,
+    chapterTwoOpenedEarly: state.chapterTwoOpenedEarly,
+    scheduledDate: state.scheduledDate,
+    timeZone: state.timeZone,
+    serverRevision: state.serverRevision,
+    syncStatus: state.syncStatus,
+    partyBuff: state.partyBuff,
+    favoriteMoment: state.favoriteMoment,
+    questBadge: state.questBadge,
+    futureQuest: state.futureQuest,
+    steedName: state.steedName,
+    horseId: state.horseId,
+    consentShared: state.consentShared,
+  };
+  state.chapter1ReplayCount = (state.chapter1ReplayCount || 0) + 1;
+  state.eveComplete = false;
+  state.chapterOneComplete = false;
+  state.chapter = "chapter-one";
+  state.eveOutcome = "";
+  state.eveExcitement = 3;
+  state.eveHeraldAnswers = {};
+  state.evePacking = [];
+  state.chapter1Step = 0;
+  state.chapter1Answers = {};
+  state.eveAdventurerName = "";
+  state.secondDate = "";
+  state.honestNo = false;
+  state.lastScreen = "eve-name";
+  Object.assign(state, keep);
+  saveState();
 }
 
 export function beginNewQuest() {

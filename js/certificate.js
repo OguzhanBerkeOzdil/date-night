@@ -1,4 +1,5 @@
 import { QUEST_DATE_LABEL } from "./app-config.js";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
 import { horseById } from "./horses.js";
 import { grantedToLabel, state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
@@ -7,6 +8,7 @@ import { showAppToast } from "./ui-feedback.js";
 export function buildCertificateLines() {
   const horse = horseById(state.horseId || "chestnut");
   const rideDay = dayLabelForDecree() || QUEST_DATE_LABEL;
+  const profile = adventurerProfileFromAnswers(state.chapter1Answers);
   return [
     "ROYAL QUEST CERTIFICATE",
     "Second quest: officially unlocked",
@@ -14,6 +16,11 @@ export function buildCertificateLines() {
     `Adventurer: ${grantedToLabel()}`,
     `Steed: ${horse.coat} — named "${state.steedName || horse.defaultName}"`,
     `Summoned for: ${rideDay}`,
+    "",
+    "Adventurer profile (Chapter I):",
+    `Class: ${profile.class}`,
+    `Weapon: ${profile.weapon}`,
+    `Companion: ${profile.companion}`,
     "",
     "Signed under wax (and mild chaos).",
     "No destiny speeches. Just a good plan.",

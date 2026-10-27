@@ -1,4 +1,7 @@
 import { QUEST_DATE_LABEL } from "../app-config.js";
+import { adventurerProfileFromAnswers } from "../chapter1-survey-data.js";
+import { CONFIG } from "../config.js";
+import { state } from "../state.js";
 
 const PARCHMENT_URL = new URL("../../assets/images/parchment.webp", import.meta.url).href;
 const WAX_SEAL_URL = new URL("../../assets/images/wax-seal.webp", import.meta.url).href;
@@ -51,6 +54,12 @@ export async function renderQuestPassCanvas(guestName) {
   g.font = '400 20px "Crimson Pro", serif';
   g.fillText("Present this to the realm tomorrow.", w / 2, 400);
   g.fillText("(Or just show up. Paper optional.)", w / 2, 440);
+
+  const profile = adventurerProfileFromAnswers(state.chapter1Answers);
+  g.font = '400 18px "Crimson Pro", serif';
+  g.fillText(`Class: ${profile.class} · Weapon: ${profile.weapon}`, w / 2, 500);
+  g.fillText(`Companion: ${profile.companion}`, w / 2, 530);
+  g.fillText(`Issued by ${CONFIG.fromName}`, w / 2, 580);
 
   const seal = await loadImage(WAX_SEAL_URL);
   if (seal.naturalWidth) {

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-const SCREENS = ["eve-gate", "eve-excitement", "eve-herald", "eve-packing", "eve-pass", "eve-honest"];
+const SCREENS = ["eve-name", "eve-excitement", "eve-packing", "eve-survey", "eve-pass", "eve-honest"];
 
 for (const screen of SCREENS) {
   for (const project of ["mobile-390", "desktop-1440"]) {

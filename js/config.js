@@ -11,7 +11,7 @@ import {
 } from "./copy-data.js";
 
 export const CONFIG = {
-  fromName: "Oğuzhan",
+  fromName: "Berke",
   whatsappNumber: "",
   defaultTitle: "my lady",
   scheduledDate: "2026-10-28",
@@ -45,10 +45,10 @@ export function tarotForKey(key) {
 
 export const SCREENS = [
   "title",
-  "eve-gate",
+  "eve-name",
   "eve-excitement",
-  "eve-herald",
   "eve-packing",
+  "eve-survey",
   "eve-pass",
   "eve-honest",
   "summons",
@@ -72,10 +72,10 @@ export const SCREENS = [
 
 export const MAP_NODE = {
   title: 0,
-  "eve-gate": 0,
+  "eve-name": 0,
   "eve-excitement": 0,
-  "eve-herald": 0,
   "eve-packing": 0,
+  "eve-survey": 0,
   "eve-pass": 0,
   "eve-honest": 0,
   summons: 0,
@@ -100,10 +100,10 @@ export const MAP_NODE = {
 
 export const BG_BY_SCREEN = {
   title: "bg-title",
-  "eve-gate": "bg-forest",
+  "eve-name": "bg-forest",
   "eve-excitement": "bg-forest",
-  "eve-herald": "bg-forest",
   "eve-packing": "bg-forest",
+  "eve-survey": "bg-forest",
   "eve-pass": "bg-celebration",
   "eve-honest": "bg-forest",
   summons: "bg-forest",
