@@ -1,4 +1,5 @@
 import { CONFIG } from "./config.js";
+import { CHAPTER_TWO_RELEASED } from "./app-config.js";
 
 export function dateKeyInTimeZone(date = new Date(), timeZone = CONFIG.timeZone) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -14,10 +15,10 @@ export function dateKeyInTimeZone(date = new Date(), timeZone = CONFIG.timeZone)
 export function chapterTwoIsAvailable({
   scheduledDate = CONFIG.scheduledDate,
   timeZone = CONFIG.timeZone,
-  openedEarly = false,
+  released = CHAPTER_TWO_RELEASED,
   now = new Date(),
 } = {}) {
-  if (openedEarly) return true;
+  if (!released) return false;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledDate || "")) return false;
   return dateKeyInTimeZone(now, timeZone) >= scheduledDate;
 }

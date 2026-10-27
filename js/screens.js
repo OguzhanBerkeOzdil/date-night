@@ -167,7 +167,6 @@ export function chapterTwoAvailable() {
   return chapterTwoIsAvailable({
     scheduledDate: state.scheduledDate,
     timeZone: state.timeZone,
-    openedEarly: state.chapterTwoOpenedEarly,
   });
 }
 
@@ -801,35 +800,8 @@ function initDecree() {
   $("btnReplay")?.addEventListener("click", requestFreshQuestStart);
 }
 
-function openEarlyDialog() {
-  const root = $("earlyOpenConfirm");
-  const cancel = $("earlyOpenCancel");
-  const accept = $("earlyOpenAccept");
-  const previous = document.activeElement;
-  show(root);
-  accept?.focus();
-  const close = () => {
-    hide(root);
-    document.removeEventListener("keydown", onKey);
-    previous?.focus?.();
-  };
-  const onKey = (event) => {
-    if (event.key === "Escape") close();
-  };
-  document.addEventListener("keydown", onKey);
-  cancel?.addEventListener("click", close, { once: true });
-  accept?.addEventListener("click", () => {
-    state.chapterTwoOpenedEarly = true;
-    saveState();
-    queueQuestSync({ immediate: true });
-    close();
-    navigate("chapter-two-start");
-  }, { once: true });
-}
-
 function initChapterLock() {
   $("btnTryChapterTwo")?.addEventListener("click", openChapterTwo);
-  $("btnOpenEarly")?.addEventListener("click", openEarlyDialog);
   $("btnBackToPass")?.addEventListener("click", () => navigate("eve-pass"));
 }
 
@@ -929,7 +901,7 @@ export function onScreenEnter(id) {
     $("waxStampAnim")?.classList.add("stamped");
   }
   if (id === "chapter-lock") {
-    $("chapterLockDate").textContent = `Chapter II opens on ${formatQuestDate(state.scheduledDate, state.timeZone)}.`;
+    $("chapterLockDate").textContent = `Oğuzhan will unseal Chapter II on ${formatQuestDate(state.scheduledDate, state.timeZone)} morning.`;
   }
   if (id === "chapter-two-start") renderRecap();
   if (id === "chapter-two-pause") {

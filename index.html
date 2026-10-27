@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261107">
+  <link rel="manifest" href="manifest.webmanifest?v=20261108">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261107">
-  <link rel="stylesheet" href="css/styles.css?v=20261107">
-  <link rel="stylesheet" href="css/v2.css?v=20261107">
-  <link rel="stylesheet" href="css/desktop.css?v=20261107">
-  <link rel="stylesheet" href="css/today.css?v=20261107">
+  <link rel="stylesheet" href="css/fonts.css?v=20261108">
+  <link rel="stylesheet" href="css/styles.css?v=20261108">
+  <link rel="stylesheet" href="css/v2.css?v=20261108">
+  <link rel="stylesheet" href="css/desktop.css?v=20261108">
+  <link rel="stylesheet" href="css/today.css?v=20261108">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -80,17 +80,6 @@
       <div class="quest-confirm__actions">
         <button type="button" class="btn btn--ghost" id="questConfirmKeep">Keep my quest</button>
         <button type="button" class="btn btn--primary" id="questConfirmStart">Start over</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="earlyOpenConfirm" class="quest-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="earlyOpenTitle" hidden>
-    <div class="quest-confirm__panel ornate">
-      <h2 id="earlyOpenTitle" class="title">Open chapter II early?</h2>
-      <p class="body-text">It is meant for tomorrow, but schedules outrank prophecies.</p>
-      <div class="quest-confirm__actions">
-        <button type="button" class="btn btn--ghost" id="earlyOpenCancel">Wait for tomorrow</button>
-        <button type="button" class="btn btn--primary" id="earlyOpenAccept">Open chapter II</button>
       </div>
     </div>
   </div>
@@ -380,10 +369,9 @@
       <div class="screen__inner ornate chapter-panel center">
         <p class="kicker">Chapter II · sealed</p>
         <h2 class="title">The quest continues tomorrow</h2>
-        <p class="body-text" id="chapterLockDate">The next page opens on the scheduled day.</p>
-        <p class="sub">The horse is resting. The calendar dragon is guarding the door.</p>
+        <p class="body-text" id="chapterLockDate">Oğuzhan will unseal the next page tomorrow morning.</p>
+        <p class="sub">The horse is resting. The calendar dragon will not accept early bribes.</p>
         <button type="button" class="btn btn--primary" id="btnTryChapterTwo">Check again</button>
-        <button type="button" class="btn btn--ghost" id="btnOpenEarly">Open early</button>
         <button type="button" class="link-btn" id="btnBackToPass">Return to today's invitation</button>
       </div>
     </section>
@@ -478,6 +466,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261107"></script>
+  <script type="module" src="js/main.js?v=20261108"></script>
 </body>
 </html>
