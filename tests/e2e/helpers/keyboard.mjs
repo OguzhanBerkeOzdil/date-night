@@ -35,7 +35,7 @@ export async function confirmNewQuestIfShown(page) {
     await btn.waitFor({ state: "visible", timeout: 1500 });
     await tabTo(page, "#questConfirmStart");
     await activate(page);
-  } catch (_) {
+  } catch {
     /* no confirm */
   }
 }

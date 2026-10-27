@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { reachDecreeMouse } from "./helpers/quest-path.mjs";
+import { completeEveMouse } from "./helpers/eve-path.mjs";
 
 async function breakSeal(page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -10,6 +11,7 @@ async function breakSeal(page) {
 async function reachDragon(page) {
   await page.goto("/?name=Ayse");
   await page.locator("#btnNewGame").click();
+  await completeEveMouse(page);
   await page.waitForSelector('[data-screen="summons"].screen--active');
   await breakSeal(page);
   await page.locator("#btnSummonBegin").click();
@@ -53,7 +55,7 @@ test("new game confirm when save exists", async ({ page }) => {
   await page.locator("#btnNewGame").click();
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
-  await page.waitForSelector('[data-screen="summons"].screen--active');
+  await page.waitForSelector('[data-screen="eve-gate"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
   expect(saved.steedName).toBe("Clover");
 });
@@ -63,14 +65,15 @@ test("begin anew uses confirm when save exists", async ({ page }) => {
   await page.locator("#btnReplay").click();
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
-  await page.waitForSelector('[data-screen="summons"].screen--active');
+  await page.waitForSelector('[data-screen="eve-gate"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
-  expect(saved.lastScreen).toBe("summons");
+  expect(saved.lastScreen).toBe("eve-gate");
 });
 
 test("wax seal keyboard activation", async ({ page }) => {
   await page.goto("/?name=Ayse");
   await page.locator("#btnNewGame").click();
+  await completeEveMouse(page);
   await page.locator("#waxSealBtn").focus();
   await page.keyboard.press("Enter");
   await page.waitForSelector("#loadingQuest:not([hidden])", { timeout: 5000 });

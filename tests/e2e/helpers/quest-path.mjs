@@ -1,4 +1,5 @@
 import { tabTo, activate, dismissSteedDialogue, waitForScreen, confirmNewQuestIfShown } from "./keyboard.mjs";
+import { completeEveMouse } from "./eve-path.mjs";
 
 export async function breakSealKeyboard(page) {
   await tabTo(page, "#waxSealBtn");
@@ -11,6 +12,7 @@ export async function runQuestToDragonKeyboard(page) {
   await tabTo(page, "#btnNewGame");
   await activate(page);
   await confirmNewQuestIfShown(page);
+  await completeEveMouse(page);
   await waitForScreen(page, "summons");
   await breakSealKeyboard(page);
   await tabTo(page, "#btnSummonBegin");
@@ -74,6 +76,7 @@ export async function runQuestToDecreeKeyboard(page) {
 export async function reachDecreeMouse(page) {
   await page.goto("/?name=Ayse");
   await page.locator("#btnNewGame").click();
+  await completeEveMouse(page);
   await page.waitForSelector('[data-screen="summons"].screen--active');
   await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
   await page.waitForSelector("#btnSummonBegin:not(.hidden)", { timeout: 20000 });

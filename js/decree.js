@@ -1,6 +1,7 @@
 import { CONFIG, tarotForKey } from "./config.js";
 import { grantedToLabel, state } from "./state.js";
 import { achievementCount } from "./achievements.js";
+import { showAppToast } from "./ui-feedback.js";
 
 function questAnswerLine() {
   const answers = {
@@ -152,42 +153,82 @@ export async function renderDecreeCanvas(mode = "auto") {
 
 export async function decreeToBlob(mode = "auto") {
   const canvas = await renderDecreeCanvas(mode);
-  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("decree toBlob returned null"));
+    }, "image/png");
+  });
 }
 
 export async function downloadDecreePng(mode = "auto") {
   const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
-  const blob = await decreeToBlob(resolved);
-  const anchor = document.createElement("a");
-  anchor.href = URL.createObjectURL(blob);
-  anchor.download = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
-  anchor.click();
-  URL.revokeObjectURL(anchor.href);
+  try {
+    const blob = await decreeToBlob(resolved);
+    const anchor = document.createElement("a");
+    anchor.href = URL.createObjectURL(blob);
+    anchor.download = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
+    anchor.click();
+    URL.revokeObjectURL(anchor.href);
+  } catch {
+    showAppToast("Couldn't save the decree image — try Copy pass instead.");
+  }
+}
+
+function whatsAppFallbackUrl(text) {
+  const num = CONFIG.whatsappNumber?.replace(/\D/g, "");
+  const encoded = encodeURIComponent(text);
+  return num ? `https://wa.me/${num}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
 }
 
 export async function shareDecree(mode = "auto") {
   const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
   const summary = buildSummaryText(resolved);
   const fileName = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
-  let blob;
+  const title = resolved === "completion" ? "Second quest complete" : "Adventurer's pass";
+  const waUrl = whatsAppFallbackUrl(summary);
+  const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
+
+  let blob = null;
   try {
     blob = await decreeToBlob(resolved);
   } catch {
-    blob = null;
+    showAppToast("Couldn't prepare the decree image — sharing text only.");
   }
-  if (blob && navigator.canShare?.({ files: [new File([blob], fileName, { type: "image/png" })] })) {
+
+  const file = blob ? new File([blob], fileName, { type: "image/png" }) : null;
+  const canShareFiles = file && navigator.share && navigator.canShare?.({ files: [file] });
+
+  if (canShareFiles) {
     try {
-      await navigator.share({
-        files: [new File([blob], fileName, { type: "image/png" })],
-        title: resolved === "completion" ? "Second quest complete" : "Adventurer's pass",
-        text: summary,
-      });
+      await navigator.share({ files: [file], title, text: summary });
+      popup?.close();
       return;
-    } catch {
-      // Falling back to a text share is safe when the share sheet is dismissed or unsupported.
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        popup?.close();
+        return;
+      }
+    }
+  } else if (navigator.share) {
+    try {
+      await navigator.share({ title, text: summary });
+      popup?.close();
+      return;
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        popup?.close();
+        return;
+      }
     }
   }
-  const number = CONFIG.whatsappNumber?.replace(/\D/g, "");
-  const base = number ? `https://wa.me/${number}` : "https://wa.me/";
-  window.open(`${base}?text=${encodeURIComponent(summary)}`, "_blank", "noopener,noreferrer");
+
+  if (popup && !popup.closed) {
+    popup.location.href = waUrl;
+    return;
+  }
+  const opened = window.open(waUrl, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    showAppToast("Pop-up blocked — copy the decree or try again from the share button.");
+  }
 }

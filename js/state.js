@@ -4,7 +4,24 @@ import { showSaveWarningToast } from "./ui-feedback.js";
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";
 
+const EVE_SCREENS = ["eve-gate", "eve-excitement", "eve-herald", "eve-packing", "eve-pass"];
+
+const BIDI_OVERRIDE = /[\u202A-\u202E\u2066-\u2069\u200E\u200F\u061C]/g;
+const CONTROL_CHARS = /[\p{Cc}\p{Cf}]/gu;
+const MAX_GUEST_NAME_LEN = 40;
+
+/** Normalize and strip unsafe chars from guest names (inserted via textContent only). */
+export function sanitizeGuestName(raw) {
+  if (raw == null) return "";
+  let name = String(raw).normalize("NFC");
+  name = name.replace(BIDI_OVERRIDE, "").replace(CONTROL_CHARS, "");
+  name = name.replace(/^lady\s+/i, "").trim();
+  if (name.length > MAX_GUEST_NAME_LEN) name = name.slice(0, MAX_GUEST_NAME_LEN);
+  return name;
+}
+
 const PROGRESS_SCREENS = [
+  ...EVE_SCREENS,
   "steed",
   "sheet",
   "rating",
@@ -32,8 +49,7 @@ function queryParam(name) {
 }
 
 export function parseGuestName() {
-  const raw = queryParam("name");
-  const name = raw.replace(/^lady\s+/i, "").trim();
+  const name = sanitizeGuestName(queryParam("name"));
   if (!name) {
     const fallback = CONFIG.defaultTitle || "my lady";
     const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
@@ -76,6 +92,13 @@ export function defaultState() {
     timeZone: CONFIG.timeZone,
     serverRevision: 0,
     syncStatus: "local",
+    horseId: "chestnut",
+    eveComplete: false,
+    eveAdventurerName: "",
+    eveExcitement: 3,
+    eveHeraldAnswers: {},
+    evePacking: [],
+    eveOutcome: "",
     steedName: "Clover",
     steedClass: "",
     affection: 0,
@@ -110,10 +133,22 @@ export function defaultState() {
 
 function normalizeState(value) {
   const input = value && typeof value === "object" ? value : {};
+  const base = defaultState();
+  let eveComplete = input.eveComplete;
+  if (eveComplete === undefined && input.lastScreen) {
+    const legacySkip = ![...EVE_SCREENS, "title"].includes(input.lastScreen);
+    if (legacySkip) eveComplete = true;
+  }
   return {
-    ...defaultState(),
+    ...base,
     ...input,
     schemaVersion: 3,
+    eveComplete: eveComplete ?? base.eveComplete,
+    eveHeraldAnswers:
+      input.eveHeraldAnswers && typeof input.eveHeraldAnswers === "object"
+        ? input.eveHeraldAnswers
+        : base.eveHeraldAnswers,
+    evePacking: Array.isArray(input.evePacking) ? input.evePacking : base.evePacking,
     food: Array.isArray(input.food) ? input.food : [],
     activities: Array.isArray(input.activities) ? input.activities : [],
     achievements: Array.isArray(input.achievements) ? input.achievements : [],
