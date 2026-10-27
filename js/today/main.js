@@ -10,6 +10,7 @@ import {
   HERALD_QUESTIONS,
   PACKING_ITEMS,
   passClosingLine,
+  passTitleLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
 } from "./copy.js";
@@ -130,6 +131,8 @@ function finishHonest() {
 function finishPass() {
   sendFeedback("completed");
   $("passName").textContent = state.name;
+  const passSummon = $("passSummonLine");
+  if (passSummon) passSummon.textContent = passTitleLine();
   $("passClosing").textContent = passClosingLine();
   showScreen("pass");
 }

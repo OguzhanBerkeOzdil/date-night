@@ -1721,13 +1721,29 @@ body[data-screen="steed"] .horse-breed-grid {
     inset 0 1px 0 rgba(255, 255, 255, 0.48);
 }
 
+[data-screen="chapter-two-start"] .screen__inner.chapter-panel {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding-inline: 0.85rem;
+}
+
+[data-screen="chapter-two-start"] .screen__inner.chapter-panel.today-panel--berke {
+  padding-right: 0.85rem;
+}
+
 .quest-recap {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.65rem;
+  width: 100%;
   margin: 0.9rem 0 1.15rem;
 }
 
 .quest-recap__item {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(107, 45, 58, 0.18);
 }

@@ -76,8 +76,7 @@ test("certificate PNG builder includes realm notes", async ({ page }) => {
   expect(lines.some((l) => l.includes("Official notes from the realm"))).toBe(true);
   expect(lines.some((l) => l.includes("Gerald has filed"))).toBe(true);
   expect(lines.some((l) => l.includes("No destiny speeches"))).toBe(false);
-  const unlocked = lines.filter((l) => l === "Second quest: officially unlocked");
-  expect(unlocked).toHaveLength(1);
+  expect(lines.some((l) => /Second quest: (officially unlocked|seal pending)/i.test(l))).toBe(true);
 });
 
 test("certificate uses adventurer name without Lady prefix", async ({ page }) => {

@@ -40,4 +40,5 @@ test("buildCertificateLines includes official notes section", async () => {
   const lines = buildCertificateLines();
   assert.ok(lines.some((l) => l.startsWith("Official notes from the realm")));
   assert.ok(lines.some((l) => l.includes("Gerald has filed")));
+  assert.match(lines[1], /seal pending|officially unlocked/i);
 });

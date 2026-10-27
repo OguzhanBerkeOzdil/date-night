@@ -23,6 +23,7 @@ import {
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
 } from "./today/copy.js";
+import { questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js";
 import { downloadQuestPassPng } from "./today/pass.js";
 import { APP_CACHE_VERSION } from "./cache-version.js";
 
@@ -193,7 +194,11 @@ function paintPassScreen() {
   const name =
     state.eveAdventurerName || state.chapter1SealedName || "Adventurer";
   $("passName").textContent = name;
+  const passSummon = $("passSummonLine");
+  if (passSummon) passSummon.textContent = questPassSummonSubtitle();
   $("passClosing").textContent = passClosingLine();
+  const sealBtn = $("btnEveContinue");
+  if (sealBtn) sealBtn.textContent = questPassSealUntilLine();
 }
 
 function completeChapter1Invitation() {

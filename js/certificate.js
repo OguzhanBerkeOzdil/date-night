@@ -1,8 +1,10 @@
 import { QUEST_DATE_LABEL } from "./app-config.js";
 import { adventurerDisplayName } from "./chapter2-callbacks.js";
 import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
+import { layoutBulletNoteRows } from "./certificate-bullet.js";
 import { buildRealmCertificateNotes } from "./certificate-notes.js";
 import { horseById } from "./horses.js";
+import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js";
 import { state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
 import { showAppToast } from "./ui-feedback.js";
@@ -10,7 +12,7 @@ import { showAppToast } from "./ui-feedback.js";
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
 /** Flat parchment starts below the top scroll roll. */
-export const CERT_TOP_RESERVE = 96;
+export const CERT_TOP_RESERVE = 124;
 /** Parchment bottom roll + baked wax seal — keep body text above this. */
 export const CERT_BOTTOM_RESERVE = 210;
 const BODY_MARGIN_X = 100;
@@ -22,14 +24,17 @@ export function buildCertificateLines(mode = "pass") {
   const profile = adventurerProfileFromAnswers(state.chapter1Answers);
   const adventurer = adventurerDisplayName(state);
   const subtitle =
-    mode === "completion" ? "Second quest: survived (snacks included)" : "Second quest: officially unlocked";
+    mode === "completion"
+      ? "Second quest: survived (snacks included)"
+      : certificatePassSubtitle();
+  const summonedLine = certificateSummonedForLine({ rideDayLabel: rideDay });
   return [
     "ROYAL QUEST CERTIFICATE",
     subtitle,
     "",
     `Adventurer: ${adventurer}`,
     `Steed: ${horse.coat} — named "${state.steedName || horse.defaultName}"`,
-    `Summoned for: ${rideDay}`,
+    summonedLine,
     "",
     "Adventurer profile (Chapter I):",
     `Class: ${profile.class}`,
@@ -82,6 +87,16 @@ function lineBox(baselineY, fontPx, kind = "body") {
   return { top: baselineY - ascent, bottom: baselineY + descent };
 }
 
+function drawBulletNoteBlock(g, noteLine, x, y, maxW, t) {
+  g.font = t.note;
+  const { rows } = layoutBulletNoteRows((text) => g.measureText(text).width, noteLine, maxW);
+  for (const row of rows) {
+    g.fillText(row.text, x + row.indent, y);
+    y += row.indent > 0 ? t.lineNote - 2 : t.lineNote;
+  }
+  return y;
+}
+
 function drawBodyLines(g, lines, startY, maxW, scale = 1) {
   const t = typography(scale);
   let y = startY;
@@ -96,24 +111,11 @@ function drawBodyLines(g, lines, startY, maxW, scale = 1) {
       : line.startsWith("Official notes")
         ? t.section
         : t.body;
-    if (isNote && g.measureText(line).width > maxW) {
-      const words = line.slice(2).split(" ");
-      let row = "• ";
-      for (const word of words) {
-        const test = `${row}${word} `;
-        if (g.measureText(test).width > maxW && row !== "• ") {
-          g.fillText(row.trimEnd(), BODY_MARGIN_X, y);
-          y += t.lineNote - 2;
-          row = `• ${word} `;
-        } else {
-          row = test;
-        }
-      }
-      g.fillText(row.trimEnd(), BODY_MARGIN_X, y);
-      y += t.lineNote;
+    if (isNote) {
+      y = drawBulletNoteBlock(g, line, BODY_MARGIN_X, y, maxW, t);
     } else {
       g.fillText(line, BODY_MARGIN_X, y);
-      y += isNote ? t.lineNote : t.lineBody;
+      y += t.lineBody;
     }
   }
   return y;
@@ -197,24 +199,16 @@ export function certificateLineBoxes(g, mode, canvasHeight = CERT_MIN_HEIGHT) {
       : line.startsWith("Official notes")
         ? t.section
         : t.body;
-    if (isNote && g.measureText(line).width > BODY_MAX_W) {
-      const words = line.slice(2).split(" ");
-      let row = "• ";
-      for (const word of words) {
-        const test = `${row}${word} `;
-        if (g.measureText(test).width > BODY_MAX_W && row !== "• ") {
-          boxes.push({ kind: "body", text: row.trimEnd(), ...lineBox(y, fontPx) });
-          y += t.lineNote - 2;
-          row = `• ${word} `;
-        } else {
-          row = test;
-        }
+    if (isNote) {
+      g.font = t.note;
+      const { rows } = layoutBulletNoteRows((text) => g.measureText(text).width, line, BODY_MAX_W);
+      for (const row of rows) {
+        boxes.push({ kind: "body", text: row.text, ...lineBox(y, fontPx) });
+        y += row.indent > 0 ? t.lineNote - 2 : t.lineNote;
       }
-      boxes.push({ kind: "body", text: row.trimEnd(), ...lineBox(y, fontPx) });
-      y += t.lineNote;
     } else {
       boxes.push({ kind: "body", text: line, ...lineBox(y, fontPx) });
-      y += isNote ? t.lineNote : t.lineBody;
+      y += t.lineBody;
     }
   }
 
