@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261102";
+const APP_CACHE_VERSION = "20261103";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -11,6 +11,7 @@ const SHELL_URLS = ["./", "./index.html"];
 /** URLs as requested by index.html (must include ?v=). */
 const VERSIONED_PRECACHE = [
   `./manifest.webmanifest?v=${V}`,
+  `./css/fonts.css?v=${V}`,
   `./css/styles.css?v=${V}`,
   `./css/v2.css?v=${V}`,
   `./css/desktop.css?v=${V}`,
@@ -44,6 +45,27 @@ const ASSET_PRECACHE = [
   "./assets/images/dragon-doubt.webp",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
+  "./assets/icons/apple-touch-icon.png",
+  "./assets/fonts/cinzel-decorative-latin-700-normal.woff2",
+  "./assets/fonts/cinzel-decorative-latin-ext-700-normal.woff2",
+  "./assets/fonts/cinzel-latin-500-normal.woff2",
+  "./assets/fonts/cinzel-latin-600-normal.woff2",
+  "./assets/fonts/cinzel-latin-700-normal.woff2",
+  "./assets/fonts/cinzel-latin-ext-500-normal.woff2",
+  "./assets/fonts/cinzel-latin-ext-600-normal.woff2",
+  "./assets/fonts/cinzel-latin-ext-700-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-400-italic.woff2",
+  "./assets/fonts/crimson-pro-latin-400-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-500-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-600-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-ext-400-italic.woff2",
+  "./assets/fonts/crimson-pro-latin-ext-400-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-ext-500-normal.woff2",
+  "./assets/fonts/crimson-pro-latin-ext-600-normal.woff2",
+  "./assets/fonts/dancing-script-latin-500-normal.woff2",
+  "./assets/fonts/dancing-script-latin-600-normal.woff2",
+  "./assets/fonts/dancing-script-latin-ext-500-normal.woff2",
+  "./assets/fonts/dancing-script-latin-ext-600-normal.woff2",
 ];
 
 function isQuestCacheName(name) {

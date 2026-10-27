@@ -8,12 +8,35 @@ import { startDualBuildServer } from "../helpers/dual-build-server.mjs";
 const workspace = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const PORT = 4175;
 const baseURL = `http://127.0.0.1:${PORT}`;
-const TARGET_VERSION = "20261102";
+const TARGET_VERSION = "20261103";
+
+function assertCommitExists(commit) {
+  try {
+    execSync(`git cat-file -e ${commit}^{commit}`, { cwd: workspace, stdio: "pipe" });
+  } catch {
+    throw new Error(
+      `Git commit ${commit} is not available in this checkout. CI needs actions/checkout fetch-depth: 0.`
+    );
+  }
+}
 
 async function extractCommit(commit, dest) {
+  assertCommitExists(commit);
   await rm(dest, { recursive: true, force: true });
   await mkdir(dest, { recursive: true });
-  execSync(`git archive ${commit} | tar -x -C "${dest}"`, { cwd: workspace, stdio: "pipe" });
+  const tarPath = join(dirname(dest), `${commit}.tar`);
+  await rm(tarPath, { force: true });
+  try {
+    execSync(`git archive -o "${tarPath}" ${commit}`, { cwd: workspace, stdio: "pipe" });
+  } catch (err) {
+    throw new Error(`git archive failed for ${commit}: ${err.stderr?.toString() || err.message}`);
+  }
+  try {
+    execSync(`tar -xf "${tarPath}" -C "${dest}"`, { cwd: workspace, stdio: "pipe" });
+  } catch (err) {
+    throw new Error(`tar extract failed for ${commit}: ${err.stderr?.toString() || err.message}`);
+  }
+  await rm(tarPath, { force: true });
 }
 
 async function evaluateIgnoringNav(page, fn, arg) {
@@ -47,7 +70,7 @@ async function waitForUpgrade(page, expectedVersion) {
           try {
             const res = await fetch(`./js/main.js?v=${ver}`, { cache: "no-store" });
             mainOk = res.ok && res.url.includes(`v=${ver}`);
-          } catch (_) {
+          } catch {
             mainOk = false;
           }
           return {

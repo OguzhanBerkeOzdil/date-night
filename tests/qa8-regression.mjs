@@ -44,7 +44,7 @@ async function gotoDragon(page, baseUrl) {
     try {
       await confirmBtn.waitFor({ state: "visible", timeout: 2000 });
       await confirmBtn.click();
-    } catch (_) {
+    } catch {
       /* no save — went straight to summons */
     }
   }
@@ -70,7 +70,6 @@ async function gotoDragon(page, baseUrl) {
 async function testGhostClick(page, baseUrl, viewport) {
   await page.setViewportSize(viewport);
   await gotoDragon(page, baseUrl);
-  const link = page.locator("#realNoLink");
   for (let i = 0; i < 7; i++) {
     await page.locator("#btnNo").dispatchEvent("pointerdown");
     await page.waitForTimeout(40);

@@ -36,10 +36,6 @@ function server() {
 
 const errors = [];
 
-function intersects(a, b) {
-  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-}
-
 async function gotoDragonNoName(page, baseUrl) {
   await page.goto(baseUrl);
   await page.click("#btnNewGame");
@@ -158,7 +154,7 @@ async function testToastNoControls(page, baseUrl, viewport) {
       raw.achievements = (raw.achievements || []).filter((id) => id !== "fate");
       raw.lastScreen = "stars";
       localStorage.setItem("questLady_v2", JSON.stringify(raw));
-    } catch (_) {}
+    } catch {}
   });
   await page.reload();
   await page.waitForFunction(() => typeof window.__questNavigate === "function");

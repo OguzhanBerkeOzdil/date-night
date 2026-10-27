@@ -54,6 +54,9 @@
 .dragon-honest-wrap .link-btn.honest-link--armed {
   pointer-events: auto;
   opacity: 1;
+  min-height: 44px;
+  padding: 12px 10px;
+  box-sizing: border-box;
 }
 
 #realNoLink.dragon-resolved-hide,
@@ -375,7 +378,8 @@ body[data-screen="title"] #dialogueBox {
 
 .carrot-btn {
   margin: 12px auto;
-  padding: 10px 18px;
+  padding: 12px 20px;
+  min-height: 44px;
   border-radius: 99px;
   border: 2px solid var(--gold);
   background: rgba(255, 255, 255, 0.6);
@@ -391,7 +395,8 @@ body[data-screen="title"] #dialogueBox {
 }
 
 .name-chips button {
-  padding: 8px 12px;
+  padding: 12px 16px;
+  min-height: 44px;
   border-radius: 99px;
   border: 2px solid rgba(107, 45, 58, 0.35);
   background: rgba(252, 245, 232, 0.92);
@@ -403,7 +408,8 @@ body[data-screen="title"] #dialogueBox {
 #ratingSlider {
   width: 100%;
   accent-color: var(--burgundy);
-  height: 2.25rem;
+  min-height: 44px;
+  height: 2.75rem;
 }
 
 #notesInput,
@@ -633,6 +639,11 @@ textarea#notesInput {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
 }
 
+[data-screen="potion"] .field-label,
+[data-screen="potion"] .sub-label {
+  color: #d8cdb8;
+}
+
 .cauldron-stage {
   position: relative;
   height: 0;
@@ -702,11 +713,16 @@ textarea#notesInput {
 }
 
 .vial {
-  padding: 10px 12px;
+  padding: 12px 16px;
+  min-height: 44px;
   border-radius: 99px;
   border: 2px solid rgba(0, 0, 0, 0.1);
   background: linear-gradient(180deg, #fff, var(--vial-color, #ccc));
   font-size: 0.8rem;
+}
+
+.potion-ing {
+  min-height: 44px;
 }
 
 .vial--on {

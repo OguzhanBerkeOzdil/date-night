@@ -1,6 +1,7 @@
 import { CONFIG, tarotForKey } from "./config.js";
 import { grantedToLabel, state } from "./state.js";
 import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
+import { showAppToast } from "./ui-feedback.js";
 
 function fleeAttemptsPhrase(n) {
   const count = Math.max(0, Number(n) || 0);
@@ -72,7 +73,7 @@ export function buildSummaryText() {
     `Secret ingredient: ${state.notes || "—"}`,
     fanumLine(),
     achLine,
-    "Sealed with wax (and a few butterflies).",
+    "Sealed with wax (and one horse hair, for authenticity).",
   ];
   return lines.join("\n");
 }
@@ -162,37 +163,84 @@ export async function renderDecreeCanvas() {
 
 export async function decreeToBlob() {
   const c = await renderDecreeCanvas();
-  return new Promise((r) => c.toBlob(r, "image/png"));
+  return new Promise((resolve, reject) => {
+    c.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("decree toBlob returned null"));
+    }, "image/png");
+  });
 }
 
 export async function downloadDecreePng() {
-  const blob = await decreeToBlob();
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "royal-quest-decree.png";
-  a.click();
-  URL.revokeObjectURL(a.href);
+  try {
+    const blob = await decreeToBlob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "royal-quest-decree.png";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch {
+    showAppToast("Couldn't save the decree image — try Copy decree instead.");
+  }
+}
+
+function whatsAppFallbackUrl(text) {
+  const num = CONFIG.whatsappNumber?.replace(/\D/g, "");
+  const encoded = encodeURIComponent(text);
+  return num ? `https://wa.me/${num}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
 }
 
 export async function shareDecree() {
-  const text = encodeURIComponent(buildSummaryText());
-  const num = CONFIG.whatsappNumber?.replace(/\D/g, "");
-  const waUrl = num ? `https://wa.me/${num}?text=${text}` : `https://wa.me/?text=${text}`;
+  const text = buildSummaryText();
+  const waUrl = whatsAppFallbackUrl(text);
+  const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
 
-  let blob;
+  let blob = null;
   try {
     blob = await decreeToBlob();
-  } catch (_) {}
+  } catch {
+    showAppToast("Couldn't prepare the decree image — sharing text only.");
+  }
 
-  if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], "decree.png", { type: "image/png" })] })) {
+  const file =
+    blob ? new File([blob], "royal-quest-decree.png", { type: "image/png" }) : null;
+  const canShareFiles =
+    file && navigator.share && navigator.canShare?.({ files: [file] });
+
+  if (canShareFiles) {
     try {
       await navigator.share({
-        files: [new File([blob], "royal-quest-decree.png", { type: "image/png" })],
+        files: [file],
         title: "Royal Quest Decree",
-        text: buildSummaryText(),
+        text,
       });
+      popup?.close();
       return;
-    } catch (_) {}
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        popup?.close();
+        return;
+      }
+    }
+  } else if (navigator.share) {
+    try {
+      await navigator.share({ title: "Royal Quest Decree", text });
+      popup?.close();
+      return;
+    } catch (err) {
+      if (err?.name === "AbortError") {
+        popup?.close();
+        return;
+      }
+    }
   }
-  window.open(waUrl, "_blank", "noopener,noreferrer");
+
+  if (popup && !popup.closed) {
+    popup.location.href = waUrl;
+    return;
+  }
+  const opened = window.open(waUrl, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    showAppToast("Pop-up blocked — copy the decree or try again from the share button.");
+  }
 }

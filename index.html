@@ -4,14 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a2e1f">
-  <link rel="manifest" href="manifest.webmanifest?v=20261102">
+  <meta name="description" content="A short, silly medieval quest — steeds, snacks, and one very official survey. Finish in a few minutes.">
+  <meta property="og:title" content="The Quest">
+  <meta property="og:description" content="A playful court survey disguised as a fantasy adventure. Scan, laugh, seal your decree.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/icons/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Quest">
+  <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
+  <meta name="twitter:image" content="assets/icons/icon-512.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="manifest.webmanifest?v=20261103">
   <title>The Quest</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261102">
-  <link rel="stylesheet" href="css/v2.css?v=20261102">
-  <link rel="stylesheet" href="css/desktop.css?v=20261102">
+  <link rel="stylesheet" href="css/fonts.css?v=20261103">
+  <link rel="stylesheet" href="css/styles.css?v=20261103">
+  <link rel="stylesheet" href="css/v2.css?v=20261103">
+  <link rel="stylesheet" href="css/desktop.css?v=20261103">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -92,7 +102,7 @@
         <p class="kicker">By royal decree</p>
         <h2 class="title">A royal summons for <span data-lady>my lady</span></h2>
         <p class="body-text">You have been chosen for a top-secret court survey — very official, mildly magical, suspiciously about you.</p>
-        <p class="small-print">Estimated time: a few minutes. Estimated butterflies: several.</p>
+        <p class="small-print">Estimated time: a few minutes. Estimated snack breaks: at least one.</p>
         <div class="wax-art-wrap">
           <button type="button" class="wax-seal-btn" id="waxSealBtn" aria-label="Break the seal">
             <img id="waxSealArt" class="wax-seal-art" src="assets/images/wax-seal.webp" alt="" width="140" height="140" decoding="async">
@@ -141,7 +151,7 @@
         <div id="statList" class="stat-list"></div>
         <div id="classPick" class="class-grid hidden"></div>
         <p id="classChosen"></p>
-        <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Accept destiny →</button>
+        <button type="button" class="btn btn--primary hidden" id="btnSheetNext">Roll on →</button>
       </div>
     </section>
 
@@ -269,7 +279,7 @@
 
     <section class="screen" data-screen="decree">
       <div class="screen__inner celebration">
-        <h2 class="title light">By order of the heart — it's a date</h2>
+        <h2 class="title light">Quest accepted — second adventure unlocked</h2>
         <div class="decree-wrap parchment-textured ornate">
           <img id="waxStampAnim" class="wax-stamp-anim" src="assets/images/wax-seal.webp" alt="">
           <pre class="ticket decree" id="decreePreview"></pre>
@@ -302,6 +312,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261102"></script>
+  <script type="module" src="js/main.js?v=20261103"></script>
 </body>
 </html>

@@ -1,5 +1,3 @@
-import { CONFIG } from "./config.js";
-
 let ctx = null;
 let musicGain = null;
 let sfxGain = null;
@@ -15,14 +13,14 @@ export function setSoundOn(v, userTouched = true) {
   try {
     localStorage.setItem("questSound", v ? "1" : "0");
     if (userTouched) localStorage.setItem("questSoundTouched", "1");
-  } catch (_) {}
+  } catch {}
   if (musicGain) musicGain.gain.value = v ? 0.12 : 0;
 }
 
 export function loadSoundPref() {
   try {
     soundOn = localStorage.getItem("questSound") === "1";
-  } catch (_) {
+  } catch {
     soundOn = false;
   }
 }
@@ -30,7 +28,7 @@ export function loadSoundPref() {
 export function soundPrefTouched() {
   try {
     return localStorage.getItem("questSoundTouched") === "1";
-  } catch (_) {
+  } catch {
     return false;
   }
 }
@@ -114,6 +112,6 @@ export function vibrate(pattern) {
   if (navigator.vibrate) {
     try {
       navigator.vibrate(pattern);
-    } catch (_) {}
+    } catch {}
   }
 }
