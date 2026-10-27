@@ -31,33 +31,6 @@ export function buildCertificateLines() {
   ];
 }
 
-function coverBakedCertificateSeal(g, parchment, width, height, sealX, sealY, sealSize) {
-  const pad = 12;
-  const destX = sealX - pad;
-  const destY = sealY - pad;
-  const destW = sealSize + pad * 2;
-  const destH = sealSize + pad * 2;
-  const sampleY = Math.max(160, sealY - destH - 40);
-  if (!parchment.naturalWidth) {
-    g.fillStyle = "#ebe0cc";
-    g.fillRect(destX, destY, destW, destH);
-    return;
-  }
-  const sx = parchment.naturalWidth / width;
-  const sy = parchment.naturalHeight / height;
-  g.drawImage(
-    parchment,
-    destX * sx,
-    sampleY * sy,
-    destW * sx,
-    destH * sy,
-    destX,
-    destY,
-    destW,
-    destH
-  );
-}
-
 function drawBodyLines(g, lines, startY, maxW) {
   let y = startY;
   for (const line of lines) {
@@ -106,8 +79,7 @@ export async function renderCertificateCanvas() {
     (l) => l !== "ROYAL QUEST CERTIFICATE" && l !== "Second quest: officially unlocked"
   );
   const contentEnd = drawBodyLines(measureG, bodyLines, 0, w - 280);
-  const sealSize = 100;
-  const h = Math.max(1120, Math.round(contentEnd + 220 + sealSize + 80));
+  const h = Math.max(1120, Math.round(contentEnd + 200));
 
   const c = document.createElement("canvas");
   c.width = w;
@@ -133,18 +105,7 @@ export async function renderCertificateCanvas() {
   g.fillText("Second quest: officially unlocked", w / 2, 168);
 
   g.textAlign = "left";
-  const yEnd = drawBodyLines(g, bodyLines, 220, w - 280);
-  const sealX = Math.round(w / 2 - sealSize / 2);
-  const sealY = yEnd + 44;
-
-  coverBakedCertificateSeal(g, parchment, w, h, sealX, sealY, sealSize);
-
-  const seal = new Image();
-  seal.src = "assets/images/wax-seal.webp";
-  await seal.decode().catch(() => {});
-  if (seal.complete && seal.naturalWidth) {
-    g.drawImage(seal, sealX, sealY, sealSize, sealSize);
-  }
+  drawBodyLines(g, bodyLines, 220, w - 280);
 
   return c;
 }
