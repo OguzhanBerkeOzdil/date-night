@@ -40,11 +40,22 @@ test("quest pass PNG loads assets without 404 and is not flat", async ({ page },
 
   const sealCheck = await page.evaluate(async () => {
     const pass = await import("/js/today/pass.js");
-    const { analyzeQuestPassSeal } = await import("/js/pass-seal-analysis.js");
+    const { analyzeQuestPassSeal, analyzePassBottomRoll } = await import(
+      "/js/pass-seal-analysis.js"
+    );
+    const parchment = new Image();
+    parchment.src = "/assets/images/parchment.webp";
+    await parchment.decode();
     const canvas = await pass.renderQuestPassCanvas("Ayse");
-    return analyzeQuestPassSeal(canvas);
+    return {
+      seal: analyzeQuestPassSeal(canvas),
+      roll: analyzePassBottomRoll(canvas, parchment),
+    };
   });
-  expect(sealCheck.hasMaroonFrame).toBe(false);
-  expect(sealCheck.sealOverlapsRoll).toBe(false);
-  expect(sealCheck.waxInRoll).toBeLessThan(25);
+  expect(sealCheck.seal.hasMaroonFrame).toBe(false);
+  expect(sealCheck.seal.sealOverlapsRoll).toBe(false);
+  expect(sealCheck.seal.waxBlobCount).toBeLessThanOrEqual(1);
+  expect(sealCheck.roll.resemblesSource).toBe(true);
+  expect(sealCheck.roll.whiteStripPixels).toBeLessThan(4);
+  expect(sealCheck.roll.flatBandVariance).toBeGreaterThan(40);
 });

@@ -94,9 +94,25 @@
 }
 
 [data-screen="eve-pass"] .sir-berke-slot {
+  position: static;
   top: auto;
-  bottom: 160px;
-  right: 6px;
+  bottom: auto;
+  right: auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  display: flex;
+  justify-content: center;
+}
+
+[data-screen="eve-pass"] .sir-berke-cameo__img {
+  width: 96px;
+  height: 96px;
+}
+
+[data-screen="eve-pass"] .sir-berke-cameo__line {
+  display: block;
+  max-width: 14rem;
 }
 
 [data-screen="eve-pass"] .today-panel--berke {
@@ -184,9 +200,9 @@
     height: 80px;
   }
 
-  [data-screen="eve-pass"] .sir-berke-slot {
-    bottom: 160px;
+  [data-screen="eve-pass"] .sir-berke-cameo__img {
     width: 80px;
+    height: 80px;
   }
 
   .sir-berke-cameo__line {

@@ -2,7 +2,7 @@ import { QUEST_DATE_LABEL } from "./app-config.js";
 import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
 import { buildRealmCertificateNotes } from "./certificate-notes.js";
 import { horseById } from "./horses.js";
-import { grantedToLabel, state } from "./state.js";
+import { parseGuestName, state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
 import { showAppToast } from "./ui-feedback.js";
 
@@ -10,11 +10,12 @@ export function buildCertificateLines() {
   const horse = horseById(state.horseId || "chestnut");
   const rideDay = dayLabelForDecree() || QUEST_DATE_LABEL;
   const profile = adventurerProfileFromAnswers(state.chapter1Answers);
+  const adventurer = parseGuestName().formal;
   return [
     "ROYAL QUEST CERTIFICATE",
     "Second quest: officially unlocked",
     "",
-    `Adventurer: ${grantedToLabel()}`,
+    `Adventurer: ${adventurer}`,
     `Steed: ${horse.coat} — named "${state.steedName || horse.defaultName}"`,
     `Summoned for: ${rideDay}`,
     "",
@@ -27,47 +28,38 @@ export function buildCertificateLines() {
     ...buildRealmCertificateNotes().map((n) => `• ${n}`),
     "",
     "Signed under wax (and mild chaos).",
-    "No destiny speeches. Just a good plan.",
   ];
 }
 
-export async function renderCertificateCanvas() {
-  await document.fonts.ready;
-  const w = 1080;
-  const h = 900;
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-  const g = c.getContext("2d");
-
-  const parchment = new Image();
-  parchment.src = "assets/images/parchment.webp";
-  await parchment.decode().catch(() => {});
-  if (parchment.complete && parchment.naturalWidth) {
-    g.drawImage(parchment, 0, 0, w, h);
-  } else {
-    g.fillStyle = "#f4e8d0";
-    g.fillRect(0, 0, w, h);
+function coverBakedCertificateSeal(g, parchment, width, height, sealX, sealY, sealSize) {
+  const pad = 12;
+  const destX = sealX - pad;
+  const destY = sealY - pad;
+  const destW = sealSize + pad * 2;
+  const destH = sealSize + pad * 2;
+  const sampleY = Math.max(160, sealY - destH - 40);
+  if (!parchment.naturalWidth) {
+    g.fillStyle = "#ebe0cc";
+    g.fillRect(destX, destY, destW, destH);
+    return;
   }
+  const sx = parchment.naturalWidth / width;
+  const sy = parchment.naturalHeight / height;
+  g.drawImage(
+    parchment,
+    destX * sx,
+    sampleY * sy,
+    destW * sx,
+    destH * sy,
+    destX,
+    destY,
+    destW,
+    destH
+  );
+}
 
-  g.strokeStyle = "#6b2d3a";
-  g.lineWidth = 5;
-  g.strokeRect(48, 48, w - 96, h - 96);
-  g.strokeStyle = "#c9a227";
-  g.lineWidth = 2;
-  g.strokeRect(64, 64, w - 128, h - 128);
-
-  g.fillStyle = "#4a1f28";
-  g.font = '700 42px "Cinzel", serif';
-  g.textAlign = "center";
-  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 130);
-
-  g.font = '600 28px "Cinzel", serif';
-  g.fillText("Second quest: officially unlocked", w / 2, 180);
-
-  g.textAlign = "left";
-  const lines = buildCertificateLines().filter((l) => !l.startsWith("ROYAL QUEST"));
-  let y = 240;
+function drawBodyLines(g, lines, startY, maxW) {
+  let y = startY;
   for (const line of lines) {
     if (!line) {
       y += 10;
@@ -79,7 +71,6 @@ export async function renderCertificateCanvas() {
       : line.startsWith("Official notes")
         ? '600 22px "Cinzel", serif'
         : '400 24px "Crimson Pro", serif';
-    const maxW = w - 280;
     if (isNote && g.measureText(line).width > maxW) {
       const words = line.slice(2).split(" ");
       let row = "• ";
@@ -100,13 +91,59 @@ export async function renderCertificateCanvas() {
       y += isNote ? 28 : 32;
     }
   }
+  return y;
+}
+
+export async function renderCertificateCanvas() {
+  await document.fonts.ready;
+  const w = 1080;
+  const measureCanvas = document.createElement("canvas");
+  measureCanvas.width = w;
+  measureCanvas.height = 400;
+  const measureG = measureCanvas.getContext("2d");
+  measureG.fillStyle = "#4a1f28";
+  const bodyLines = buildCertificateLines().filter(
+    (l) => l !== "ROYAL QUEST CERTIFICATE" && l !== "Second quest: officially unlocked"
+  );
+  const contentEnd = drawBodyLines(measureG, bodyLines, 0, w - 280);
+  const sealSize = 100;
+  const h = Math.max(1120, Math.round(contentEnd + 220 + sealSize + 80));
+
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const g = c.getContext("2d");
+
+  const parchment = new Image();
+  parchment.src = "assets/images/parchment.webp";
+  await parchment.decode().catch(() => {});
+  if (parchment.complete && parchment.naturalWidth) {
+    g.drawImage(parchment, 0, 0, w, h);
+  } else {
+    g.fillStyle = "#f4e8d0";
+    g.fillRect(0, 0, w, h);
+  }
+
+  g.fillStyle = "#4a1f28";
+  g.font = '700 42px "Cinzel", serif';
+  g.textAlign = "center";
+  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 120);
+
+  g.font = '600 28px "Cinzel", serif';
+  g.fillText("Second quest: officially unlocked", w / 2, 168);
+
+  g.textAlign = "left";
+  const yEnd = drawBodyLines(g, bodyLines, 220, w - 280);
+  const sealX = Math.round(w / 2 - sealSize / 2);
+  const sealY = yEnd + 44;
+
+  coverBakedCertificateSeal(g, parchment, w, h, sealX, sealY, sealSize);
 
   const seal = new Image();
   seal.src = "assets/images/wax-seal.webp";
   await seal.decode().catch(() => {});
   if (seal.complete && seal.naturalWidth) {
-    const sealSize = 110;
-    g.drawImage(seal, w - 200, h - 150, sealSize, sealSize);
+    g.drawImage(seal, sealX, sealY, sealSize, sealSize);
   }
 
   return c;

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { reachEvePass } from "./helpers/eve-path.mjs";
 
 function overlaps(a, b) {
   if (!a || !b) return false;
@@ -10,7 +11,7 @@ function overlaps(a, b) {
 }
 
 async function assertCameoClearOfInteractives(page, targets) {
-  const cameo = await page.locator("#sirBerkeImg").boundingBox();
+  const cameo = await page.locator("#sirBerkeCameo").boundingBox();
   for (const sel of targets) {
     const el = page.locator(sel).first();
     if (!(await el.count())) continue;
@@ -50,6 +51,20 @@ for (const vp of ["mobile-320", "mobile-390", "desktop-1440"]) {
     await expect(page.locator("#sirBerkeCameo")).toBeVisible();
     await assertCameoClearOfInteractives(page, ["#btnSurveySkip", ".weapon-card"]);
   });
+
+  test(`Sir Berke cameo clears final pass controls @ ${vp}`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== vp);
+    await page.goto("/?name=Test");
+    await reachEvePass(page);
+    await expect(page.locator("#sirBerkeCameo")).toBeVisible();
+    await assertCameoClearOfInteractives(page, [
+      "#btnSavePass",
+      "#btnEveContinue",
+      "#passClosing",
+      "#passName",
+      ".title",
+    ]);
+  });
 }
 
 test("certificate PNG builder includes realm notes", async ({ page }) => {
@@ -60,4 +75,16 @@ test("certificate PNG builder includes realm notes", async ({ page }) => {
   });
   expect(lines.some((l) => l.includes("Official notes from the realm"))).toBe(true);
   expect(lines.some((l) => l.includes("Gerald has filed"))).toBe(true);
+  expect(lines.some((l) => l.includes("No destiny speeches"))).toBe(false);
+  const unlocked = lines.filter((l) => l === "Second quest: officially unlocked");
+  expect(unlocked).toHaveLength(1);
+});
+
+test("certificate uses adventurer name without Lady prefix", async ({ page }) => {
+  await page.goto("/?name=Test");
+  const adventurerLine = await page.evaluate(async () => {
+    const { buildCertificateLines } = await import("/js/certificate.js");
+    return buildCertificateLines().find((l) => l.startsWith("Adventurer:"));
+  });
+  expect(adventurerLine).toBe("Adventurer: Test");
 });

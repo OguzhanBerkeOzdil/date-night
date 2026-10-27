@@ -10,7 +10,7 @@ export const QUEST_DATE_ISO = "2026-10-28";
 
 /**
  * Owner-controlled release switch for Chapter II.
- * Keep false until Oğuzhan explicitly approves the morning release.
+ * Keep false until the owner (Berke) explicitly approves the morning release.
  */
 export const CHAPTER_TWO_RELEASED = false;
 

@@ -4,7 +4,7 @@ import { CONFIG } from "../config.js";
 import {
   PASS_HEIGHT,
   PASS_WIDTH,
-  maskPassRollArtwork,
+  coverBakedPassSeal,
   passSealRect,
 } from "../quest-pass-layout.js";
 import { state } from "../state.js";
@@ -36,7 +36,7 @@ export async function renderQuestPassCanvas(guestName) {
   const parchment = await loadImage(PARCHMENT_URL);
   if (parchment.naturalWidth) {
     g.drawImage(parchment, 0, 0, w, h);
-    maskPassRollArtwork(g, parchment, w, h);
+    coverBakedPassSeal(g, parchment, w, h);
   } else {
     g.fillStyle = "#f4e8d0";
     g.fillRect(0, 0, w, h);
