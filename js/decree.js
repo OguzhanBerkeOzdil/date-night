@@ -5,11 +5,11 @@ import { showAppToast } from "./ui-feedback.js";
 
 function questAnswerLine() {
   const answers = {
-    yes: "Tomorrow's quest: accepted",
-    maybe: "Tomorrow's quest: show me the plan first",
-    no: "Tomorrow's quest: respectfully declined",
+    yes: "Quest invitation: accepted",
+    maybe: "Quest invitation: accepted, with sensible curiosity",
+    no: "Quest invitation: respectfully declined",
   };
-  return answers[state.secondDate] || "Tomorrow's quest: awaiting answer";
+  return answers[state.secondDate] || "Quest invitation: accepted";
 }
 
 function futureQuestLine() {
@@ -38,11 +38,11 @@ export function whenWeRideLine() {
 export function buildPassText() {
   const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
   return [
-    "ADVENTURER'S PASS · QUEST NO. 002",
+    "FULL QUEST COMPLETE · LOG NO. 002",
     `Issued to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
     `Steed: ${state.steedName}`,
     `Adventure energy: ${state.rating || 3}/5${state.ratingChip ? ` · ${state.ratingChip}` : ""}`,
-    `Tomorrow could feel like: ${state.todayVibe || "—"}`,
+    `The quest could feel like: ${state.todayVibe || "—"}`,
     questAnswerLine(),
     `Provisions: ${state.food.join("; ") || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
@@ -53,7 +53,7 @@ export function buildPassText() {
       : []),
     `Note for the quest: ${state.notes || "—"}`,
     `Achievements found: ${achievementCount()}`,
-    "Valid tomorrow. Plans may change without angering the horse.",
+    "Quest complete. Plans may still change without angering the horse.",
   ].join("\n");
 }
 
@@ -167,7 +167,7 @@ export async function downloadDecreePng(mode = "auto") {
     const blob = await decreeToBlob(resolved);
     const anchor = document.createElement("a");
     anchor.href = URL.createObjectURL(blob);
-    anchor.download = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
+    anchor.download = resolved === "completion" ? "second-quest-complete.png" : "full-quest-log.png";
     anchor.click();
     URL.revokeObjectURL(anchor.href);
   } catch {
@@ -184,8 +184,8 @@ function whatsAppFallbackUrl(text) {
 export async function shareDecree(mode = "auto") {
   const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
   const summary = buildSummaryText(resolved);
-  const fileName = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
-  const title = resolved === "completion" ? "Second quest complete" : "Adventurer's pass";
+  const fileName = resolved === "completion" ? "second-quest-complete.png" : "full-quest-log.png";
+  const title = resolved === "completion" ? "Second quest complete" : "Full quest complete";
   const waUrl = whatsAppFallbackUrl(summary);
   const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
 

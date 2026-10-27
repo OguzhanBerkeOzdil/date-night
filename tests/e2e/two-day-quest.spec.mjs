@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { completeEveToLock, openMainQuestEarly } from "./helpers/eve-path.mjs";
 import { reachDecreeMouse } from "./helpers/quest-path.mjs";
 
 async function expectNoHorizontalOverflow(page) {
@@ -16,38 +17,31 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("chapter I becomes a pass, then early-open completes chapter II", async ({ page }) => {
-  await reachDecreeMouse(page);
-  await expect(page.locator("#decreePreview")).toContainText("ADVENTURER'S PASS");
-  await page.evaluate(() => {
-    const state = JSON.parse(localStorage.getItem("questLady_v3"));
-    state.scheduledDate = "2099-01-01";
-    localStorage.setItem("questLady_v3", JSON.stringify(state));
-  });
-  await page.reload();
+test("today ends at the lock and early-open starts the full existing quest", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#btnNewGame").click();
+  await completeEveToLock(page);
   await expect(page.locator('section[data-screen="chapter-lock"]')).toHaveClass(/screen--active/);
+  const afterToday = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
+  expect(afterToday.eveAdventurerName).toBe("Ayse");
+  expect(afterToday.chapterOneComplete).toBe(true);
+  expect(afterToday.chapterTwoStarted).toBe(false);
   await expectNoHorizontalOverflow(page);
-  await page.locator("#btnOpenEarly").click();
-  await expect(page.locator("#earlyOpenConfirm")).toBeVisible();
-  await page.locator("#earlyOpenAccept").click();
-  await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
+  await openMainQuestEarly(page);
+  await expect(page.locator('section[data-screen="summons"]')).toHaveClass(/screen--active/);
+  await expect(page.locator('section[data-screen="summons"]')).toContainText("Chapter II");
   await expectNoHorizontalOverflow(page);
+  const afterOpening = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
+  expect(afterOpening.chapterTwoStarted).toBe(true);
+  expect(afterOpening.lastScreen).toBe("summons");
+});
 
-  await page.locator('[data-buff="Snack compass"]').click();
-  await page.locator("#btnStartAdventure").click();
-  await expect(page.locator('section[data-screen="chapter-two-pause"]')).toContainText("Phones away");
-  await page.locator("#btnFinishQuest").click();
-  await page.locator("#favoriteMoment").fill("The joke about the very serious horse.");
-  await page.locator('[data-badge="Best banter"]').click();
-  await page.locator('[data-future="maybe"]').click();
-  await page.locator("#btnCompleteQuest").click();
-
-  await expect(page.locator('section[data-screen="quest-complete"]')).toHaveClass(/screen--active/);
-  await expect(page.locator("#finalPreview")).toContainText("SECOND QUEST COMPLETE");
-  await expectNoHorizontalOverflow(page);
+test("the full quest ends with the final log", async ({ page }) => {
+  await reachDecreeMouse(page);
+  await expect(page.locator("#decreePreview")).toContainText("FULL QUEST COMPLETE");
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
   expect(saved.chapterTwoComplete).toBe(true);
-  expect(saved.futureQuest).toBe("maybe");
+  expect(saved.chapter).toBe("complete");
 });
 
 test("a private invite restores chapter I progress on a clean device", async ({ page }) => {

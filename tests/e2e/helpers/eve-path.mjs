@@ -1,4 +1,4 @@
-export async function completeEveMouse(page) {
+export async function completeEveToLock(page) {
   await page.waitForSelector('[data-screen="eve-gate"].screen--active', { timeout: 15000 });
   await page.locator("#guestNameInput").fill("Ayse");
   await page.locator("#btnGateNext").click();
@@ -12,5 +12,18 @@ export async function completeEveMouse(page) {
   await page.locator("#btnPackingNext").click();
   await page.waitForSelector('[data-screen="eve-pass"].screen--active');
   await page.locator("#btnEveContinue").click();
+  await page.waitForSelector('[data-screen="chapter-lock"].screen--active');
+}
+
+export async function openMainQuestEarly(page) {
+  await page.locator("#btnOpenEarly").click();
+  await page.locator("#earlyOpenAccept").click();
+  await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
+  await page.locator("#btnStartAdventure").click();
   await page.waitForSelector('[data-screen="summons"].screen--active');
+}
+
+export async function completeEveMouse(page) {
+  await completeEveToLock(page);
+  await openMainQuestEarly(page);
 }

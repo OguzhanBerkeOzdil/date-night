@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261106";
+const APP_CACHE_VERSION = "20261107";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -169,6 +169,13 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Stream large audio files normally. Partial (206) responses are not safe
+  // to store as complete entries in the asset cache.
+  if (request.headers.has("range")) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   if (
     url.pathname.endsWith("/index.html") ||

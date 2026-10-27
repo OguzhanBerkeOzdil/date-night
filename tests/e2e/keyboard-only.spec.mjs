@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test("keyboard-only: title through decree", async ({ page }) => {
   await runQuestToDecreeKeyboard(page);
-  await expect(page.locator("#decreePreview")).toContainText("ADVENTURER'S PASS");
+  await expect(page.locator("#decreePreview")).toContainText("FULL QUEST COMPLETE");
 });
 
 test("keyboard-only: title through honest-no", async ({ page }) => {
