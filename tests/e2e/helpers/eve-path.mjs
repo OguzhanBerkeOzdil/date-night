@@ -15,9 +15,8 @@ export async function completeEveToLock(page) {
   await page.waitForSelector('[data-screen="chapter-lock"].screen--active');
 }
 
-export async function openMainQuestEarly(page) {
-  await page.locator("#btnOpenEarly").click();
-  await page.locator("#earlyOpenAccept").click();
+export async function releaseMainQuestForTest(page) {
+  await page.evaluate(() => window.__questNavigate("chapter-two-start"));
   await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
   await page.locator("#btnStartAdventure").click();
   await page.waitForSelector('[data-screen="summons"].screen--active');
@@ -25,5 +24,5 @@ export async function openMainQuestEarly(page) {
 
 export async function completeEveMouse(page) {
   await completeEveToLock(page);
-  await openMainQuestEarly(page);
+  await releaseMainQuestForTest(page);
 }

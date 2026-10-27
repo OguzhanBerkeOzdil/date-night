@@ -8,6 +8,12 @@ export const QUEST_DATE_LABEL = "Wednesday 28 October 2026";
 export const QUEST_DATE_ISO = "2026-10-28";
 
 /**
+ * Owner-controlled release switch for Chapter II.
+ * Keep false until Oğuzhan explicitly approves the morning release.
+ */
+export const CHAPTER_TWO_RELEASED = false;
+
+/**
  * Background music MP3 (lazy-loaded when user enables sound).
  * Leave empty to use the built-in procedural ambience until the new track lands.
  */

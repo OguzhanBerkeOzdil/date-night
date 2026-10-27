@@ -12,7 +12,6 @@ const SAFE_STATE_KEYS = [
   "chapterOneComplete",
   "chapterTwoStarted",
   "chapterTwoComplete",
-  "chapterTwoOpenedEarly",
   "consentShared",
   "scheduledDate",
   "timeZone",

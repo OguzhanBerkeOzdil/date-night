@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { completeEveToLock, openMainQuestEarly } from "./helpers/eve-path.mjs";
+import { completeEveToLock, releaseMainQuestForTest } from "./helpers/eve-path.mjs";
 import { reachDecreeMouse } from "./helpers/quest-path.mjs";
 
 async function expectNoHorizontalOverflow(page) {
@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("today ends at the lock and early-open starts the full existing quest", async ({ page }) => {
+test("today ends at an owner-controlled lock and release starts the full quest", async ({ page }) => {
   await page.goto("/");
   await page.locator("#btnNewGame").click();
   await completeEveToLock(page);
@@ -26,8 +26,9 @@ test("today ends at the lock and early-open starts the full existing quest", asy
   expect(afterToday.eveAdventurerName).toBe("Ayse");
   expect(afterToday.chapterOneComplete).toBe(true);
   expect(afterToday.chapterTwoStarted).toBe(false);
+  await expect(page.locator("#btnOpenEarly")).toHaveCount(0);
   await expectNoHorizontalOverflow(page);
-  await openMainQuestEarly(page);
+  await releaseMainQuestForTest(page);
   await expect(page.locator('section[data-screen="summons"]')).toHaveClass(/screen--active/);
   await expect(page.locator('section[data-screen="summons"]')).toContainText("Chapter II");
   await expectNoHorizontalOverflow(page);
