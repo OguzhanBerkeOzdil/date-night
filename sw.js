@@ -1,12 +1,12 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261103";
+const APP_CACHE_VERSION = "20261104";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
 
 const V = APP_CACHE_VERSION;
 
-const SHELL_URLS = ["./", "./index.html"];
+const SHELL_URLS = ["./", "./index.html", "./today/index.html"];
 
 /** URLs as requested by index.html (must include ?v=). */
 const VERSIONED_PRECACHE = [
@@ -16,6 +16,8 @@ const VERSIONED_PRECACHE = [
   `./css/v2.css?v=${V}`,
   `./css/desktop.css?v=${V}`,
   `./js/main.js?v=${V}`,
+  `./css/today.css?v=${V}`,
+  `./today/index.html`,
 ];
 
 /** Module graph and static assets (no ?v= on bare module URLs). */
@@ -38,6 +40,13 @@ const ASSET_PRECACHE = [
   "./js/icons.js",
   "./js/image-utils.js",
   "./js/particles.js",
+  "./js/app-config.js",
+  "./js/feedback.js",
+  "./js/horses.js",
+  "./js/certificate.js",
+  "./js/today/main.js",
+  "./js/today/copy.js",
+  "./js/today/pass.js",
   "./assets/images/wax-seal.webp",
   "./assets/images/bg-title.webp",
   "./assets/images/bg-title.jpg",
@@ -89,6 +98,7 @@ self.addEventListener("install", (event) => {
       .then(() => self.skipWaiting())
       .catch((err) => {
         console.warn("[quest-sw] install failed", err);
+        return self.skipWaiting();
       })
   );
 });
@@ -155,7 +165,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.endsWith("/index.html") || url.pathname.endsWith("/")) {
+  if (
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/") ||
+    url.pathname.includes("/today/")
+  ) {
     event.respondWith(networkFirst(request));
     return;
   }

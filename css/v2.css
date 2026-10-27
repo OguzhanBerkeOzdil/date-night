@@ -55,8 +55,11 @@
   pointer-events: auto;
   opacity: 1;
   min-height: 44px;
-  padding: 12px 10px;
+  padding: 14px 12px;
   box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #realNoLink.dragon-resolved-hide,
@@ -1317,6 +1320,86 @@ body {
 }
 
 .chip-field,
+.horse-breed-field {
+  border: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.horse-breed-field legend {
+  text-align: center;
+  width: 100%;
+}
+
+.horse-breed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: min(42vh, 320px);
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  padding: 4px 2px 8px;
+}
+
+@media (min-width: 900px) {
+  .horse-breed-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 280px;
+  }
+}
+
+.horse-breed-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: var(--radius);
+  border: 2px solid rgba(107, 45, 58, 0.25);
+  background: rgba(252, 245, 232, 0.92);
+  scroll-snap-align: start;
+}
+
+.horse-breed-card[aria-selected="true"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.35);
+}
+
+.horse-breed-card__img {
+  width: 72px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.horse-breed-card__label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--burgundy-deep);
+  line-height: 1.2;
+}
+
+.horse-personality {
+  text-align: center;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--burgundy);
+  margin: 4px 12px 8px;
+  min-height: 2.6em;
+}
+
+.horse-thumb--palomino { filter: sepia(0.35) brightness(1.08) saturate(1.1); }
+.horse-thumb--dapple { filter: grayscale(0.35) contrast(1.05); }
+.horse-thumb--friesian { filter: brightness(0.55) contrast(1.1); }
+.horse-thumb--appaloosa { filter: contrast(1.15) saturate(0.9); }
+.horse-thumb--pinto { filter: contrast(1.05) brightness(1.02); }
+.horse-thumb--buckskin { filter: sepia(0.25) hue-rotate(-8deg); }
+.horse-thumb--bay { filter: sepia(0.15) saturate(1.05); }
+.horse-thumb--roan { filter: grayscale(0.2) brightness(1.05); }
+.horse-thumb--chestnut { filter: sepia(0.2) saturate(1.15); }
+.horse-thumb--unicorn { filter: hue-rotate(220deg) saturate(1.2); }
+
 .name-chips-field {
   border: none;
   margin: 0;

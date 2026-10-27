@@ -2,7 +2,18 @@ import { CONFIG, COPY, tarotForKey } from "./config.js";
 import { unlock } from "./achievements.js";
 
 // bonus achievements use same unlock()
-import { playNeigh, playStamp, playHorn, duckMusic, vibrate, unlockAudio, startAmbience, setSoundOn, isSoundOn } from "./audio.js";
+import { playNeigh, playStamp, playHorn, duckMusic, vibrate, unlockAudio, ensureBackgroundMusic, setSoundOn, isSoundOn } from "./audio.js";
+import { downloadCertificatePng } from "./certificate.js";
+import { submitFeedback } from "./feedback.js";
+import { APP_CACHE_VERSION } from "./cache-version.js";
+import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
+import {
+  HORSE_BREEDS,
+  horseById,
+  horseImageUrl,
+  horseHasArt,
+  HORSE_PLACEHOLDER_SRC,
+} from "./horses.js";
 import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js";
 import { hydrateLazyImages } from "./image-utils.js";
 import { iconFood } from "./icons.js";
@@ -159,7 +170,7 @@ function startFreshQuestWithUndo() {
   resetQuestSessionFlags();
   unlockAudio();
   if (isSoundOn()) {
-    startAmbience();
+    ensureBackgroundMusic();
     playHorn();
   }
   navigate("summons");
@@ -200,7 +211,7 @@ function initTitle() {
 
   $("btnContinue")?.addEventListener("click", () => {
     unlockAudio();
-    if (isSoundOn()) startAmbience();
+    if (isSoundOn()) ensureBackgroundMusic();
     const target = state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "summons";
     navigate(target);
   });
@@ -247,7 +258,104 @@ function runOracleLoad() {
   tick();
 }
 
+function reportMainFeedback(outcome) {
+  submitFeedback({
+    _subject: "Quest answers",
+    idempotencyId: `main-${guest.formal || "guest"}-${outcome}-${APP_CACHE_VERSION}`,
+    part: "main",
+    name: guest.formal || guest.display,
+    excitement: "",
+    choices: JSON.stringify({
+      rating: state.rating,
+      food: state.food,
+      activities: state.activities,
+      tarot: state.tarotKey,
+    }),
+    horse: state.horseId || "",
+    steedName: state.steedName || "",
+    date: state.day || "",
+    timestamp: new Date().toISOString(),
+    outcome,
+  });
+}
+
+function applyHorseImg(img, horseId, { lazy = false } = {}) {
+  const breed = horseById(horseId);
+  const useArt = horseHasArt(horseId);
+  if (lazy) {
+    img.loading = "lazy";
+    img.decoding = "async";
+  } else {
+    img.loading = "eager";
+    img.decoding = "async";
+  }
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = HORSE_PLACEHOLDER_SRC;
+    img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+  };
+  img.onload = () => {
+    if (img.src.includes("/horses/") && useArt) {
+      img.className = "horse-cutout";
+    } else {
+      img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+    }
+  };
+  img.src = useArt ? horseImageUrl(horseId) : HORSE_PLACEHOLDER_SRC;
+  if (!useArt) img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+}
+
+function setHorsePreview(horseId) {
+  const img = $("horseIdleImg");
+  if (!img) return;
+  const breed = horseById(horseId);
+  applyHorseImg(img, horseId, { lazy: false });
+  const pers = $("horsePersonality");
+  if (pers) pers.textContent = breed.personality;
+}
+
+function renderHorseBreedGrid() {
+  const grid = $("horseBreedGrid");
+  if (!grid || grid.dataset.rendered) return;
+  grid.dataset.rendered = "1";
+  HORSE_BREEDS.forEach((breed) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "horse-breed-card";
+    btn.setAttribute("role", "option");
+    btn.setAttribute("aria-selected", breed.id === state.horseId ? "true" : "false");
+    btn.dataset.horseId = breed.id;
+    const thumb = document.createElement("img");
+    thumb.className = "horse-breed-card__img";
+    thumb.alt = "";
+    applyHorseImg(thumb, breed.id, { lazy: true });
+    const label = document.createElement("span");
+    label.className = "horse-breed-card__label";
+    label.textContent = breed.coat;
+    btn.append(thumb, label);
+    btn.addEventListener("click", () => pickHorseBreed(breed.id));
+    grid.appendChild(btn);
+  });
+}
+
+function pickHorseBreed(id) {
+  state.horseId = id;
+  saveState();
+  setHorsePreview(id);
+  document.querySelectorAll(".horse-breed-card").forEach((el) => {
+    el.setAttribute("aria-selected", el.dataset.horseId === id ? "true" : "false");
+  });
+  const breed = horseById(id);
+  if (state.steedName === "Clover" || HORSE_BREEDS.some((h) => h.defaultName === state.steedName)) {
+    state.steedName = breed.defaultName;
+    saveState();
+    setSteedName(state.steedName);
+  }
+}
+
 function initSteed() {
+  renderHorseBreedGrid();
+  setHorsePreview(state.horseId || "chestnut");
   const horse = $("horseIdle");
   const aff = $("affectionBar");
   const carrot = $("carrotBtn");
@@ -316,7 +424,9 @@ function pickSteed(name) {
 
 export function onEnterSteed() {
   attachSteedDialogue();
-  setPortrait("assets/images/horse-idle.webp");
+  const hid = state.horseId || "chestnut";
+  setPortrait(horseHasArt(hid) ? horseImageUrl(hid) : HORSE_PLACEHOLDER_SRC);
+  setHorsePreview(state.horseId || "chestnut");
   setSteedName(state.steedName);
   say([
     `*soft neigh* Oh! You must be ${questOfTitle()}. I've heard SO much about you.`,
@@ -817,6 +927,7 @@ function initHonest() {
     navigate("tavern");
   });
   onEnterHonest = () => {
+    reportMainFeedback("honest-no");
     const body = document.querySelector('[data-screen="honest-no"] .body-text');
     if (body) {
       body.textContent = `You remain noble and kind. The realm respects you, and ${state.steedName} still thinks you're great.`;
@@ -1102,6 +1213,7 @@ function typeLetter() {
 function initDecree() {
   $("btnShare")?.addEventListener("click", () => shareDecree());
   $("btnSavePng")?.addEventListener("click", () => downloadDecreePng());
+  $("btnSaveCertificate")?.addEventListener("click", () => downloadCertificatePng());
   $("btnCopy")?.addEventListener("click", async () => {
     const text = buildSummaryText();
     const toast = $("copyToast");
@@ -1164,8 +1276,15 @@ export function onScreenEnter(id) {
     if (head) {
       head.textContent = state.honestNo
         ? "By order of the realm — thank you for your honesty"
-        : "By royal decree — it's a date ✦";
+        : "Quest accepted — second adventure unlocked";
     }
+    const certBtn = $("btnSaveCertificate");
+    const showCert = !state.honestNo && state.secondDate === "yes";
+    if (certBtn) certBtn.classList.toggle("hidden", !showCert);
+    const note = $("feedbackNote");
+    if (note) note.textContent = FEEDBACK_HONESTY_NOTE;
+    const outcome = state.honestNo ? "honest-no" : state.secondDate === "yes" ? "completed" : "other";
+    if (outcome === "completed" || outcome === "honest-no") reportMainFeedback(outcome);
     unlock("heart", true);
     $("decreePreview").textContent = buildSummaryText();
     boostEmbers();

@@ -16,12 +16,12 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261103">
+  <link rel="manifest" href="manifest.webmanifest?v=20261104">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261103">
-  <link rel="stylesheet" href="css/styles.css?v=20261103">
-  <link rel="stylesheet" href="css/v2.css?v=20261103">
-  <link rel="stylesheet" href="css/desktop.css?v=20261103">
+  <link rel="stylesheet" href="css/fonts.css?v=20261104">
+  <link rel="stylesheet" href="css/styles.css?v=20261104">
+  <link rel="stylesheet" href="css/v2.css?v=20261104">
+  <link rel="stylesheet" href="css/desktop.css?v=20261104">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -119,12 +119,17 @@
 
     <section class="screen" data-screen="steed">
       <div class="screen__inner steed-screen">
+        <fieldset class="horse-breed-field">
+          <legend class="sub-label">Choose your steed</legend>
+          <div id="horseBreedGrid" class="horse-breed-grid" role="listbox" aria-label="Horse breeds"></div>
+        </fieldset>
         <div class="steed-hero-row">
           <div class="horse-stage" id="horseIdle">
             <img id="horseIdleImg" class="horse-cutout" src="assets/images/horse-idle.webp" alt="" width="320" height="320">
           </div>
           <div id="steedDialogueAnchor" class="steed-dialogue-anchor" aria-hidden="true"></div>
         </div>
+        <p class="horse-personality" id="horsePersonality" aria-live="polite"></p>
         <p class="affection" id="affectionBar" aria-live="polite">♡♡♡♡♡</p>
         <button type="button" class="carrot-btn" id="carrotBtn">🥕 Feed carrot</button>
         <fieldset class="name-chips-field">
@@ -287,10 +292,12 @@
         <div class="action-row">
           <button type="button" class="btn btn--primary" id="btnShare">Send it to Oğuzhan 💌</button>
           <button type="button" class="btn btn--secondary" id="btnSavePng">Save decree as image</button>
+          <button type="button" class="btn btn--secondary hidden" id="btnSaveCertificate">Save quest certificate</button>
           <button type="button" class="btn btn--secondary" id="btnCopy">Copy decree</button>
           <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew</button>
         </div>
         <p class="copy-toast hidden" id="copyToast">Copied!</p>
+        <p class="small-print decree-feedback-note" id="feedbackNote"></p>
       </div>
     </section>
   </main>
@@ -312,6 +319,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261103"></script>
+  <script type="module" src="js/main.js?v=20261104"></script>
 </body>
 </html>

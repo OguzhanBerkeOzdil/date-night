@@ -1,4 +1,7 @@
+import { MUSIC_SRC } from "./app-config.js";
+
 let ctx = null;
+let musicEl = null;
 let musicGain = null;
 let sfxGain = null;
 let musicOsc = null;
@@ -14,7 +17,15 @@ export function setSoundOn(v, userTouched = true) {
     localStorage.setItem("questSound", v ? "1" : "0");
     if (userTouched) localStorage.setItem("questSoundTouched", "1");
   } catch {}
-  if (musicGain) musicGain.gain.value = v ? 0.12 : 0;
+  if (musicGain) musicGain.gain.value = v && !MUSIC_SRC ? 0.12 : 0;
+  if (musicEl) {
+    if (v) {
+      musicEl.play().catch(() => {});
+    } else {
+      musicEl.pause();
+    }
+  }
+  if (!v && musicOsc && musicGain) musicGain.gain.value = 0;
 }
 
 export function loadSoundPref() {
@@ -86,8 +97,24 @@ export function playHorn() {
   setTimeout(() => tone(523, 0.4, "triangle", 0.15), 200);
 }
 
+/** Lazy-load MP3 when configured; otherwise procedural ambience. */
+export function ensureBackgroundMusic() {
+  if (!soundOn) return;
+  unlockAudio();
+  if (MUSIC_SRC) {
+    if (!musicEl) {
+      musicEl = new Audio(MUSIC_SRC);
+      musicEl.loop = true;
+      musicEl.preload = "none";
+    }
+    musicEl.play().catch(() => {});
+    return;
+  }
+  startAmbience();
+}
+
 export function startAmbience() {
-  if (!ctx || musicOsc) return;
+  if (!ctx || musicOsc || MUSIC_SRC) return;
   musicOsc = ctx.createOscillator();
   const lfo = ctx.createOscillator();
   const lfoG = ctx.createGain();

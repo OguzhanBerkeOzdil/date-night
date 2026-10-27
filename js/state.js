@@ -62,6 +62,7 @@ export function letterSalutation() {
 
 export function defaultState() {
   return {
+    horseId: "chestnut",
     steedName: "Clover",
     steedClass: "",
     affection: 0,
