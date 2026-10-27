@@ -1,0 +1,12 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { sanitizeHeraldName } from "../../js/state.js";
+
+test("sanitizeHeraldName trims and strips Lady prefix", () => {
+  assert.equal(sanitizeHeraldName("   Lady Ayse  "), "Ayse");
+});
+
+test("sanitizeHeraldName caps at 24 characters", () => {
+  const long = "abcdefghijklmnopqrstuvwxyz";
+  assert.equal(sanitizeHeraldName(long).length, 24);
+});

@@ -179,9 +179,9 @@ export function resumeTarget() {
   }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
   if (!state.eveComplete) {
-    const eveScreens = ["eve-gate", "eve-excitement", "eve-herald", "eve-packing", "eve-pass"];
+    const eveScreens = ["eve-name", "eve-excitement", "eve-packing", "eve-survey", "eve-pass"];
     if (eveScreens.includes(state.lastScreen)) return state.lastScreen;
-    return "eve-gate";
+    return "eve-name";
   }
   return state.lastScreen && state.lastScreen !== "title" ? state.lastScreen : "summons";
 }
@@ -195,7 +195,7 @@ function startFreshQuestWithUndo() {
     startAmbience();
     playHorn();
   }
-  navigate("eve-gate");
+  navigate("eve-name");
   if (hadSave) {
     showUndoToast(
       "Quest reset — progress cleared.",
@@ -902,7 +902,7 @@ export function onScreenEnter(id) {
     $("waxStampAnim")?.classList.add("stamped");
   }
   if (id === "chapter-lock") {
-    $("chapterLockDate").textContent = `Oğuzhan will unseal Chapter II on ${formatQuestDate(state.scheduledDate, state.timeZone)} morning.`;
+    $("chapterLockDate").textContent = `Berke will unseal Chapter II on ${formatQuestDate(state.scheduledDate, state.timeZone)} morning.`;
   }
   if (id === "chapter-two-start") renderRecap();
   if (id === "chapter-two-pause") {

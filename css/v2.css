@@ -5,6 +5,37 @@
   background: transparent;
 }
 
+body[data-screen^="eve-"] .app--v2 {
+  padding-top: calc(8px + env(safe-area-inset-top, 0px));
+}
+
+body[data-screen^="eve-"] header.top-bar {
+  position: relative !important;
+  top: auto !important;
+  background: rgba(15, 24, 18, 0.97);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.eve-honest-slot:not(:empty) {
+  margin-bottom: 10px;
+}
+
+.today-honest--in-panel.today-honest {
+  display: block;
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 10px 12px;
+  min-height: 44px;
+  box-sizing: border-box;
+  color: var(--burgundy-deep);
+  text-shadow: none;
+  text-align: center;
+  border-radius: var(--radius);
+  border: 2px solid rgba(107, 45, 58, 0.35);
+  background: rgba(255, 252, 245, 0.92);
+}
+
 .screen__inner {
   max-width: 100%;
 }
@@ -1434,6 +1465,38 @@ body {
   width: 100%;
   padding: 24px 20px;
   position: relative;
+}
+
+.chapter1-replay-confirm {
+  z-index: 120;
+  background: rgba(10, 18, 12, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.chapter1-replay-confirm .quest-confirm__panel {
+  background: linear-gradient(
+    180deg,
+    rgba(252, 245, 232, 0.98) 0%,
+    rgba(244, 228, 200, 0.96) 100%
+  );
+  border: 2px solid rgba(201, 162, 39, 0.65);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  color: var(--ink);
+}
+
+.chapter1-replay-confirm .chapter1-replay-cancel {
+  background: rgba(252, 245, 232, 0.98);
+  color: var(--burgundy-deep);
+  border: 2px solid var(--burgundy);
+  text-shadow: none;
+  min-height: 44px;
+  font-weight: 600;
+}
+
+.chapter1-replay-confirm .chapter1-replay-cancel:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
 }
 
 .quest-confirm__actions {

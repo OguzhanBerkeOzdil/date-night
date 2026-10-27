@@ -55,7 +55,7 @@ test("new game confirm when save exists", async ({ page }) => {
   await page.locator("#btnNewGame").click();
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
-  await page.waitForSelector('[data-screen="eve-gate"].screen--active');
+  await page.waitForSelector('[data-screen="eve-name"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
   expect(saved.steedName).toBe("Clover");
 });
@@ -65,9 +65,9 @@ test("begin anew uses confirm when save exists", async ({ page }) => {
   await page.locator("#btnReplay").click();
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
-  await page.waitForSelector('[data-screen="eve-gate"].screen--active');
+  await page.waitForSelector('[data-screen="eve-name"].screen--active');
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
-  expect(saved.lastScreen).toBe("eve-gate");
+  expect(saved.lastScreen).toBe("eve-name");
 });
 
 test("wax seal keyboard activation", async ({ page }) => {

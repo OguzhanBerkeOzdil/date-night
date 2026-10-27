@@ -1,14 +1,22 @@
 import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
+import {
+  adventurerProfileFromAnswers,
+  CHAPTER1_SURVEY_STEPS,
+} from "./chapter1-survey-data.js";
+import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
-import { sanitizeGuestName, saveState, setGuestName, state } from "./state.js";
+import {
+  sanitizeHeraldName,
+  resetChapterOneProgress,
+  saveState,
+  setGuestName,
+  state,
+} from "./state.js";
 import { queueQuestSync } from "./sync.js";
 import { showAppToast } from "./ui-feedback.js";
 import {
-  OWL_INTRO,
-  owlWelcome,
   EXCITEMENT_TIERS,
-  HERALD_QUESTIONS,
   PACKING_ITEMS,
   PASS_CLOSING,
   HONEST_EXIT_LABEL,
@@ -36,38 +44,6 @@ function excitementReaction(level) {
   return tier.text;
 }
 
-function heraldIndex() {
-  const answered = Object.keys(state.eveHeraldAnswers || {}).length;
-  return Math.min(answered, HERALD_QUESTIONS.length - 1);
-}
-
-function renderHerald() {
-  const q = HERALD_QUESTIONS[heraldIndex()];
-  if (!q) return;
-  $("heraldPrompt").textContent = q.prompt;
-  const row = $("heraldChoices");
-  if (!row) return;
-  row.innerHTML = "";
-  q.choices.forEach((ch) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn btn--secondary today-choice";
-    btn.textContent = ch.label;
-    btn.addEventListener("click", () => {
-      state.eveHeraldAnswers = { ...state.eveHeraldAnswers, [q.id]: ch.id };
-      saveState();
-      $("heraldReaction").textContent = q.reactions[ch.id] || "Noted!";
-      show($("heraldReaction"));
-      if (Object.keys(state.eveHeraldAnswers).length >= HERALD_QUESTIONS.length) {
-        show($("btnHeraldNext"));
-      } else {
-        window.setTimeout(() => renderHerald(), 600);
-      }
-    });
-    row.appendChild(btn);
-  });
-}
-
 function renderPacking() {
   const list = $("packingList");
   if (!list || list.dataset.rendered) return;
@@ -93,7 +69,8 @@ function renderPacking() {
 
 function feedbackId(outcome) {
   const n = (state.eveAdventurerName || "guest").replace(/\s+/g, "-").toLowerCase();
-  return `eve-${n}-${outcome}-${APP_CACHE_VERSION}`;
+  const replay = state.chapter1ReplayCount ? `-r${state.chapter1ReplayCount}` : "";
+  return `eve-${n}-${outcome}-${APP_CACHE_VERSION}${replay}`;
 }
 
 function reportEve(outcome) {
@@ -102,25 +79,34 @@ function reportEve(outcome) {
   saveState();
   queueQuestSync({ immediate: true });
   if (!RUNTIME_CONFIG.questApiUrl) {
+    const profile = adventurerProfileFromAnswers(state.chapter1Answers);
+    const replayTag = state.chapter1ReplayCount ? " (replay)" : "";
     submitFeedback({
-      _subject: "Eve of the Quest answers",
+      _subject: `Chapter I invitation answers${replayTag}`,
       idempotencyId: feedbackId(outcome),
       part: "eve",
       name: state.eveAdventurerName || "",
       excitement: String(state.eveExcitement || ""),
-      choices: JSON.stringify(state.eveHeraldAnswers || {}),
+      choices: JSON.stringify({
+        herald: state.eveHeraldAnswers || {},
+        survey: state.chapter1Answers || {},
+        profile,
+      }),
       packing: (state.evePacking || []).join(", "),
       horse: state.horseId || "",
       date: "",
       timestamp: new Date().toISOString(),
-      outcome,
+      outcome: state.chapter1ReplayCount ? `${outcome} (replay)` : outcome,
     });
   }
 }
 
 /** Eve decline must not overwrite an accepted or completed quest. */
 export function questProgressBlocksEveDecline() {
+  const replayingAcceptedInvite =
+    state.chapter1InviteEverAccepted || (state.chapter1ReplayCount ?? 0) > 0;
   return (
+    replayingAcceptedInvite ||
     state.chapterOneComplete ||
     state.chapterTwoStarted ||
     state.chapterTwoComplete ||
@@ -132,24 +118,48 @@ export function questProgressBlocksEveDecline() {
   );
 }
 
-const EVE_HONEST_SCREENS = new Set(["eve-gate", "eve-excitement", "eve-herald", "eve-packing"]);
+const EVE_HONEST_SCREENS = new Set([
+  "eve-name",
+  "eve-excitement",
+  "eve-packing",
+  "eve-survey",
+]);
 
-/** Keep the sticky honest control scoped to Eve prelude screens only. */
+const EVE_HONEST_HOME = ".top-bar__tools";
+
 export function syncEveHonestButton(screenId) {
   const honest = $("btnEveHonest");
   if (!honest) return;
   const visible = EVE_HONEST_SCREENS.has(screenId) && !questProgressBlocksEveDecline();
-  honest.classList.toggle("hidden", !visible);
-  if (visible) {
+  const home = document.querySelector(EVE_HONEST_HOME);
+  const slot =
+    visible && EVE_HONEST_SCREENS.has(screenId)
+      ? document.querySelector(".screen.screen--active [data-eve-honest-slot]")
+      : null;
+
+  if (visible && slot) {
+    slot.append(honest);
+    honest.classList.add("today-honest--in-panel");
+    honest.classList.remove("hidden");
     honest.removeAttribute("hidden");
     honest.setAttribute("aria-hidden", "false");
     honest.removeAttribute("tabindex");
     honest.disabled = false;
-  } else {
-    honest.setAttribute("hidden", "");
-    honest.setAttribute("aria-hidden", "true");
-    honest.setAttribute("tabindex", "-1");
-    honest.disabled = true;
+  } else if (home) {
+    home.append(honest);
+    honest.classList.remove("today-honest--in-panel");
+    honest.classList.toggle("hidden", !visible);
+    if (visible) {
+      honest.removeAttribute("hidden");
+      honest.setAttribute("aria-hidden", "false");
+      honest.removeAttribute("tabindex");
+      honest.disabled = false;
+    } else {
+      honest.setAttribute("hidden", "");
+      honest.setAttribute("aria-hidden", "true");
+      honest.setAttribute("tabindex", "-1");
+      honest.disabled = true;
+    }
   }
 }
 
@@ -163,24 +173,57 @@ function finishHonest() {
   navigate("eve-honest");
 }
 
-function finishPass() {
-  state.eveComplete = true;
-  state.chapterOneComplete = true;
-  state.chapter = "chapter-one-complete";
-  state.secondDate = "yes";
-  reportEve("completed");
-  const name = state.eveAdventurerName || "Adventurer";
+function personalizeName(name) {
+  const display = String(name || "").trim() || "Adventurer";
+  const titled = /^adventurer$/i.test(display) ? display : `Lady ${display}`;
+  document.querySelectorAll("[data-lady]").forEach((el) => {
+    el.textContent = titled;
+  });
+  document.querySelectorAll("[data-name-only]").forEach((el) => {
+    el.textContent = display;
+  });
+}
+
+function chapter1SurveyFinished() {
+  return (state.chapter1Step ?? 0) >= CHAPTER1_SURVEY_STEPS;
+}
+
+function paintPassScreen() {
+  const name =
+    state.eveAdventurerName || state.chapter1SealedName || "Adventurer";
   $("passName").textContent = name;
   $("passClosing").textContent = PASS_CLOSING;
-  navigate("eve-pass");
+}
+
+function completeChapter1Invitation() {
+  const replayIndex = state.chapter1ReplayCount ?? 0;
+  const surveyDone = chapter1SurveyFinished();
+
+  if (surveyDone && state.chapter1CompletedReportedForReplay !== replayIndex) {
+    state.chapter1InviteEverAccepted = true;
+    state.chapter1SealedName = state.eveAdventurerName || state.chapter1SealedName;
+    state.eveComplete = true;
+    state.chapterOneComplete = true;
+    state.chapter = "chapter-one-complete";
+    state.secondDate = "yes";
+    state.eveOutcome = "completed";
+    state.chapter1CompletedReportedForReplay = replayIndex;
+    saveState();
+    reportEve("completed");
+  } else if (state.chapter1InviteEverAccepted) {
+    state.chapterOneComplete = true;
+    state.eveComplete = true;
+    state.secondDate = state.secondDate || "yes";
+    state.chapter = state.chapter || "chapter-one-complete";
+  }
+  paintPassScreen();
 }
 
 export function onEnterEve(screenId) {
-  if (screenId === "eve-gate") {
-    $("owlLine").textContent = OWL_INTRO;
-    const input = $("guestNameInput");
+  if (screenId === "eve-name") {
+    const input = $("heraldNameInput");
     if (input && !input.value) {
-      const pre = sanitizeGuestName(new URLSearchParams(location.search).get("name") || "");
+      const pre = sanitizeHeraldName(new URLSearchParams(location.search).get("name") || "");
       if (pre) input.value = pre;
     }
   }
@@ -192,21 +235,75 @@ export function onEnterEve(screenId) {
       out.textContent = excitementReaction(Number(slider.value));
     }
   }
-  if (screenId === "eve-herald") {
-    hide($("heraldReaction"));
-    hide($("btnHeraldNext"));
-    if (!state.eveHeraldAnswers || !Object.keys(state.eveHeraldAnswers).length) {
-      state.eveHeraldAnswers = {};
-      renderHerald();
-    } else {
-      renderHerald();
-    }
-  }
   if (screenId === "eve-packing") renderPacking();
+  if (screenId === "eve-survey") onEnterSurvey();
+  if (screenId === "eve-pass") completeChapter1Invitation();
+}
+
+let chapter1ReplayConfirmAbort = null;
+
+function closeChapter1ReplayConfirm() {
+  const root = $("chapter1ReplayConfirm");
+  chapter1ReplayConfirmAbort?.abort();
+  chapter1ReplayConfirmAbort = null;
+  hide(root);
+  root?.setAttribute("hidden", "");
+}
+
+function openChapter1ReplayConfirm() {
+  const root = $("chapter1ReplayConfirm");
+  if (!root) return;
+  chapter1ReplayConfirmAbort?.abort();
+  const ac = new AbortController();
+  chapter1ReplayConfirmAbort = ac;
+  const { signal } = ac;
+  const prevFocus = document.activeElement;
+
+  show(root);
+  root.removeAttribute("hidden");
+  $("chapter1ReplayAccept")?.focus();
+
+  const trap = (e) => {
+    if (e.key !== "Tab" || !root.contains(document.activeElement)) return;
+    const focusable = root.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const list = [...focusable].filter((n) => !n.disabled);
+    if (!list.length) return;
+    const first = list[0];
+    const last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  const onKey = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeChapter1ReplayConfirm();
+      if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    }
+    trap(e);
+  };
+
+  document.addEventListener("keydown", onKey, { signal });
+  $("chapter1ReplayCancel")?.addEventListener(
+    "click",
+    () => {
+      closeChapter1ReplayConfirm();
+      if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    },
+    { signal }
+  );
 }
 
 export function initEvePrelude(nav) {
   navigate = nav;
+  initChapter1Survey(nav);
   const note = $("eveFeedbackNote");
   if (note) note.textContent = FEEDBACK_HONESTY_NOTE;
 
@@ -215,21 +312,23 @@ export function initEvePrelude(nav) {
   honestBtn?.addEventListener("click", finishHonest);
   $("btnEveHonestDone")?.addEventListener("click", () => navigate("title"));
 
-  $("btnGateNext")?.addEventListener("click", () => {
-    const name = sanitizeGuestName($("guestNameInput")?.value || "");
+  $("btnHeraldNameConfirm")?.addEventListener("click", () => {
+    const name = sanitizeHeraldName($("heraldNameInput")?.value || "");
     if (!name) {
-      showAppToast("The owl needs a name. Any name.");
+      showAppToast("The herald needs something to call you.");
       return;
     }
     setGuestName(name);
+    personalizeName(name);
     saveState();
-    document.querySelectorAll("[data-lady]").forEach((el) => {
-      el.textContent = `Lady ${name}`;
-    });
-    document.querySelectorAll("[data-name-only]").forEach((el) => {
-      el.textContent = name;
-    });
-    $("owlLine").textContent = owlWelcome(name);
+    navigate("eve-excitement");
+  });
+
+  $("btnHeraldNameAdventurer")?.addEventListener("click", () => {
+    setGuestName("Adventurer");
+    $("heraldNameInput").value = "Adventurer";
+    personalizeName("Adventurer");
+    saveState();
     navigate("eve-excitement");
   });
 
@@ -244,14 +343,15 @@ export function initEvePrelude(nav) {
 
   $("btnExcitementNext")?.addEventListener("click", () => {
     syncExcitement();
-    state.eveHeraldAnswers = {};
     saveState();
-    navigate("eve-herald");
+    navigate("eve-packing");
   });
 
-  $("btnHeraldNext")?.addEventListener("click", () => navigate("eve-packing"));
-
-  $("btnPackingNext")?.addEventListener("click", () => finishPass());
+  $("btnPackingNext")?.addEventListener("click", () => {
+    state.chapter1Step = 0;
+    saveState();
+    navigate("eve-survey");
+  });
 
   $("btnSavePass")?.addEventListener("click", async () => {
     try {
@@ -269,5 +369,15 @@ export function initEvePrelude(nav) {
     saveState();
     queueQuestSync({ immediate: true });
     navigate("chapter-lock");
+  });
+
+  $("btnPlayChapter1Again")?.addEventListener("click", openChapter1ReplayConfirm);
+  $("btnPlayChapter1AgainLock")?.addEventListener("click", openChapter1ReplayConfirm);
+  $("chapter1ReplayAccept")?.addEventListener("click", () => {
+    closeChapter1ReplayConfirm();
+    const packing = $("packingList");
+    if (packing) delete packing.dataset.rendered;
+    resetChapterOneProgress();
+    navigate("eve-name");
   });
 }

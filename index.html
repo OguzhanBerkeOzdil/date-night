@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261110">
+  <link rel="manifest" href="manifest.webmanifest?v=20261109">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261110">
-  <link rel="stylesheet" href="css/styles.css?v=20261110">
-  <link rel="stylesheet" href="css/v2.css?v=20261110">
-  <link rel="stylesheet" href="css/desktop.css?v=20261110">
-  <link rel="stylesheet" href="css/today.css?v=20261110">
+  <link rel="stylesheet" href="css/fonts.css?v=20261109">
+  <link rel="stylesheet" href="css/styles.css?v=20261109">
+  <link rel="stylesheet" href="css/v2.css?v=20261109">
+  <link rel="stylesheet" href="css/desktop.css?v=20261109">
+  <link rel="stylesheet" href="css/today.css?v=20261109">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -73,6 +73,17 @@
   <div id="achievementToasts" class="achievement-wrap" aria-live="polite"></div>
   <div id="appToasts" class="app-toast-wrap" aria-live="polite"></div>
 
+  <div id="chapter1ReplayConfirm" class="quest-confirm chapter1-replay-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="chapter1ReplayTitle" hidden>
+    <div class="quest-confirm__panel ornate">
+      <h2 id="chapter1ReplayTitle" class="title">Reset your adventure?</h2>
+      <p class="body-text">The goose will remember.</p>
+      <div class="quest-confirm__actions">
+        <button type="button" class="btn btn--ghost chapter1-replay-cancel" id="chapter1ReplayCancel">Keep my progress</button>
+        <button type="button" class="btn btn--primary" id="chapter1ReplayAccept">Play Chapter I again</button>
+      </div>
+    </div>
+  </div>
+
   <div id="questConfirm" class="quest-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="questConfirmTitle" hidden>
     <div class="quest-confirm__panel ornate">
       <h2 id="questConfirmTitle" class="title">Start a new quest?</h2>
@@ -100,20 +111,25 @@
       </div>
     </section>
 
-    <section class="screen" data-screen="eve-gate">
+    <section class="screen" data-screen="eve-name">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <p class="kicker">Tonight · eve of the quest</p>
-        <img class="today-character" src="assets/characters/sir-hoots.webp" alt="" width="120" height="120" loading="eager" decoding="async">
-        <h2 class="title">Sir Hoots, night watch</h2>
-        <p class="body-text" id="owlLine">Hoot! Who goes there?</p>
-        <label class="field-label" for="guestNameInput">Your name</label>
-        <input type="text" id="guestNameInput" class="today-input" maxlength="40" autocomplete="name" placeholder="Adventurer">
-        <button type="button" class="btn btn--primary" id="btnGateNext">Announce me to the owl</button>
+        <img class="today-character" src="assets/characters/goblin-herald.webp" alt="" width="120" height="120" loading="eager" decoding="async">
+        <h2 class="title">Royal herald</h2>
+        <p class="body-text">Before we begin… what shall the royal herald call you?</p>
+        <label class="field-label" for="heraldNameInput">Your name</label>
+        <input type="text" id="heraldNameInput" class="today-input" maxlength="24" autocomplete="name" placeholder="Adventurer">
+        <div class="today-choice-row">
+          <button type="button" class="btn btn--primary" id="btnHeraldNameConfirm">That's me</button>
+          <button type="button" class="btn btn--secondary" id="btnHeraldNameAdventurer">Just call me Adventurer</button>
+        </div>
       </div>
     </section>
 
     <section class="screen" data-screen="eve-excitement">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <h2 class="title">How excited for tomorrow?</h2>
         <p class="sub">On a scale from mildly curious to already packed.</p>
         <label class="field-label" for="excitementSlider">Excitement level</label>
@@ -123,23 +139,39 @@
       </div>
     </section>
 
-    <section class="screen" data-screen="eve-herald">
-      <div class="screen__inner today-panel ornate">
-        <img class="today-character" src="assets/characters/goblin-herald.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
-        <h2 class="title">Royal herald goblin</h2>
-        <p class="sub" id="heraldPrompt"></p>
-        <div class="today-choice-row" id="heraldChoices"></div>
-        <p class="today-reaction hidden" id="heraldReaction" aria-live="polite"></p>
-        <button type="button" class="btn btn--primary hidden" id="btnHeraldNext">On to packing</button>
-      </div>
-    </section>
-
     <section class="screen" data-screen="eve-packing">
       <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
         <h2 class="title">What to bring on the quest</h2>
         <p class="sub">Tick what applies. One tip is actually useful.</p>
         <div class="today-pack-list" id="packingList"></div>
-        <button type="button" class="btn btn--primary" id="btnPackingNext">Seal my pass</button>
+        <button type="button" class="btn btn--primary" id="btnPackingNext">Continue to the court survey</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="eve-survey">
+      <div class="screen__inner today-panel ornate">
+        <div class="eve-honest-slot" data-eve-honest-slot></div>
+        <p class="chapter1-progress" id="chapter1Progress" aria-live="polite">Question 1/9</p>
+        <img class="today-character" id="surveyPortrait" src="assets/characters/lucius-bard.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
+        <h2 class="title" id="surveyCharacter">Lucius the Bard</h2>
+        <p class="sub" id="surveyPrompt"></p>
+        <div class="today-choice-row" id="surveyChoices"></div>
+        <div class="survey-slider-wrap hidden" id="surveySliderWrap">
+          <label class="field-label" for="surveySlider">Potato toll</label>
+          <input type="range" id="surveySlider" class="today-slider" min="0" max="1000" value="100">
+          <p class="today-reaction" id="surveySliderReaction" aria-live="polite"></p>
+          <button type="button" class="btn btn--secondary" id="btnSurveySliderNext">Record toll</button>
+        </div>
+        <div class="survey-free-text hidden" id="surveyFreeTextWrap">
+          <label class="field-label" for="surveyFreeText">Your request</label>
+          <input type="text" id="surveyFreeText" class="today-input" maxlength="80" autocomplete="off">
+          <span id="surveyPendingChoice" class="hidden" hidden></span>
+          <button type="button" class="btn btn--primary" id="btnSurveyFreeSubmit">Send to the court</button>
+        </div>
+        <p class="today-reaction hidden" id="surveyReaction" aria-live="polite"></p>
+        <button type="button" class="btn btn--primary hidden" id="btnSurveyNext">Continue</button>
+        <button type="button" class="link-btn chapter1-skip" id="btnSurveySkip">Skip this one</button>
       </div>
     </section>
 
@@ -151,6 +183,7 @@
         <button type="button" class="btn btn--primary" id="btnSavePass">Save pass as PNG</button>
         <p class="body-text" id="passClosing"></p>
         <button type="button" class="btn btn--secondary" id="btnEveContinue">Seal it until tomorrow</button>
+        <button type="button" class="link-btn" id="btnPlayChapter1Again">Play Chapter I again</button>
         <p class="small-print" id="eveFeedbackNote"></p>
       </div>
     </section>
@@ -159,7 +192,7 @@
       <div class="screen__inner today-panel ornate">
         <h2 class="title">No worries at all</h2>
         <p class="body-text" id="eveHonestBody"></p>
-        <button type="button" class="btn btn--primary" id="btnEveHonestDone">Back to the gate</button>
+        <button type="button" class="btn btn--primary" id="btnEveHonestDone">Back to the title</button>
       </div>
     </section>
 
@@ -265,7 +298,7 @@
           <img id="horseQuestImg" class="horse-cutout small" src="assets/images/horse-idle.webp" alt="">
         </picture>
         <h2 class="title">A quick quest checkpoint</h2>
-        <p class="privacy-note">Still comfortable continuing? Your choices help Oğuzhan prepare. No tracking.</p>
+        <p class="privacy-note">Still comfortable continuing? Your choices help Berke prepare. No tracking.</p>
         <div class="date-buttons" id="dateButtons">
           <button type="button" class="btn btn--yes" id="btnYes">Charge onward</button>
           <button type="button" class="btn btn--secondary" id="btnMaybe">Proceed, but blame the horse</button>
@@ -369,10 +402,11 @@
       <div class="screen__inner ornate chapter-panel center">
         <p class="kicker">Chapter II · sealed</p>
         <h2 class="title">The quest continues tomorrow</h2>
-        <p class="body-text" id="chapterLockDate">Oğuzhan will unseal the next page tomorrow morning.</p>
+        <p class="body-text" id="chapterLockDate">Berke will unseal the next page tomorrow morning.</p>
         <p class="sub">The horse is resting. The calendar dragon will not accept early bribes.</p>
         <button type="button" class="btn btn--primary" id="btnTryChapterTwo">Check again</button>
         <button type="button" class="link-btn" id="btnBackToPass">Return to today's invitation</button>
+        <button type="button" class="link-btn" id="btnPlayChapter1AgainLock">Play Chapter I again</button>
       </div>
     </section>
 
@@ -444,7 +478,7 @@
     <section class="screen" data-screen="invite-error">
       <div class="screen__inner ornate chapter-panel center">
         <h2 class="title">This private quest link is unavailable</h2>
-        <p class="body-text">The invitation may be invalid or expired. Ask Oğuzhan for a fresh link.</p>
+        <p class="body-text">The invitation may be invalid or expired. Ask Berke for a fresh link.</p>
       </div>
     </section>
   </main>
@@ -466,6 +500,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261110"></script>
+  <script type="module" src="js/main.js?v=20261109"></script>
 </body>
 </html>

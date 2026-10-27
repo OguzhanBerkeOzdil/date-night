@@ -24,4 +24,4 @@ export const PACKING_REAL_TIP =
   "Comfy shoes — the cobbles are rude to ankles and the tavern floor is sticky.";
 
 export const FEEDBACK_HONESTY_NOTE =
-  "Your answers get sent to Oğuzhan by carrier pigeon. (Fine print: it's email.)";
+  "Your answers get sent to Berke by carrier pigeon. (Fine print: it's email.)";

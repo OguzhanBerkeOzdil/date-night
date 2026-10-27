@@ -25,8 +25,8 @@ test("interactive targets meet 44px minimum", async ({ page }, testInfo) => {
   await page.waitForSelector('[data-screen="rating"].screen--active');
   await assertMinSize(page, "#ratingSlider");
 
-  await page.evaluate(() => window.__questNavigate("eve-gate"));
-  await page.waitForSelector('[data-screen="eve-gate"].screen--active');
+  await page.evaluate(() => window.__questNavigate("eve-name"));
+  await page.waitForSelector('[data-screen="eve-name"].screen--active');
   await assertMinSize(page, "#btnEveHonest");
 
   await page.evaluate(() => window.__questNavigate("dragon"));

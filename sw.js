@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261110";
+const APP_CACHE_VERSION = "20261109";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -32,6 +32,8 @@ const ASSET_PRECACHE = [
   "./js/state.js",
   "./js/screens.js",
   "./js/eve-prelude.js",
+  "./js/chapter1-survey-data.js",
+  "./js/chapter1-survey.js",
   "./js/ui-feedback.js",
   "./js/hud.js",
   "./js/audio.js",
@@ -60,6 +62,17 @@ const ASSET_PRECACHE = [
   "./assets/icons/apple-touch-icon.png",
   "./assets/characters/sir-hoots.webp",
   "./assets/characters/goblin-herald.webp",
+  "./assets/characters/lucius-bard.webp",
+  "./assets/characters/reginald-paladin.webp",
+  "./assets/characters/marta-tavern.webp",
+  "./assets/characters/royal-goose.webp",
+  "./assets/characters/gerald-accountant.webp",
+  "./assets/equipment/sword.webp",
+  "./assets/equipment/longbow.webp",
+  "./assets/equipment/lute.webp",
+  "./assets/equipment/staff.webp",
+  "./assets/equipment/frying-pan.webp",
+  "./assets/equipment/flower.webp",
   "./assets/fonts/cinzel-decorative-latin-700-normal.woff2",
   "./assets/fonts/cinzel-decorative-latin-ext-700-normal.woff2",
   "./assets/fonts/cinzel-latin-500-normal.woff2",
