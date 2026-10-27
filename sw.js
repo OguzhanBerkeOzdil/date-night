@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261116";
+const APP_CACHE_VERSION = "20261117";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -36,7 +36,6 @@ const ASSET_PRECACHE = [
   "./js/chapter1-survey.js",
   "./js/chapter2-callbacks.js",
   "./js/seed-link.js",
-  "./js/wax-seal-art.js",
   "./js/sir-berke-cameo.js",
   "./js/certificate-notes.js",
   "./js/quest-pass-layout.js",

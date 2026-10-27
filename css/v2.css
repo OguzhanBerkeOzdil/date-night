@@ -1143,45 +1143,35 @@ body[data-screen="decree"] .achievement-wrap {
   position: relative;
 }
 
+.decree-wrap--card {
+  border-radius: var(--radius);
+  padding: 4px;
+  box-shadow: var(--shadow);
+  background: linear-gradient(180deg, #f4e8d0 0%, #e8d4b0 48%, #e0c89a 100%);
+}
+
 .decree-wrap .ticket.decree {
-  padding-right: 88px;
-  padding-bottom: 36px;
+  padding-right: 92px;
+  padding-bottom: 28px;
+  box-shadow: none;
 }
 
-.decree-wax-seal {
+.decree-corner-seal {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
+  right: 6px;
+  bottom: 6px;
+  width: 80px;
+  height: 80px;
   pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(circle at 32% 28%, #d65555 0%, #a83232 42%, #6e1c1c 78%, #4a1212 100%);
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.38),
-    inset 0 2px 5px rgba(255, 210, 200, 0.28),
-    inset 0 -4px 8px rgba(40, 8, 8, 0.45);
-  border: 1px solid rgba(90, 20, 20, 0.55);
+  z-index: 2;
 }
 
-.decree-wax-seal__shine {
-  position: absolute;
-  inset: 6px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 25%, rgba(255, 240, 230, 0.35) 0%, transparent 55%);
-  pointer-events: none;
-}
-
-.decree-wax-seal__emblem {
-  position: relative;
-  z-index: 1;
-  width: 38px;
-  height: 38px;
-  color: rgba(45, 10, 10, 0.72);
-  filter: drop-shadow(0 1px 0 rgba(255, 220, 200, 0.35));
+.decree-corner-seal__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.32));
 }
 
 .wax-stamp-anim {

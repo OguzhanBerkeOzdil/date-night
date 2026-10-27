@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261116">
+  <link rel="manifest" href="manifest.webmanifest?v=20261117">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261116">
-  <link rel="stylesheet" href="css/styles.css?v=20261116">
-  <link rel="stylesheet" href="css/v2.css?v=20261116">
-  <link rel="stylesheet" href="css/desktop.css?v=20261116">
-  <link rel="stylesheet" href="css/today.css?v=20261116">
+  <link rel="stylesheet" href="css/fonts.css?v=20261117">
+  <link rel="stylesheet" href="css/styles.css?v=20261117">
+  <link rel="stylesheet" href="css/v2.css?v=20261117">
+  <link rel="stylesheet" href="css/desktop.css?v=20261117">
+  <link rel="stylesheet" href="css/today.css?v=20261117">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -405,12 +405,9 @@
       <div class="screen__inner celebration">
         <p class="kicker light">Chapter II complete</p>
         <h2 class="title light">The full quest is complete</h2>
-        <div class="decree-wrap parchment-textured ornate">
-          <div id="waxStampAnim" class="decree-wax-seal wax-stamp-anim" role="presentation" aria-hidden="true">
-            <span class="decree-wax-seal__shine"></span>
-            <svg class="decree-wax-seal__emblem" viewBox="0 0 64 64" aria-hidden="true">
-              <path fill="currentColor" d="M18 38c0-14 8-22 14-26 6 4 14 12 14 26H18zm6-2h16c-1-10-6-16-8-18-2 2-7 8-8 18zm-4 4h24v4H20v-4z"/>
-            </svg>
+        <div class="decree-wrap decree-wrap--card">
+          <div id="waxStampAnim" class="decree-corner-seal wax-stamp-anim" role="presentation" aria-hidden="true">
+            <img class="decree-corner-seal__img" src="assets/images/wax-seal.webp" alt="" width="80" height="80" decoding="async">
           </div>
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
@@ -494,7 +491,7 @@
         <p class="kicker light">Chapter II complete</p>
         <h2 class="title light">Second quest complete</h2>
         <p class="sub light center">We survived the sequel.</p>
-        <div class="decree-wrap parchment-textured ornate">
+        <div class="decree-wrap decree-wrap--card">
           <pre class="ticket decree" id="finalPreview"></pre>
         </div>
         <div class="action-row">
@@ -531,6 +528,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261116"></script>
+  <script type="module" src="js/main.js?v=20261117"></script>
 </body>
 </html>

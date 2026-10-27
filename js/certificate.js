@@ -6,7 +6,11 @@ import { horseById } from "./horses.js";
 import { state } from "./state.js";
 import { dayLabelForDecree } from "./decree.js";
 import { showAppToast } from "./ui-feedback.js";
-import { drawDecreeWaxSeal } from "./wax-seal-art.js";
+
+export const CERT_WIDTH = 1080;
+export const CERT_MIN_HEIGHT = 1120;
+/** Parchment bottom roll + baked wax seal — keep body text above this. */
+export const CERT_BOTTOM_RESERVE = 210;
 
 export function buildCertificateLines(mode = "pass") {
   const horse = horseById(state.horseId || "chestnut");
@@ -35,19 +39,33 @@ export function buildCertificateLines(mode = "pass") {
   ];
 }
 
-function drawBodyLines(g, lines, startY, maxW) {
+function typography(scale) {
+  return {
+    title: `700 ${Math.round(42 * scale)}px "Cinzel", serif`,
+    subtitle: `600 ${Math.round(28 * scale)}px "Cinzel", serif`,
+    body: `400 ${Math.round(26 * scale)}px "Crimson Pro", serif`,
+    note: `400 ${Math.round(22 * scale)}px "Crimson Pro", serif`,
+    section: `600 ${Math.round(24 * scale)}px "Cinzel", serif`,
+    blank: 10 * scale,
+    lineBody: 32 * scale,
+    lineNote: 30 * scale,
+  };
+}
+
+function drawBodyLines(g, lines, startY, maxW, scale = 1) {
+  const t = typography(scale);
   let y = startY;
   for (const line of lines) {
     if (!line) {
-      y += 10;
+      y += t.blank;
       continue;
     }
     const isNote = line.startsWith("• ");
     g.font = isNote
-      ? '400 20px "Crimson Pro", serif'
+      ? t.note
       : line.startsWith("Official notes")
-        ? '600 22px "Cinzel", serif'
-        : '400 24px "Crimson Pro", serif';
+        ? t.section
+        : t.body;
     if (isNote && g.measureText(line).width > maxW) {
       const words = line.slice(2).split(" ");
       let row = "• ";
@@ -55,35 +73,63 @@ function drawBodyLines(g, lines, startY, maxW) {
         const test = `${row}${word} `;
         if (g.measureText(test).width > maxW && row !== "• ") {
           g.fillText(row.trimEnd(), 100, y);
-          y += 26;
+          y += t.lineNote - 2;
           row = `• ${word} `;
         } else {
           row = test;
         }
       }
       g.fillText(row.trimEnd(), 100, y);
-      y += 28;
+      y += t.lineNote;
     } else {
       g.fillText(line, 100, y);
-      y += isNote ? 28 : 32;
+      y += isNote ? t.lineNote : t.lineBody;
     }
   }
   return y;
 }
 
+function measureBodyEnd(g, lines, maxW, scale) {
+  return drawBodyLines(g, lines, 0, maxW, scale);
+}
+
+/** Pick a scale so body copy fills flat parchment without overlapping the bottom roll. */
+export function certificateBodyScale(lines, canvasHeight = CERT_MIN_HEIGHT) {
+  const maxW = CERT_WIDTH - 200;
+  const bodyTop = 200;
+  const available = canvasHeight - CERT_BOTTOM_RESERVE - bodyTop;
+  const measureCanvas = document.createElement("canvas");
+  measureCanvas.width = CERT_WIDTH;
+  measureCanvas.height = 400;
+  const g = measureCanvas.getContext("2d");
+  g.fillStyle = "#4a1f28";
+
+  let scale = 1;
+  let end = measureBodyEnd(g, lines, maxW, scale);
+  while (end < available * 0.9 && scale < 1.38) {
+    scale += 0.04;
+    end = measureBodyEnd(g, lines, maxW, scale);
+  }
+  while (end > available && scale > 0.92) {
+    scale -= 0.03;
+    end = measureBodyEnd(g, lines, maxW, scale);
+  }
+  return { scale, contentEnd: end, bodyStart: bodyTop };
+}
+
 export async function renderCertificateCanvas(mode = "pass") {
   await document.fonts.ready;
-  const w = 1080;
+  const w = CERT_WIDTH;
   const lines = buildCertificateLines(mode);
   const subtitle = lines[1];
-  const measureCanvas = document.createElement("canvas");
-  measureCanvas.width = w;
-  measureCanvas.height = 400;
-  const measureG = measureCanvas.getContext("2d");
-  measureG.fillStyle = "#4a1f28";
   const bodyLines = lines.filter((l) => l !== "ROYAL QUEST CERTIFICATE" && l !== subtitle);
-  const contentEnd = drawBodyLines(measureG, bodyLines, 0, w - 280);
-  const h = Math.max(1120, Math.round(contentEnd + 200));
+
+  let h = CERT_MIN_HEIGHT;
+  let layout = certificateBodyScale(bodyLines, h);
+  if (layout.contentEnd + CERT_BOTTOM_RESERVE + 40 > h) {
+    h = Math.round(layout.contentEnd + CERT_BOTTOM_RESERVE + 48);
+    layout = certificateBodyScale(bodyLines, h);
+  }
 
   const c = document.createElement("canvas");
   c.width = w;
@@ -100,17 +146,21 @@ export async function renderCertificateCanvas(mode = "pass") {
     g.fillRect(0, 0, w, h);
   }
 
-  g.fillStyle = "#4a1f28";
-  g.font = '700 42px "Cinzel", serif';
-  g.textAlign = "center";
-  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 120);
+  const { scale, contentEnd, bodyStart } = layout;
+  const available = h - CERT_BOTTOM_RESERVE - bodyStart;
+  const yOffset = Math.max(0, (available - contentEnd) * 0.12);
+  const t = typography(scale);
 
-  g.font = '600 28px "Cinzel", serif';
-  g.fillText(subtitle, w / 2, 168);
+  g.fillStyle = "#4a1f28";
+  g.font = t.title;
+  g.textAlign = "center";
+  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 108 * scale);
+
+  g.font = t.subtitle;
+  g.fillText(subtitle, w / 2, 158 * scale);
 
   g.textAlign = "left";
-  const endY = drawBodyLines(g, bodyLines, 220, w - 280);
-  drawDecreeWaxSeal(g, w - 118, Math.min(h - 100, endY + 40), 38);
+  drawBodyLines(g, bodyLines, bodyStart + yOffset, w - 200, scale);
 
   return c;
 }
