@@ -31,73 +31,53 @@ const DEFS = {
   bard: { id: "bard", title: "Bard's Favourite Audience", desc: "Heard 3 lines from the bard. Survived the cheese.", bonus: true },
 };
 
+const MAX_ACHIEVEMENT_TOASTS = 2;
+const TOAST_VISIBLE_MS = 2400;
+const toastQueue = [];
+let toastDrainActive = false;
+
 export function unlock(id, silent = false) {
   if (!DEFS[id] || state.achievements.includes(id)) return;
   state.achievements.push(id);
   saveState();
-  if (!silent) toast(DEFS[id]);
+  if (!silent) enqueueToast(DEFS[id]);
 }
 
-function controlRects() {
-  const scope = document.querySelector(".screen--active") || document.body;
-  const screen = document.body.dataset.screen;
-  const sel =
-    screen === "potion"
-      ? "#btnStir, #notesInput, select, .vial, button.btn--primary, button.btn--secondary, .screen--active .title, .screen--active h2"
-      : "button:not(:disabled):not(.hidden), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), .chip-select, .tarot-card, .screen--active .title, .screen--active h2";
-  return [...scope.querySelectorAll(sel)]
-    .filter((el) => {
-      if (el.closest(".top-bar")) return false;
-      const r = el.getBoundingClientRect();
-      return r.width > 8 && r.height > 8 && getComputedStyle(el).visibility !== "hidden";
-    })
-    .map((el) => el.getBoundingClientRect());
+function enqueueToast(def) {
+  toastQueue.push(def);
+  drainToastQueue();
 }
 
-function rectsOverlap(a, b) {
-  return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-}
-
-function toastOverlapsControls(toastRect) {
-  return controlRects().some((r) => rectsOverlap(toastRect, r));
-}
-
-function settleToastLayout(el) {
-  return new Promise((resolve) => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.setTimeout(() => resolve(el.getBoundingClientRect()), 80);
-      });
-    });
-  });
-}
-
-function toast(def, attempt = 0) {
-  const wrap = document.getElementById("achievementToasts");
-  if (!wrap) return;
-  wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b", "achievement-wrap--shift-c");
-  const mode = attempt % 4;
-  if (mode === 1) wrap.classList.add("achievement-wrap--shift");
-  if (mode === 2) wrap.classList.add("achievement-wrap--shift-b");
-  if (mode === 3) wrap.classList.add("achievement-wrap--shift-c");
-  const el = document.createElement("div");
-  el.className = "achievement-toast";
-  el.innerHTML = `${icons.shield}<span class="achievement-toast__label">${def.title}</span>`;
-  wrap.appendChild(el);
-
-  settleToastLayout(el).then((tr) => {
-    if (!el.isConnected) return;
-    if (toastOverlapsControls(tr) && attempt < 20) {
-      el.remove();
-      window.setTimeout(() => toast(def, attempt + 1), 150);
+function drainToastQueue() {
+  if (toastDrainActive) return;
+  toastDrainActive = true;
+  const step = () => {
+    const wrap = document.getElementById("achievementToasts");
+    if (!wrap) {
+      toastDrainActive = false;
       return;
     }
-    wrap.classList.remove("achievement-wrap--shift", "achievement-wrap--shift-b", "achievement-wrap--shift-c");
+    while (wrap.children.length >= MAX_ACHIEVEMENT_TOASTS) {
+      wrap.firstElementChild?.remove();
+    }
+    const def = toastQueue.shift();
+    if (!def) {
+      toastDrainActive = false;
+      return;
+    }
+    const el = document.createElement("div");
+    el.className = "achievement-toast";
+    el.innerHTML = `${icons.shield}<span class="achievement-toast__label">${def.title}</span>`;
+    wrap.appendChild(el);
     playDing();
     vibrate([30, 40, 30]);
-    setTimeout(() => el.classList.add("achievement-toast--out"), 2500);
-    setTimeout(() => el.remove(), 2900);
-  });
+    window.setTimeout(() => el.classList.add("achievement-toast--out"), TOAST_VISIBLE_MS);
+    window.setTimeout(() => {
+      el.remove();
+      step();
+    }, TOAST_VISIBLE_MS + 450);
+  };
+  step();
 }
 
 export function achievementCount() {

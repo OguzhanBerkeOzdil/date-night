@@ -126,6 +126,7 @@ export function defaultState() {
     chapter1CompletedReportedForReplay: -1,
     steedName: "Clover",
     steedClass: "",
+    steedClassPicked: false,
     affection: 0,
     fed: false,
     rating: 3,

@@ -32,8 +32,10 @@ import {
 import {
   adventurerDisplayName,
   buildChapter2RecapRows,
+  chapter1Label,
   chapter1Id,
   chapter1TavernDrinkItem,
+  ensureChapter1TavernPreselect,
   dragonGooseCheckpointLine,
   fanumTaxExplanation,
   geraldTollInvoiceLine,
@@ -360,7 +362,7 @@ function renderHorseBreedGrid() {
     const thumb = document.createElement("img");
     thumb.className = "horse-breed-card__img";
     thumb.alt = "";
-    applyHorseImg(thumb, breed.id, { lazy: true, variant: "thumb" });
+    applyHorseImg(thumb, breed.id, { lazy: false, variant: "thumb" });
     const label = document.createElement("span");
     label.className = "horse-breed-card__label";
     label.textContent = breed.coat;
@@ -456,16 +458,56 @@ export function onEnterSteed() {
   ]);
 }
 
+function renderClassPickGrid() {
+  const grid = $("classPick");
+  if (!grid) return;
+  const ch1Label = chapter1Label(state.chapter1Answers, "class", "");
+  const esc = (value) => value.replace(/"/g, "&quot;");
+  const ch1Button = ch1Label
+    ? `<button type="button" data-class="${esc(ch1Label)}"><strong>${ch1Label}</strong><em>From your Chapter I census</em></button>`
+    : "";
+  grid.innerHTML =
+    ch1Button +
+    CLASSES.map(
+      (item) =>
+        `<button type="button" data-class="${item.title}"><strong>${item.title}</strong><em>${item.desc}</em></button>`
+    ).join("");
+}
+
+function applySheetClassUi() {
+  const grid = $("classPick");
+  if (!state.steedClass) return;
+  const match = [...(grid?.querySelectorAll("[data-class]") || [])].find(
+    (el) => el.dataset.class === state.steedClass
+  );
+  if (match) selectChip(grid, match);
+  $("classChosen").textContent = state.steedClassPicked
+    ? `Class chosen: ${state.steedClass}.`
+    : `Class on file: ${state.steedClass} (from Chapter I). Pick below to change.`;
+  show($("btnSheetNext"));
+}
+
+function prefillSheetClassFromChapter1() {
+  const label = chapter1Label(state.chapter1Answers, "class", "");
+  if (!label || state.steedClassPicked) return;
+  state.steedClass = label;
+  saveState();
+  applySheetClassUi();
+}
+
+function onEnterSheet() {
+  renderClassPickGrid();
+  prefillSheetClassFromChapter1();
+  if (state.steedClass) applySheetClassUi();
+}
+
 function initSheet() {
   const grid = $("classPick");
-  if (grid) {
-    grid.innerHTML = CLASSES.map(
-      (item) => `<button type="button" data-class="${item.title}"><strong>${item.title}</strong><em>${item.desc}</em></button>`
-    ).join("");
-  }
+  renderClassPickGrid();
   $("btnRoll")?.addEventListener("click", () => {
     show($("d20Result"));
     $("d20Result").textContent = sheetClassPrefillLine(state.chapter1Answers);
+    prefillSheetClassFromChapter1();
     unlock("charm");
     const stats = $("statList");
     if (stats && !stats.dataset.rolled) {
@@ -484,10 +526,10 @@ function initSheet() {
     const button = event.target.closest("[data-class]");
     if (!button) return;
     state.steedClass = button.dataset.class;
+    state.steedClassPicked = true;
     saveState();
     selectChip(grid, button);
-    $("classChosen").textContent = `Class chosen: ${state.steedClass}.`;
-    show($("btnSheetNext"));
+    applySheetClassUi();
   });
   $("btnSheetNext")?.addEventListener("click", () => navigate("journal"));
 }
@@ -511,7 +553,6 @@ function syncRatingUi() {
 function initRating() {
   const slider = $("ratingSlider");
   show($("ratingChipsField"));
-  show($("ratingChipLead"));
   slider?.addEventListener("input", () => {
     state.rating = Number(slider.value);
     $("ratingValue").textContent = slider.value;
@@ -952,6 +993,7 @@ export function onScreenEnter(id) {
   syncEveHonestButton(id);
   if (id.startsWith("eve-")) onEnterEve(id);
   if (id === "steed") onEnterSteed();
+  if (id === "sheet") onEnterSheet();
   if (id === "oracle") restoreOracleFromState();
   if (id === "rating") syncRatingUi();
   if (id === "potion") {
@@ -985,12 +1027,12 @@ export function onScreenEnter(id) {
       marta.textContent = tavernMartaTestimonyLine(state.chapter1Answers);
       marta.classList.remove("hidden");
     }
-    const ch1 = chapter1TavernDrinkItem(state.chapter1Answers);
-    if (ch1 && !state.food.includes(ch1.name)) {
-      state.food = [ch1.name, ...state.food];
+    const nextFood = ensureChapter1TavernPreselect(state);
+    if (nextFood.length !== (state.food || []).length) {
+      state.food = nextFood;
       saveState();
-      restoreSelections();
     }
+    restoreSelections();
   }
   if (id === "decree") {
     state.chapter = "chapter-two-active";

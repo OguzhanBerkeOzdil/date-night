@@ -947,17 +947,19 @@ body[data-screen="steed"] .dialogue-box--steed .dialogue-name {
 
 .achievement-wrap {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 62px);
+  top: calc(env(safe-area-inset-top, 0px) + 76px);
   bottom: auto;
-  left: auto;
+  left: max(10px, env(safe-area-inset-left, 0px) + 10px);
   right: max(10px, env(safe-area-inset-right, 0px) + 10px);
   transform: none;
-  width: min(260px, calc(100vw - 24px));
-  z-index: 24;
+  width: auto;
+  max-width: min(300px, calc(100vw - 20px));
+  z-index: 12;
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: stretch;
+  gap: 6px;
 }
 
 body[data-screen="potion"] .achievement-wrap--shift {
@@ -1439,9 +1441,23 @@ body {
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
 }
 
+body[data-screen="steed"] .steed-screen {
+  background: transparent;
+  padding-top: 4px;
+}
+
 body[data-screen="steed"] .horse-breed-field {
-  margin-top: calc(env(safe-area-inset-top, 0px) + 4px);
-  padding-top: 58px;
+  margin-top: 0;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
+}
+
+body[data-screen="steed"] .horse-breed-card {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + 72px);
+}
+
+body[data-screen="steed"] .horse-breed-grid {
+  padding-top: 8px;
 }
 
 .horse-thumb--palomino { filter: sepia(0.35) brightness(1.08) saturate(1.1); }

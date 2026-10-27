@@ -70,13 +70,14 @@
   }
 
   .achievement-wrap {
-    width: min(260px, max(140px, calc(var(--column-left) - 20px)));
-    left: auto;
-    right: max(12px, calc(100vw - var(--column-right) - 272px));
+    width: auto;
+    max-width: min(300px, calc(var(--game-column) - 16px));
+    left: max(12px, calc(var(--column-left) - 8px));
+    right: auto;
     transform: none;
-    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    top: calc(env(safe-area-inset-top, 0px) + 76px);
     bottom: auto;
-    align-items: flex-end;
+    align-items: stretch;
   }
 
   .achievement-wrap--shift {

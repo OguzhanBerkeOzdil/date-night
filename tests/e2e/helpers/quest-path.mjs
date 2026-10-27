@@ -1,4 +1,4 @@
-import { tabTo, activate, dismissSteedDialogue, waitForScreen, confirmNewQuestIfShown } from "./keyboard.mjs";
+import { tabTo, activate, dismissSteedDialogue, waitForScreen } from "./keyboard.mjs";
 import { completeEveMouse } from "./eve-path.mjs";
 
 export async function breakSealKeyboard(page) {

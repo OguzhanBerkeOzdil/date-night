@@ -200,6 +200,29 @@ export function sheetClassPrefillLine(answers) {
   return SHEET_CLASS_PREFILL[id] || `Natural 20 on ${chapter1Label(answers, "class", "class")}.`;
 }
 
+/** Class line for decree / pass when Chapter I class is on file unless the guest picked a sheet class. */
+export function decreeSteedClassLine(questState) {
+  const chapterClass = chapter1Label(questState.chapter1Answers, "class", "");
+  if (questState.steedClassPicked && questState.steedClass) return questState.steedClass;
+  if (chapterClass) return chapterClass;
+  return questState.steedClass || "Adventurer";
+}
+
+/** Provisions including Chapter I tavern preselect even if the guest never tapped the menu. */
+export function provisionsForDecree(questState) {
+  const names = [...(questState.food || [])];
+  const ch1 = chapter1TavernDrinkItem(questState.chapter1Answers);
+  if (ch1?.name && !names.includes(ch1.name)) names.unshift(ch1.name);
+  return names;
+}
+
+export function ensureChapter1TavernPreselect(questState) {
+  const ch1 = chapter1TavernDrinkItem(questState.chapter1Answers);
+  if (!ch1?.name) return questState.food || [];
+  if ((questState.food || []).includes(ch1.name)) return questState.food;
+  return [ch1.name, ...(questState.food || [])];
+}
+
 export function geraldTollPayReaction(kind) {
   if (kind === "potatoes") return "Gerald stamps PAID IN ROOT VEGETABLES. The mountain sighs with tax efficiency.";
   return "Gerald notes your goose dispute. The goose is unhelpful. Toll waived out of spite.";

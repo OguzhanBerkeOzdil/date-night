@@ -13,6 +13,8 @@ import {
   presetHorseIdFromChapter1,
   sheetClassPrefillLine,
   steedHorseColorNote,
+  decreeSteedClassLine,
+  provisionsForDecree,
 } from "../../js/chapter2-callbacks.js";
 
 const SAMPLE = {
@@ -88,6 +90,20 @@ test("potion song variants", () => {
 test("gerald toll pay reactions", () => {
   assert.match(geraldTollPayReaction("potatoes"), /ROOT VEGETABLES/);
   assert.match(geraldTollPayReaction("goose"), /goose dispute/);
+});
+
+test("decree class prefers Chapter I label until sheet override", () => {
+  const base = {
+    chapter1Answers: SAMPLE,
+    steedClass: "Knight of the Wildflowers",
+    steedClassPicked: false,
+  };
+  assert.equal(decreeSteedClassLine(base), "Pacifist potato farmer");
+  assert.equal(decreeSteedClassLine({ ...base, steedClassPicked: true }), "Knight of the Wildflowers");
+});
+
+test("provisions include Chapter I mead when menu untouched", () => {
+  assert.deepEqual(provisionsForDecree({ chapter1Answers: SAMPLE, food: [] }), ["Mead"]);
 });
 
 test("non-goose companion dragon line", () => {
