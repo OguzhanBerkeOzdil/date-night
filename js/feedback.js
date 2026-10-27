@@ -44,7 +44,15 @@ function basePayload(fields) {
   };
 }
 
+function isLocalPreview() {
+  if (typeof location === "undefined") return false;
+  if (globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ === true) return false;
+  return location.hostname === "127.0.0.1" || location.hostname === "localhost";
+}
+
 async function postPayload(body) {
+  // Local development and Playwright runs must never email the real recipient.
+  if (isLocalPreview()) return;
   const res = await fetch(FORM_SUBMIT_ENDPOINT, {
     method: "POST",
     headers: {

@@ -49,3 +49,22 @@ test("idempotency prevents duplicate enqueue", async () => {
   assert.equal(feedback.__getFeedbackQueueForTest().length, 1);
   globalThis.fetch = original;
 });
+
+test("local previews never contact FormSubmit or queue test feedback", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLocation = globalThis.location;
+  let contacted = false;
+  globalThis.location = { hostname: "127.0.0.1" };
+  globalThis.fetch = async () => {
+    contacted = true;
+    throw new Error("local preview must not reach the network");
+  };
+  feedback.submitFeedback({ _subject: "T", idempotencyId: "local-1", part: "eve" });
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(contacted, false);
+  assert.equal(feedback.__getFeedbackQueueForTest().length, 0);
+  assert.equal(feedback.__getSentIdsForTest().has("local-1"), true);
+  globalThis.fetch = originalFetch;
+  if (originalLocation === undefined) delete globalThis.location;
+  else globalThis.location = originalLocation;
+});
