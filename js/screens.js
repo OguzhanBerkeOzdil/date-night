@@ -172,6 +172,7 @@ export function chapterTwoAvailable() {
 
 export function resumeTarget() {
   if (state.chapter === "declined" || state.honestNo) return "honest-no";
+  if ((state.chapterTwoStarted || state.chapterTwoComplete) && !chapterTwoAvailable()) return "chapter-lock";
   if (state.chapterTwoComplete) return "decree";
   if (state.chapterTwoStarted) {
     return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
