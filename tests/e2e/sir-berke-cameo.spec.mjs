@@ -103,3 +103,28 @@ test("certificate PNG keeps parchment baked seal only", async ({ page }) => {
   expect(sealCheck.hasDrawnWaxSeal).toBe(false);
   expect(sealCheck.usesBakedSealOnly).toBe(true);
 });
+
+for (const mode of ["pass", "completion"]) {
+  test(`certificate layout has no line overlap (${mode})`, async ({ page }) => {
+    await page.goto("/?name=Test");
+    const result = await page.evaluate(async (m) => {
+      const {
+        renderCertificateCanvas,
+        certificateLineBoxes,
+        validateCertificateLayout,
+        CERT_MIN_HEIGHT,
+      } = await import("/js/certificate.js");
+      const canvas = await renderCertificateCanvas(m);
+      const g = canvas.getContext("2d");
+      const metrics = certificateLineBoxes(g, m, canvas.height);
+      const check = validateCertificateLayout(metrics);
+      const metricsDefault = certificateLineBoxes(g, m, CERT_MIN_HEIGHT);
+      const checkDefault = validateCertificateLayout(metricsDefault);
+      return { check, checkDefault, height: canvas.height };
+    }, mode);
+    expect(result.check.ok).toBe(true);
+    expect(result.check.issues).toEqual([]);
+    expect(result.checkDefault.ok).toBe(true);
+    expect(result.checkDefault.issues).toEqual([]);
+  });
+}

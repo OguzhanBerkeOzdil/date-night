@@ -9,8 +9,12 @@ import { showAppToast } from "./ui-feedback.js";
 
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
+/** Flat parchment starts below the top scroll roll. */
+export const CERT_TOP_RESERVE = 96;
 /** Parchment bottom roll + baked wax seal — keep body text above this. */
 export const CERT_BOTTOM_RESERVE = 210;
+const BODY_MARGIN_X = 100;
+const BODY_MAX_W = CERT_WIDTH - 200;
 
 export function buildCertificateLines(mode = "pass") {
   const horse = horseById(state.horseId || "chestnut");
@@ -39,7 +43,7 @@ export function buildCertificateLines(mode = "pass") {
   ];
 }
 
-function typography(scale) {
+export function typography(scale) {
   return {
     title: `700 ${Math.round(42 * scale)}px "Cinzel", serif`,
     subtitle: `600 ${Math.round(28 * scale)}px "Cinzel", serif`,
@@ -50,6 +54,32 @@ function typography(scale) {
     lineBody: 32 * scale,
     lineNote: 30 * scale,
   };
+}
+
+/** Title/subtitle baselines and first body baseline from scale (below top roll). */
+export function certificateHeaderLayout(scale) {
+  const titlePx = Math.round(42 * scale);
+  const subtitlePx = Math.round(28 * scale);
+  const titleY = CERT_TOP_RESERVE + titlePx;
+  const subtitleY = titleY + Math.round(14 * scale) + subtitlePx;
+  const gapAfterSubtitle = Math.round(22 * scale);
+  const subtitleDescent = Math.round(subtitlePx * 0.35);
+  const bodyStart = subtitleY + subtitleDescent + gapAfterSubtitle;
+  return {
+    titleY,
+    subtitleY,
+    bodyStart,
+    titleTop: titleY - titlePx,
+    subtitleBottom: subtitleY + subtitleDescent,
+    titlePx,
+    subtitlePx,
+  };
+}
+
+function lineBox(baselineY, fontPx, kind = "body") {
+  const ascent = fontPx * (kind === "title" ? 0.92 : 0.78);
+  const descent = fontPx * 0.28;
+  return { top: baselineY - ascent, bottom: baselineY + descent };
 }
 
 function drawBodyLines(g, lines, startY, maxW, scale = 1) {
@@ -72,32 +102,29 @@ function drawBodyLines(g, lines, startY, maxW, scale = 1) {
       for (const word of words) {
         const test = `${row}${word} `;
         if (g.measureText(test).width > maxW && row !== "• ") {
-          g.fillText(row.trimEnd(), 100, y);
+          g.fillText(row.trimEnd(), BODY_MARGIN_X, y);
           y += t.lineNote - 2;
           row = `• ${word} `;
         } else {
           row = test;
         }
       }
-      g.fillText(row.trimEnd(), 100, y);
+      g.fillText(row.trimEnd(), BODY_MARGIN_X, y);
       y += t.lineNote;
     } else {
-      g.fillText(line, 100, y);
+      g.fillText(line, BODY_MARGIN_X, y);
       y += isNote ? t.lineNote : t.lineBody;
     }
   }
   return y;
 }
 
-function measureBodyEnd(g, lines, maxW, scale) {
+function measureBodyHeight(g, lines, maxW, scale) {
   return drawBodyLines(g, lines, 0, maxW, scale);
 }
 
-/** Pick a scale so body copy fills flat parchment without overlapping the bottom roll. */
-export function certificateBodyScale(lines, canvasHeight = CERT_MIN_HEIGHT) {
-  const maxW = CERT_WIDTH - 200;
-  const bodyTop = 200;
-  const available = canvasHeight - CERT_BOTTOM_RESERVE - bodyTop;
+/** Pick scale so body fits between header and bottom reserve. */
+export function certificateBodyScale(bodyLines, canvasHeight = CERT_MIN_HEIGHT) {
   const measureCanvas = document.createElement("canvas");
   measureCanvas.width = CERT_WIDTH;
   measureCanvas.height = 400;
@@ -105,16 +132,129 @@ export function certificateBodyScale(lines, canvasHeight = CERT_MIN_HEIGHT) {
   g.fillStyle = "#4a1f28";
 
   let scale = 1;
-  let end = measureBodyEnd(g, lines, maxW, scale);
-  while (end < available * 0.9 && scale < 1.38) {
+  const fits = (s) => {
+    const hdr = certificateHeaderLayout(s);
+    const available = canvasHeight - CERT_BOTTOM_RESERVE - hdr.bodyStart;
+    const bodyHeight = measureBodyHeight(g, bodyLines, BODY_MAX_W, s);
+    return { available, bodyHeight, hdr, ok: bodyHeight <= available };
+  };
+
+  let metrics = fits(scale);
+  while (metrics.bodyHeight < metrics.available * 0.9 && scale < 1.38) {
     scale += 0.04;
-    end = measureBodyEnd(g, lines, maxW, scale);
+    metrics = fits(scale);
   }
-  while (end > available && scale > 0.92) {
+  while (!metrics.ok && scale > 0.88) {
     scale -= 0.03;
-    end = measureBodyEnd(g, lines, maxW, scale);
+    metrics = fits(scale);
   }
-  return { scale, contentEnd: end, bodyStart: bodyTop };
+  metrics = fits(scale);
+  return {
+    scale,
+    bodyStart: metrics.hdr.bodyStart,
+    bodyHeight: metrics.bodyHeight,
+    header: metrics.hdr,
+  };
+}
+
+/**
+ * Line boxes for overlap guards (header vs body, body vs bottom reserve).
+ * @param {CanvasRenderingContext2D} g
+ */
+export function certificateLineBoxes(g, mode, canvasHeight = CERT_MIN_HEIGHT) {
+  const lines = buildCertificateLines(mode);
+  const subtitle = lines[1];
+  const bodyLines = lines.filter((l) => l !== "ROYAL QUEST CERTIFICATE" && l !== subtitle);
+  const layout = certificateBodyScale(bodyLines, canvasHeight);
+  const { scale, bodyHeight, header } = layout;
+  const t = typography(scale);
+  const available = canvasHeight - CERT_BOTTOM_RESERVE - header.bodyStart;
+  const extra = Math.max(0, available - bodyHeight);
+  const bodyY = header.bodyStart + Math.min(extra * 0.1, 16);
+
+  const titlePx = Math.round(42 * scale);
+  const subtitlePx = Math.round(28 * scale);
+
+  const boxes = [
+    { kind: "title", text: "ROYAL QUEST CERTIFICATE", ...lineBox(header.titleY, titlePx, "title") },
+    { kind: "subtitle", text: subtitle, ...lineBox(header.subtitleY, subtitlePx, "subtitle") },
+  ];
+
+  let y = bodyY;
+  for (const line of bodyLines) {
+    if (!line) {
+      y += t.blank;
+      continue;
+    }
+    const isNote = line.startsWith("• ");
+    const fontPx = isNote
+      ? Math.round(22 * scale)
+      : line.startsWith("Official notes")
+        ? Math.round(24 * scale)
+        : Math.round(26 * scale);
+    g.font = isNote
+      ? t.note
+      : line.startsWith("Official notes")
+        ? t.section
+        : t.body;
+    if (isNote && g.measureText(line).width > BODY_MAX_W) {
+      const words = line.slice(2).split(" ");
+      let row = "• ";
+      for (const word of words) {
+        const test = `${row}${word} `;
+        if (g.measureText(test).width > BODY_MAX_W && row !== "• ") {
+          boxes.push({ kind: "body", text: row.trimEnd(), ...lineBox(y, fontPx) });
+          y += t.lineNote - 2;
+          row = `• ${word} `;
+        } else {
+          row = test;
+        }
+      }
+      boxes.push({ kind: "body", text: row.trimEnd(), ...lineBox(y, fontPx) });
+      y += t.lineNote;
+    } else {
+      boxes.push({ kind: "body", text: line, ...lineBox(y, fontPx) });
+      y += isNote ? t.lineNote : t.lineBody;
+    }
+  }
+
+  return {
+    scale,
+    canvasHeight,
+    bodyStart: bodyY,
+    bodyEnd: y,
+    bottomLimit: canvasHeight - CERT_BOTTOM_RESERVE,
+    header,
+    boxes,
+  };
+}
+
+/** @returns {{ ok: boolean, issues: string[] }} */
+export function validateCertificateLayout(metrics) {
+  const issues = [];
+  const title = metrics.boxes.find((b) => b.kind === "title");
+  const subtitle = metrics.boxes.find((b) => b.kind === "subtitle");
+  const body = metrics.boxes.filter((b) => b.kind === "body");
+  const minGap = 6;
+
+  if (title.top < CERT_TOP_RESERVE) {
+    issues.push("title overlaps top roll");
+  }
+  if (subtitle.top < title.bottom + minGap) {
+    issues.push("subtitle overlaps title");
+  }
+  if (body.length && body[0].top < subtitle.bottom + minGap) {
+    issues.push("body overlaps subtitle");
+  }
+  for (let i = 1; i < body.length; i++) {
+    if (body[i].top < body[i - 1].bottom - 1) {
+      issues.push(`body lines overlap: ${i}`);
+    }
+  }
+  if (metrics.bodyEnd > metrics.bottomLimit) {
+    issues.push("body overlaps bottom reserve");
+  }
+  return { ok: issues.length === 0, issues };
 }
 
 export async function renderCertificateCanvas(mode = "pass") {
@@ -126,8 +266,8 @@ export async function renderCertificateCanvas(mode = "pass") {
 
   let h = CERT_MIN_HEIGHT;
   let layout = certificateBodyScale(bodyLines, h);
-  if (layout.contentEnd + CERT_BOTTOM_RESERVE + 40 > h) {
-    h = Math.round(layout.contentEnd + CERT_BOTTOM_RESERVE + 48);
+  if (layout.bodyStart + layout.bodyHeight + CERT_BOTTOM_RESERVE + 32 > h) {
+    h = Math.round(layout.bodyStart + layout.bodyHeight + CERT_BOTTOM_RESERVE + 40);
     layout = certificateBodyScale(bodyLines, h);
   }
 
@@ -146,21 +286,22 @@ export async function renderCertificateCanvas(mode = "pass") {
     g.fillRect(0, 0, w, h);
   }
 
-  const { scale, contentEnd, bodyStart } = layout;
-  const available = h - CERT_BOTTOM_RESERVE - bodyStart;
-  const yOffset = Math.max(0, (available - contentEnd) * 0.12);
+  const { scale, bodyHeight, header } = layout;
+  const available = h - CERT_BOTTOM_RESERVE - header.bodyStart;
+  const extra = Math.max(0, available - bodyHeight);
+  const bodyY = header.bodyStart + Math.min(extra * 0.1, 16);
   const t = typography(scale);
 
   g.fillStyle = "#4a1f28";
   g.font = t.title;
   g.textAlign = "center";
-  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, 108 * scale);
+  g.fillText("ROYAL QUEST CERTIFICATE", w / 2, header.titleY);
 
   g.font = t.subtitle;
-  g.fillText(subtitle, w / 2, 158 * scale);
+  g.fillText(subtitle, w / 2, header.subtitleY);
 
   g.textAlign = "left";
-  drawBodyLines(g, bodyLines, bodyStart + yOffset, w - 200, scale);
+  drawBodyLines(g, bodyLines, bodyY, BODY_MAX_W, scale);
 
   return c;
 }
