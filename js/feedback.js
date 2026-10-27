@@ -46,6 +46,7 @@ function basePayload(fields) {
 
 function isLocalPreview() {
   if (typeof location === "undefined") return false;
+  if (globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ === true) return false;
   return location.hostname === "127.0.0.1" || location.hostname === "localhost";
 }
 

@@ -8,6 +8,7 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
     document.startViewTransition = undefined;
+    window.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
   });
 });
 
