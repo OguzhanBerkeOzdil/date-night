@@ -4,7 +4,7 @@
 export const FORM_SUBMIT_ENDPOINT = "https://formsubmit.co/ajax/ozdiloguzhanberke@gmail.com";
 
 /** Shown on the Quest Pass and certificate. */
-export const QUEST_DATE_LABEL = "Tuesday 28 October 2026";
+export const QUEST_DATE_LABEL = "Wednesday 28 October 2026";
 export const QUEST_DATE_ISO = "2026-10-28";
 
 /**

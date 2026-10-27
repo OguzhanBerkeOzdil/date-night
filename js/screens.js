@@ -29,7 +29,7 @@ import {
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
 } from "./horses.js";
-import { initEvePrelude, onEnterEve } from "./eve-prelude.js";
+import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
 import { APP_CACHE_VERSION } from "./cache-version.js";
@@ -254,9 +254,18 @@ function renderAffection() {
   if (el) el.textContent = "♡".repeat(5 - state.affection) + "♥".repeat(state.affection);
 }
 
-function applyHorseImg(img, horseId, { lazy = false } = {}) {
+function applyHorseImg(img, horseId, { lazy = false, variant = "cutout" } = {}) {
   const breed = horseById(horseId);
   const useArt = horseHasArt(horseId);
+  const isThumb = variant === "thumb";
+  const thumbClass = "horse-breed-card__img";
+  const setCutoutClass = () => {
+    img.className = `horse-cutout ${breed.placeholderClass || ""}`.trim();
+  };
+  const setClass = () => {
+    if (isThumb) img.className = thumbClass;
+    else setCutoutClass();
+  };
   if (lazy) {
     img.loading = "lazy";
     img.decoding = "async";
@@ -267,14 +276,18 @@ function applyHorseImg(img, horseId, { lazy = false } = {}) {
   img.onerror = () => {
     img.onerror = null;
     img.src = HORSE_PLACEHOLDER_SRC;
-    img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+    setClass();
   };
   img.onload = () => {
+    if (isThumb) {
+      img.className = thumbClass;
+      return;
+    }
     if (img.src.includes("/horses/") && useArt) img.className = "horse-cutout";
-    else img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+    else setCutoutClass();
   };
   img.src = useArt ? horseImageUrl(horseId) : HORSE_PLACEHOLDER_SRC;
-  if (!useArt) img.className = `horse-cutout ${breed.placeholderClass || ""}`;
+  if (!useArt) setClass();
 }
 
 function setHorsePreview(horseId) {
@@ -299,7 +312,7 @@ function renderHorseBreedGrid() {
     const thumb = document.createElement("img");
     thumb.className = "horse-breed-card__img";
     thumb.alt = "";
-    applyHorseImg(thumb, breed.id, { lazy: true });
+    applyHorseImg(thumb, breed.id, { lazy: true, variant: "thumb" });
     const label = document.createElement("span");
     label.className = "horse-breed-card__label";
     label.textContent = breed.coat;
@@ -891,6 +904,7 @@ function restoreSelections() {
 export function onScreenEnter(id) {
   hydrateLazyImages(document.querySelector(`[data-screen="${id}"]`));
   restoreSelections();
+  syncEveHonestButton(id);
   if (id.startsWith("eve-")) onEnterEve(id);
   if (id === "steed") onEnterSteed();
   if (id === "oracle") restoreOracleFromState();

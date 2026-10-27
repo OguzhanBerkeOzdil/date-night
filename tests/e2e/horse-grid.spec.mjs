@@ -14,4 +14,14 @@ test("horse breed grid fits viewport and targets 44px", async ({ page }, testInf
   const box = await page.locator(".horse-breed-card").first().boundingBox();
   expect(box?.height).toBeGreaterThanOrEqual(44);
   expect(await page.locator(".horse-breed-card").count()).toBe(10);
+
+  await page.waitForFunction(() => {
+    const img = document.querySelector(".horse-breed-card__img");
+    return img && img.complete && img.naturalWidth > 0;
+  });
+  const thumb = await page.locator(".horse-breed-card__img").first();
+  await expect(thumb).toHaveClass(/horse-breed-card__img/);
+  const thumbBox = await thumb.boundingBox();
+  expect(thumbBox?.width).toBeLessThanOrEqual(96);
+  expect(thumbBox?.height).toBeLessThanOrEqual(72);
 });
