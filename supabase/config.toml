@@ -1,0 +1,21 @@
+project_id = "date-night"
+
+[api]
+enabled = true
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+major_version = 17
+
+[db.migrations]
+enabled = true
+
+[edge_runtime]
+enabled = true
+deno_version = 2
+
+[functions.quest-state]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/quest-state/index.ts"

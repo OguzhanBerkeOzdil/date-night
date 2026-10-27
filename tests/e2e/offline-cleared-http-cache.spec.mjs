@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("offline after one visit survives cleared HTTP cache (styled + decree)", async ({
+test("offline after one visit survives cleared HTTP cache (styled + progress)", async ({
   page,
   context,
 }) => {
@@ -34,14 +34,17 @@ test("offline after one visit survives cleared HTTP cache (styled + decree)", as
 
   await page.evaluate(() => {
     localStorage.setItem(
-      "questLady_v2",
+      "questLady_v3",
       JSON.stringify({
+        schemaVersion: 3,
+        chapter: "chapter-one-complete",
+        chapterOneComplete: true,
         steedName: "Clover",
         steedClass: "Knight of the Wildflowers",
         lastScreen: "decree",
         secondDate: "yes",
-        rating: 10,
-        todayVibe: "A rom-com, but medieval",
+        rating: 3,
+        todayVibe: "Friendly chaos and questionable jokes",
         food: ["Pizza"],
         potionName: "Elixir of Hearth Ember",
         day: "Saturday",
@@ -53,8 +56,12 @@ test("offline after one visit survives cleared HTTP cache (styled + decree)", as
     );
   });
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.locator("#btnContinue")).toBeVisible();
-  await page.locator("#btnContinue").click();
-  await page.waitForSelector('[data-screen="decree"].screen--active', { timeout: 15000 });
-  await expect(page.locator("#decreePreview")).toContainText("ROYAL QUEST DECREE");
+  await page.waitForFunction(
+    () => ["chapter-lock", "chapter-two-start"].includes(document.body.dataset.screen),
+    null,
+    { timeout: 15000 }
+  );
+  await expect
+    .poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}").chapterOneComplete))
+    .toBe(true);
 });

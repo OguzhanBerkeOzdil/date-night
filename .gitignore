@@ -3,3 +3,7 @@ node_modules/
 test-results/
 playwright-report/
 tests/fixtures/.sw-upgrade-cache/
+.env
+.env.*
+!.env.example
+supabase/functions/.env

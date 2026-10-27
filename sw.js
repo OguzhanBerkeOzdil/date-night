@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261102";
+const APP_CACHE_VERSION = "202610273";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -23,10 +23,12 @@ const ASSET_PRECACHE = [
   "./js/app-chrome.js",
   "./js/config.js",
   "./js/copy-data.js",
+  "./js/runtime-config.js",
+  "./js/quest-date.js",
+  "./js/sync.js",
   "./js/state.js",
   "./js/screens.js",
   "./js/ui-feedback.js",
-  "./js/dragon-guards.js",
   "./js/hud.js",
   "./js/audio.js",
   "./js/achievements.js",

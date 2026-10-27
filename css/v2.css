@@ -1418,3 +1418,137 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Two-day quest */
+.sync-status {
+  max-width: 9.5rem;
+  color: #f4e8d0;
+  font: 600 0.65rem/1.2 var(--font-body);
+  text-align: right;
+}
+
+.sync-status[data-status="saving"],
+.sync-status[data-status="loading"] {
+  color: var(--gold-light);
+}
+
+.sync-status[data-status="error"],
+.sync-status[data-status="offline"] {
+  color: #ffd0c7;
+}
+
+.privacy-note,
+.chapter-teaser {
+  margin: 0.75rem 0 1rem;
+  padding: 0.7rem 0.8rem;
+  border-left: 3px solid var(--gold);
+  border-radius: 0 0.55rem 0.55rem 0;
+  background: rgba(252, 245, 232, 0.9);
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.42;
+}
+
+.chapter-teaser {
+  color: #f4e8d0;
+  background: rgba(18, 12, 10, 0.76);
+  border: 1px solid rgba(201, 162, 39, 0.5);
+  text-align: center;
+}
+
+[data-screen="dragon"] .date-buttons {
+  display: grid;
+  gap: 0.65rem;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+}
+
+[data-screen="dragon"] .date-buttons .btn,
+[data-screen="dragon"] .date-buttons .btn--no,
+[data-screen="dragon"] .date-buttons .btn--yes {
+  position: static;
+  inset: auto;
+  width: 100%;
+  max-width: none;
+  min-height: 48px;
+  margin: 0;
+  transform: none !important;
+  white-space: normal;
+}
+
+.chapter-panel {
+  width: min(100%, 34rem);
+  margin-inline: auto;
+  padding: 1rem 1rem 1.25rem;
+  border: 2px solid rgba(201, 162, 39, 0.55);
+  border-radius: 1rem;
+  color: var(--ink);
+  background: linear-gradient(
+    180deg,
+    rgba(252, 245, 232, 0.96) 0%,
+    rgba(244, 228, 200, 0.94) 100%
+  );
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+}
+
+.quest-recap {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.9rem 0 1.15rem;
+}
+
+.quest-recap__item {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, auto) 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(107, 45, 58, 0.18);
+}
+
+.quest-recap__item span {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+}
+
+.quest-recap__item strong {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.buff-grid {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.45rem 0 1rem;
+}
+
+.buff-grid .chip-select {
+  width: 100%;
+  min-height: 46px;
+  white-space: normal;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.field-error {
+  margin: 0.35rem 0;
+  color: #7a1f2c;
+  font-weight: 600;
+}
+
+.light {
+  color: var(--parchment);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
+}
+
+@media (min-width: 42rem) {
+  .buff-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

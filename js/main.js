@@ -1,13 +1,14 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
-import { loadSoundPref, setSoundOn, isSoundOn, unlockAudio, startAmbience } from "./audio.js";
+import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
 import { initBardQuill, syncBardQuill } from "./bard.js";
 import { initEpigraphs, updateEpigraph } from "./epigraph.js";
 import { initHud, updateHud } from "./hud.js";
 import { hideDialogue, initDialogue } from "./dialogue.js";
 import { initParticles } from "./particles.js";
-import { initScreens, onScreenEnter } from "./screens.js";
+import { initScreens, onScreenEnter, resumeTarget } from "./screens.js";
 import { syncContinueButton } from "./app-chrome.js";
+import { initQuestSync } from "./sync.js";
 
 export { syncContinueButton };
 import { guest, questOfTitle, saveState, state } from "./state.js";
@@ -141,15 +142,8 @@ function initSoundToggle() {
   });
 }
 
-function boot() {
+async function boot() {
   personalize();
-  syncContinueButton();
-  const sendBtn = document.getElementById("btnShare");
-  if (sendBtn) {
-    import("./config.js").then(({ CONFIG }) => {
-      sendBtn.textContent = `Send it to ${CONFIG.fromName} 💌`;
-    });
-  }
   initParticles();
   initDialogue();
   initHud();
@@ -164,10 +158,17 @@ function boot() {
   setBackground("title");
   updateHud("title");
   document.getElementById("dialogueBox")?.classList.add("hidden");
+  const syncResult = await initQuestSync();
+  syncContinueButton();
+  if (syncResult.status === "invalid") {
+    navigate("invite-error");
+  } else if (state.chapterOneComplete || state.chapterTwoStarted || state.chapterTwoComplete) {
+    navigate(resumeTarget());
+  }
 }
 
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-else boot();
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => void boot());
+else void boot();
 
 if ("serviceWorker" in navigator) {
   const SW_RELOAD_KEY = "quest-sw-pending-reload";

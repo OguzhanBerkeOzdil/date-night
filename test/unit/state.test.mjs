@@ -30,6 +30,14 @@ test("hasQuestSave detects progressed screens", async () => {
   assert.equal(hasQuestSave(), true);
 });
 
+test("migrates a legacy v2 save into schema v3", async () => {
+  localStorage.setItem("questLady_v2", JSON.stringify({ lastScreen: "oracle", steedName: "Legacy" }));
+  const loaded = S.loadState();
+  assert.equal(loaded.schemaVersion, 3);
+  assert.equal(loaded.steedName, "Legacy");
+  assert.equal(loaded.chapter, "chapter-one");
+});
+
 test("beginNewQuest and undo restore prior save", async () => {
   const { beginNewQuest, undoLastNewQuest, saveState, __setStateForTest } = S;
   __setStateForTest({ lastScreen: "dragon", steedName: "Thunder", noAttempts: 2 });
