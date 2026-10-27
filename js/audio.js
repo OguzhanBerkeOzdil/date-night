@@ -1,5 +1,3 @@
-import { CONFIG } from "./config.js";
-
 let ctx = null;
 let musicGain = null;
 let sfxGain = null;

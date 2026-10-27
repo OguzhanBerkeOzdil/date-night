@@ -1,6 +1,6 @@
-# The Quest of Lady {name} 💌
+# Two-Day Date Quest
 
-A mobile-first, medieval-fantasy date quest — 12 screens, horse narrator, dragon boss fight, potion brewing, oracle tarot, and a shareable royal decree (PNG + WhatsApp).
+A mobile-first, medieval-fantasy invitation that unfolds in two short chapters. Chapter I gathers low-pressure preferences and creates an Adventurer's Pass. Chapter II opens on the scheduled day for a one-minute start and an optional two-minute closing reflection.
 
 Live: [https://oguzhanberkeozdil.github.io/date-night/](https://oguzhanberkeozdil.github.io/date-night/)
 
@@ -12,14 +12,17 @@ python3 -m http.server 8080
 
 Open [http://localhost:8080](http://localhost:8080). ES modules require a static server (not `file://`).
 
-## Personalize
+## Private invite
 
-```
-https://oguzhanberkeozdil.github.io/date-night/?name=Ayşe
+Production links use a high-entropy `?invite=` token created outside the browser. The raw token is never committed. Progress remains available locally and, when the private sync endpoint is configured, continues on another device.
+
+Create an invite from a trusted local shell after setting `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`:
+
+```bash
+npm run invite:create -- --name "My Lady" --date 2026-10-28
 ```
 
-- Shows **Lady Ayşe** (strips a leading `Lady` from the param).
-- Without `?name=`, copy uses **my lady** (never “Lady you”).
+Only the generated private URL should be shared. Do not put a service-role key, invite token, or guest answers in source control.
 
 ## Config (`js/config.js`)
 
@@ -32,17 +35,16 @@ letter: [ /* paragraphs */ ],
 
 Empty `whatsappNumber` → `https://wa.me/?text=…` (contact picker).
 
-## QR code
+## Private sync architecture
 
-Point any QR generator at your URL (optionally with `?name=`).
+- `quest_invites` stores only a SHA-256 digest of the invite token.
+- `quest_progress` stores the current versioned response for that invite.
+- Public table access is revoked and RLS is enabled.
+- The browser talks only to the `quest-state` Edge Function; the service-role key stays server-side.
+- The browser keeps an offline local copy and retries when the connection returns.
+- No analytics, location, photo, or device fingerprint is collected by the app.
 
-## Tests
-
-```bash
-node tests/v2-flow.spec.mjs
-```
-
-Playwright mobile flow (iPhone + Pixel viewports).
+Apply `supabase/migrations/20261027130017_create_quest_invites.sql`, deploy `supabase/functions/quest-state`, then set `questApiUrl` in `js/runtime-config.js` to the deployed function URL.
 
 ## Assets & credits
 
@@ -59,8 +61,10 @@ GitHub Pages → `main` / root. `.nojekyll` included.
 
 Bump **`APP_CACHE_VERSION`** in `js/cache-version.js` (single source of truth). Match that value on every `?v=` query in `index.html` (CSS, `main.js`, manifest). Copy the same string into **`sw.js`** (classic worker — no `import`/`export`; `test/unit/cache-version.test.mjs` enforces parity). Register **`./sw.js`** as a classic script (stable URL, no `?v=` on the worker; use `updateViaCache: 'none'`). Legacy `sw.js?v=…` registrations are unregistered on load. Install precaches those versioned URLs plus the JS module graph into `quest-assets-*`; offline fallback may use `ignoreSearch` only inside that cache. On activate, delete **only** stale `quest-shell-*` / `quest-assets-*` names (not other apps on the same GitHub Pages origin).
 
-## npm tests
+## Quality checks
 
 ```bash
 npm ci && npx playwright install chromium && npm test
 ```
+
+The suite covers 320, 360, 390, and 1440 px layouts, keyboard navigation, accessible naming, Chapter I accept/maybe/decline paths, Chapter II locking/early open/completion, private-state restoration, offline persistence, and service-worker upgrades.

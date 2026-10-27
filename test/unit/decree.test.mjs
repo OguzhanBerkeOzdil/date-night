@@ -19,7 +19,7 @@ beforeEach(async () => {
   S.__resetModuleForTest();
 });
 
-test("decree reflects honest decline", async () => {
+test("adventurer pass reflects a pressure-free decline", async () => {
   const { __setStateForTest } = S;
   const { buildSummaryText, whenWeRideLine } = decree;
   __setStateForTest({
@@ -32,19 +32,37 @@ test("decree reflects honest decline", async () => {
   });
   const text = buildSummaryText();
   assert.match(text, /declined/i);
-  assert.match(text, /honesty/i);
+  assert.doesNotMatch(text, /flee|shame|try again/i);
   assert.match(whenWeRideLine(), /Saturday/);
 });
 
-test("decree yes path mentions flee attempts", async () => {
+test("adventurer pass records acceptance and adventure energy", async () => {
   const { __setStateForTest } = S;
   const { buildSummaryText } = decree;
   __setStateForTest({
     secondDate: "yes",
-    noAttempts: 3,
     steedName: "Clover",
     steedClass: "Bard",
+    rating: 4,
+    ratingChip: "leave room for snacks",
   });
   const text = buildSummaryText();
-  assert.match(text, /3 attempts to flee/i);
+  assert.match(text, /accepted/i);
+  assert.match(text, /4\/5/i);
+  assert.match(text, /leave room for snacks/i);
+});
+
+test("completion certificate keeps the future-quest answer explicit", async () => {
+  const { __setStateForTest } = S;
+  const { buildCompletionText } = decree;
+  __setStateForTest({
+    chapterTwoComplete: true,
+    partyBuff: "Snack compass",
+    questBadge: "Best banter",
+    futureQuest: "not-now",
+  });
+  const text = buildCompletionText();
+  assert.match(text, /Snack compass/);
+  assert.match(text, /Best banter/);
+  assert.match(text, /not right now/i);
 });

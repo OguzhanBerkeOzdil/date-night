@@ -104,18 +104,6 @@ export const CLOVER_EPIGRAPH = {
   by: "Emily Dickinson",
 };
 
-export const NO_LABELS = [
-  "Nay",
-  "Still thinking?",
-  "Even the horse paused",
-  "Think of the tavern snacks",
-  "The dragon nods respectfully…",
-  "{steed} will survive (dramatic sigh)",
-  "I'll save you the dessert…",
-  "This button is shrinking from shame",
-  "nay…?",
-];
-
 export const LOADING_STEPS = [
   { p: 34, t: "Consulting the oracle…" },
   { p: 67, t: "Polishing the armour… 67%…" },
@@ -152,5 +140,3 @@ export const STEED_PICK_LINES = [
   "{name}… I feel faster already.",
   "{name}! Finally, a name worthy of my mane.",
 ];
-
-export const DRAGON_FOOL_QUOTE = "Even dragons know when they're outmatched by a good answer.";

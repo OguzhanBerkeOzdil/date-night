@@ -18,15 +18,15 @@ test.beforeEach(async ({ page }, testInfo) => {
 
 test("keyboard-only: title through decree", async ({ page }) => {
   await runQuestToDecreeKeyboard(page);
-  await expect(page.locator("#decreePreview")).toContainText("ROYAL QUEST DECREE");
+  await expect(page.locator("#decreePreview")).toContainText("ADVENTURER'S PASS");
 });
 
 test("keyboard-only: title through honest-no", async ({ page }) => {
   await runQuestToDragonKeyboard(page);
-  await tabTo(page, "#realNoLink");
+  await tabTo(page, "#btnNo");
   await activate(page);
   await waitForScreen(page, "honest-no");
   await expect(page.locator('[data-screen="honest-no"].screen--active .title')).toContainText(
-    "honesty"
+    "honest answer"
   );
 });

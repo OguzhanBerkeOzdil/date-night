@@ -3,10 +3,8 @@ export { APP_CACHE_VERSION } from "./cache-version.js";
 import {
   BARD_LINES,
   CLOVER_EPIGRAPH,
-  DRAGON_FOOL_QUOTE,
   EPIGRAPHS,
   LOADING_STEPS,
-  NO_LABELS,
   STEED_PICK_LINES,
   TAROT_FORTUNES,
   YES_TOASTS,
@@ -16,13 +14,15 @@ export const CONFIG = {
   fromName: "Oğuzhan",
   whatsappNumber: "",
   defaultTitle: "my lady",
+  scheduledDate: "2026-10-28",
+  timeZone: "Europe/Warsaw",
   letter: [
     "Dear {name},",
-    "Thanks for opening round two of this very extra scroll. A bit much? Yes. Still funny? I hope so.",
-    "Today was a good quest. The horse has notes. The dragon lost an argument. I'd call that a win.",
-    "Nothing in here comes with pressure — an honest \"nay\" is a valid ending, and the log still saves.",
-    "If you're up for another ride, tavern stop, or potion-tasting experiment, I'm in.",
-    "— {fromName}, part-time knight & snack carrier ({steedName} asked to be cc'd)",
+    "Tomorrow's briefing is ready. A bit extra? Yes. Still less paperwork than a real royal mission.",
+    "Your choices are clues, not promises. Plans can change, snacks can improve, and the horse has agreed to remain flexible.",
+    "There is no pressure hidden in the small print. An honest answer is always the correct answer.",
+    "If you're up for the quest, I'll bring the plan and probably one bad joke.",
+    "— {fromName}, part-time knight and snack carrier ({steedName} requested editorial credit)",
   ],
 };
 
@@ -31,11 +31,9 @@ export const COPY = {
   cloverEpigraph: CLOVER_EPIGRAPH,
   bardLines: BARD_LINES,
   tarotFortunes: TAROT_FORTUNES,
-  noLabels: NO_LABELS,
   loadingSteps: LOADING_STEPS,
   yesToasts: YES_TOASTS,
   steedPickLines: STEED_PICK_LINES,
-  dragonFoolQuote: DRAGON_FOOL_QUOTE,
   steedWhispererLine: "Okay, you're officially my favourite human. Don't tell him.",
   steedCarrotLine: "*crunch* …I would follow you into any forest now.",
   benedickQuip: "I would my horse had the speed of your tongue.",
@@ -58,6 +56,12 @@ export const SCREENS = [
   "stars",
   "oracle",
   "decree",
+  "chapter-lock",
+  "chapter-two-start",
+  "chapter-two-pause",
+  "chapter-two-finish",
+  "quest-complete",
+  "invite-error",
 ];
 
 export const MAP_NODE = {
@@ -73,6 +77,12 @@ export const MAP_NODE = {
   stars: 6,
   oracle: 7,
   decree: 8,
+  "chapter-lock": 8,
+  "chapter-two-start": 8,
+  "chapter-two-pause": 8,
+  "chapter-two-finish": 8,
+  "quest-complete": 8,
+  "invite-error": 0,
   "honest-no": 3,
 };
 
@@ -89,5 +99,11 @@ export const BG_BY_SCREEN = {
   stars: "bg-starry-hill",
   oracle: "bg-starry-hill",
   decree: "bg-celebration",
+  "chapter-lock": "bg-starry-hill",
+  "chapter-two-start": "bg-meadow-stable",
+  "chapter-two-pause": "bg-forest",
+  "chapter-two-finish": "bg-tavern",
+  "quest-complete": "bg-celebration",
+  "invite-error": "bg-forest",
   "honest-no": "bg-forest",
 };

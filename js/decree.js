@@ -1,198 +1,193 @@
 import { CONFIG, tarotForKey } from "./config.js";
 import { grantedToLabel, state } from "./state.js";
-import { achievementCount, achievementLabelsMain, achievementLabelsBonus } from "./achievements.js";
-
-function fleeAttemptsPhrase(n) {
-  const count = Math.max(0, Number(n) || 0);
-  return count === 1 ? "1 attempt to flee" : `${count} attempts to flee`;
-}
+import { achievementCount } from "./achievements.js";
 
 function questAnswerLine() {
-  if (state.honestNo) {
-    return "Another quest: respectfully declined (thank you for your honesty)";
-  }
-  if (state.secondDate === "yes") {
-    return `Another quest: AYE (befriended the Dragon of Doubt after ${fleeAttemptsPhrase(state.noAttempts)})`;
-  }
-  return "Another quest: —";
+  const answers = {
+    yes: "Tomorrow's quest: accepted",
+    maybe: "Tomorrow's quest: show me the plan first",
+    no: "Tomorrow's quest: respectfully declined",
+  };
+  return answers[state.secondDate] || "Tomorrow's quest: awaiting answer";
 }
 
-function fanumLine() {
-  if (state.fanumTax) return "Fanum tax: approved by ancient law ✓";
-  return "Fanum tax: waived by royal mercy (he'll survive)";
+function futureQuestLine() {
+  const answers = {
+    yes: "Another side quest: yes",
+    maybe: "Another side quest: maybe — ask later",
+    "not-now": "Another side quest: not right now",
+  };
+  return answers[state.futureQuest] || "Another side quest: no answer recorded";
 }
 
-/** Day label only (chip/calendar), without sky-dial time duplicated in decree. */
 export function dayLabelForDecree() {
   const raw = (state.day || "").trim();
   if (!raw) return "";
   const sep = raw.indexOf(" · ");
-  if (sep > 0) return raw.slice(0, sep).trim();
-  return raw;
+  return sep > 0 ? raw.slice(0, sep).trim() : raw;
 }
 
 export function whenWeRideLine() {
   const day = dayLabelForDecree() || "—";
   const time = (state.time || "").trim();
-  if (!time || day === "—") return `When we ride: ${day}`;
-  if (day.includes(time)) return `When we ride: ${day}`;
+  if (!time || day === "—" || day.includes(time)) return `When we ride: ${day}`;
   return `When we ride: ${day} · ${time}`;
 }
 
-export function buildSummaryText() {
-  const rating =
-    state.ratingBonus || state.rating >= 11
-      ? "11/10 · Legendary"
-      : state.ratingChip
-        ? `Re-rated: still a 10 (${state.ratingChip})`
-        : "10/10";
-  const mainAch = achievementLabelsMain();
-  const bonusAch = achievementLabelsBonus();
-  const achLine = `Achievements: ${achievementCount()}/10 — ${mainAch.join(", ") || "—"}${
-    bonusAch.length ? ` (+ bonus: ${bonusAch.join(", ")})` : ""
-  }`;
-
+export function buildPassText() {
   const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
-  const oracleLine = state.tarotCard
-    ? `Oracle's card: ${state.tarotCard} (${tarotMeta?.short || "—"})`
-    : null;
-
-  const lines = [
-    "ROYAL QUEST DECREE · No. 002",
-    `Granted to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
-    `Steed: ${state.steedName} (Affection: MAX)`,
-    `Today's rating: ${rating}`,
-    `Today felt like: ${state.todayVibe || "—"}`,
+  return [
+    "ADVENTURER'S PASS · QUEST NO. 002",
+    `Issued to: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
+    `Steed: ${state.steedName}`,
+    `Adventure energy: ${state.rating || 3}/5${state.ratingChip ? ` · ${state.ratingChip}` : ""}`,
+    `Tomorrow could feel like: ${state.todayVibe || "—"}`,
     questAnswerLine(),
     `Provisions: ${state.food.join("; ") || "—"}`,
-    `Potion: ${state.potionName || "—"}`,
     `Activities: ${state.activities.join("; ") || "—"}`,
+    `Potion: ${state.potionName || "—"}`,
     whenWeRideLine(),
-    ...(oracleLine ? [oracleLine] : []),
-    `Secret ingredient: ${state.notes || "—"}`,
-    fanumLine(),
-    achLine,
-    "Sealed with wax (and one horse hair, for authenticity).",
-  ];
-  return lines.join("\n");
+    ...(state.tarotCard
+      ? [`Oracle's clue: ${state.tarotCard} (${tarotMeta?.short || "—"})`]
+      : []),
+    `Note for the quest: ${state.notes || "—"}`,
+    `Achievements found: ${achievementCount()}`,
+    "Valid tomorrow. Plans may change without angering the horse.",
+  ].join("\n");
+}
+
+export function buildCompletionText() {
+  return [
+    "SECOND QUEST COMPLETE · LOG NO. 002",
+    `Adventurer: ${grantedToLabel()}, ${state.steedClass || "Adventurer"}`,
+    `Steed: ${state.steedName}`,
+    `Party buff: ${state.partyBuff || "Improvised courage"}`,
+    `Favourite moment: ${state.favoriteMoment || "Not recorded"}`,
+    `Quest badge: ${state.questBadge || "Quest completed"}`,
+    futureQuestLine(),
+    "Final status: the sequel was survived.",
+    "No dragons were harmed. One horse remains opinionated.",
+  ].join("\n");
+}
+
+export function buildSummaryText(mode = "auto") {
+  const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
+  return resolved === "completion" ? buildCompletionText() : buildPassText();
 }
 
 function wrapLines(ctx, text, maxWidth) {
   const words = text.split(" ");
   const lines = [];
   let line = "";
-  for (const w of words) {
-    const test = line ? `${line} ${w}` : w;
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word;
     if (ctx.measureText(test).width > maxWidth && line) {
       lines.push(line);
-      line = w;
-    } else line = test;
+      line = word;
+    } else {
+      line = test;
+    }
   }
   if (line) lines.push(line);
   return lines;
 }
 
-export async function renderDecreeCanvas() {
+export async function renderDecreeCanvas(mode = "auto") {
   await document.fonts.ready;
-  const w = 1080;
-  const h = 1400;
-  const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
-  const g = c.getContext("2d");
+  const text = buildSummaryText(mode);
+  const title = text.split("\n")[0];
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1400;
+  const ctx = canvas.getContext("2d");
 
   const parchment = new Image();
   parchment.src = "assets/images/parchment.webp";
-  await parchment.decode().catch(() => {});
-
+  await parchment.decode().catch(() => undefined);
   if (parchment.complete && parchment.naturalWidth) {
-    g.drawImage(parchment, 0, 0, w, h);
+    ctx.drawImage(parchment, 0, 0, canvas.width, canvas.height);
   } else {
-    g.fillStyle = "#f4e8d0";
-    g.fillRect(0, 0, w, h);
+    ctx.fillStyle = "#f4e8d0";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
   const frame = 88;
   const innerX = 128;
-  const innerW = w - innerX * 2;
+  const innerW = canvas.width - innerX * 2;
   const flatTop = 200;
-  const flatBottom = h - 260;
+  const flatBottom = canvas.height - 260;
   const sigY = flatBottom - 36;
 
-  g.strokeStyle = "#6b2d3a";
-  g.lineWidth = 6;
-  g.strokeRect(frame - 12, frame - 12, w - 2 * (frame - 12), h - 2 * (frame - 12));
-  g.strokeStyle = "#c9a227";
-  g.lineWidth = 2;
-  g.strokeRect(frame, frame, w - 2 * frame, h - 2 * frame);
+  ctx.strokeStyle = "#6b2d3a";
+  ctx.lineWidth = 6;
+  ctx.strokeRect(frame - 12, frame - 12, canvas.width - 2 * (frame - 12), canvas.height - 2 * (frame - 12));
+  ctx.strokeStyle = "#c9a227";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(frame, frame, canvas.width - 2 * frame, canvas.height - 2 * frame);
 
-  g.fillStyle = "#4a1f28";
-  g.font = '700 38px "Cinzel", serif';
-  g.textAlign = "center";
-  g.fillText("ROYAL QUEST DECREE · No. 002", w / 2, flatTop - 52);
+  ctx.fillStyle = "#4a1f28";
+  ctx.font = '700 38px "Cinzel", serif';
+  ctx.textAlign = "center";
+  ctx.fillText(title, canvas.width / 2, flatTop - 52);
 
-  g.textAlign = "left";
-  g.font = '400 25px "Crimson Pro", serif';
-  const bodyParagraphs = buildSummaryText()
+  ctx.textAlign = "left";
+  ctx.font = '400 25px "Crimson Pro", serif';
+  const rendered = text
     .split("\n")
-    .filter((line) => !line.startsWith("ROYAL QUEST"));
-
-  const rendered = [];
-  for (const paragraph of bodyParagraphs) {
-    rendered.push(...wrapLines(g, paragraph, innerW));
-  }
-
-  const lineH = 30;
-  const blockH = rendered.length * lineH;
-  const sigBlock = 44;
-  const available = sigY - flatTop - sigBlock;
-  let y = flatTop + Math.max(0, (available - blockH) / 2);
-
+    .slice(1)
+    .flatMap((paragraph) => wrapLines(ctx, paragraph, innerW));
+  const lineH = 31;
+  const available = sigY - flatTop - 44;
+  let y = flatTop + Math.max(0, (available - rendered.length * lineH) / 2);
   for (const line of rendered) {
-    g.fillText(line, innerX, y);
+    ctx.fillText(line, innerX, y);
     y += lineH;
   }
 
-  g.font = 'italic 26px "Dancing Script", cursive';
-  g.fillText(grantedToLabel(), innerX, sigY);
-  g.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);
-
-  return c;
+  ctx.font = 'italic 26px "Dancing Script", cursive';
+  ctx.fillText(grantedToLabel(), innerX, sigY);
+  ctx.fillText(CONFIG.fromName, innerX + innerW - 220, sigY);
+  return canvas;
 }
 
-export async function decreeToBlob() {
-  const c = await renderDecreeCanvas();
-  return new Promise((r) => c.toBlob(r, "image/png"));
+export async function decreeToBlob(mode = "auto") {
+  const canvas = await renderDecreeCanvas(mode);
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
-export async function downloadDecreePng() {
-  const blob = await decreeToBlob();
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "royal-quest-decree.png";
-  a.click();
-  URL.revokeObjectURL(a.href);
+export async function downloadDecreePng(mode = "auto") {
+  const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
+  const blob = await decreeToBlob(resolved);
+  const anchor = document.createElement("a");
+  anchor.href = URL.createObjectURL(blob);
+  anchor.download = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
+  anchor.click();
+  URL.revokeObjectURL(anchor.href);
 }
 
-export async function shareDecree() {
-  const text = encodeURIComponent(buildSummaryText());
-  const num = CONFIG.whatsappNumber?.replace(/\D/g, "");
-  const waUrl = num ? `https://wa.me/${num}?text=${text}` : `https://wa.me/?text=${text}`;
-
+export async function shareDecree(mode = "auto") {
+  const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
+  const summary = buildSummaryText(resolved);
+  const fileName = resolved === "completion" ? "second-quest-complete.png" : "adventurers-pass.png";
   let blob;
   try {
-    blob = await decreeToBlob();
-  } catch (_) {}
-
-  if (blob && navigator.canShare && navigator.canShare({ files: [new File([blob], "decree.png", { type: "image/png" })] })) {
+    blob = await decreeToBlob(resolved);
+  } catch {
+    blob = null;
+  }
+  if (blob && navigator.canShare?.({ files: [new File([blob], fileName, { type: "image/png" })] })) {
     try {
       await navigator.share({
-        files: [new File([blob], "royal-quest-decree.png", { type: "image/png" })],
-        title: "Royal Quest Decree",
-        text: buildSummaryText(),
+        files: [new File([blob], fileName, { type: "image/png" })],
+        title: resolved === "completion" ? "Second quest complete" : "Adventurer's pass",
+        text: summary,
       });
       return;
-    } catch (_) {}
+    } catch {
+      // Falling back to a text share is safe when the share sheet is dismissed or unsupported.
+    }
   }
-  window.open(waUrl, "_blank", "noopener,noreferrer");
+  const number = CONFIG.whatsappNumber?.replace(/\D/g, "");
+  const base = number ? `https://wa.me/${number}` : "https://wa.me/";
+  window.open(`${base}?text=${encodeURIComponent(summary)}`, "_blank", "noopener,noreferrer");
 }

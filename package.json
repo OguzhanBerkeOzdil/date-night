@@ -1,14 +1,15 @@
 {
   "name": "date-night",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "A playful, mobile-first questionnaire for a second date.",
   "scripts": {
     "lint": "eslint . && html-validate index.html",
     "test:unit": "node --test test/unit/*.mjs",
-    "test:e2e": "playwright test && node tests/qa8-regression.mjs && node tests/touch-flow.mjs",
-    "test": "npm run lint && npm run test:unit && npm run test:e2e"
+    "test:e2e": "playwright test",
+    "test": "npm run lint && npm run test:unit && npm run test:e2e",
+    "invite:create": "node scripts/create-invite.mjs"
   },
   "repository": {
     "type": "git",

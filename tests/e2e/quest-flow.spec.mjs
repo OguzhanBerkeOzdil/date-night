@@ -36,23 +36,25 @@ test.beforeEach(async ({ page }) => {
 
 test("honest decline visible from first moment", async ({ page }) => {
   await reachDragon(page);
-  const link = page.locator("#realNoLink");
-  await expect(link).toBeVisible();
-  await link.click();
+  const decline = page.locator("#btnNo");
+  await expect(decline).toBeVisible();
+  await expect(decline).toHaveText("Not this time");
+  await decline.click();
   await page.waitForSelector('[data-screen="honest-no"].screen--active');
+  await expect(page.locator('section[data-screen="honest-no"]')).toContainText("No persuasion");
 });
 
 test("new game confirm when save exists", async ({ page }) => {
   await page.goto("/?name=Ayse");
   await page.evaluate(() => {
-    localStorage.setItem("questLady_v2", JSON.stringify({ lastScreen: "decree", steedName: "Thunder" }));
+    localStorage.setItem("questLady_v3", JSON.stringify({ schemaVersion: 3, lastScreen: "decree", steedName: "Thunder" }));
   });
   await page.reload();
   await page.locator("#btnNewGame").click();
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
   await page.waitForSelector('[data-screen="summons"].screen--active');
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v2") || "{}"));
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
   expect(saved.steedName).toBe("Clover");
 });
 
@@ -62,7 +64,7 @@ test("begin anew uses confirm when save exists", async ({ page }) => {
   await expect(page.locator("#questConfirm")).toBeVisible();
   await page.locator("#questConfirmStart").click();
   await page.waitForSelector('[data-screen="summons"].screen--active');
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v2") || "{}"));
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3") || "{}"));
   expect(saved.lastScreen).toBe("summons");
 });
 
