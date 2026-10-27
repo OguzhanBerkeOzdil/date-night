@@ -7,3 +7,13 @@ test("questProgressBlocksEveDecline when chapter I complete", () => {
   __setStateForTest({ chapterOneComplete: true, honestNo: false });
   assert.equal(questProgressBlocksEveDecline(), true);
 });
+
+test("questProgressBlocksEveDecline during Chapter I replay", () => {
+  __setStateForTest({
+    chapterOneComplete: false,
+    secondDate: "",
+    chapter1ReplayCount: 1,
+    honestNo: false,
+  });
+  assert.equal(questProgressBlocksEveDecline(), true);
+});

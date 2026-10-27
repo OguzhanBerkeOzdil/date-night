@@ -59,6 +59,10 @@ function queryParam(name) {
   }
 }
 
+export function isAdventurerDisplayName(name) {
+  return /^adventurer$/i.test(String(name || "").trim());
+}
+
 export function parseGuestName() {
   const fromUrl = sanitizeGuestName(queryParam("name"));
   const fromSave = sanitizeGuestName(
@@ -70,7 +74,7 @@ export function parseGuestName() {
     const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
     return { display: fallback, formal, isLady: false };
   }
-  return { display: name, formal: name, isLady: true };
+  return { display: name, formal: name, isLady: !isAdventurerDisplayName(name) };
 }
 
 export function inviteTokenFromUrl() {
@@ -116,6 +120,9 @@ export function defaultState() {
     chapter1Step: 0,
     chapter1Answers: {},
     chapter1ReplayCount: 0,
+    chapter1InviteEverAccepted: false,
+    chapter1SealedName: "",
+    chapter1CompletedReportedForReplay: -1,
     steedName: "Clover",
     steedClass: "",
     affection: 0,
@@ -173,6 +180,12 @@ function normalizeState(value) {
         : base.chapter1Answers,
     chapter1Step: Number.isFinite(Number(input.chapter1Step)) ? Number(input.chapter1Step) : base.chapter1Step,
     chapter1ReplayCount: Number(input.chapter1ReplayCount) || 0,
+    chapter1InviteEverAccepted: Boolean(input.chapter1InviteEverAccepted),
+    chapter1SealedName:
+      typeof input.chapter1SealedName === "string" ? input.chapter1SealedName : base.chapter1SealedName,
+    chapter1CompletedReportedForReplay: Number.isFinite(Number(input.chapter1CompletedReportedForReplay))
+      ? Number(input.chapter1CompletedReportedForReplay)
+      : base.chapter1CompletedReportedForReplay,
     food: Array.isArray(input.food) ? input.food : [],
     activities: Array.isArray(input.activities) ? input.activities : [],
     achievements: Array.isArray(input.achievements) ? input.achievements : [],
@@ -214,7 +227,7 @@ export function setGuestName(raw) {
   state.eveAdventurerName = name;
   guest.display = name;
   guest.formal = name;
-  guest.isLady = true;
+  guest.isLady = !isAdventurerDisplayName(name);
   return true;
 }
 
@@ -282,6 +295,9 @@ export function clearPendingUndo() {
 /** Reset Chapter I only; preserve Chapter II progress and schedule metadata. */
 export function resetChapterOneProgress() {
   const keep = {
+    chapter1InviteEverAccepted: state.chapter1InviteEverAccepted,
+    chapter1SealedName: state.chapter1SealedName,
+    chapter1CompletedReportedForReplay: state.chapter1CompletedReportedForReplay,
     chapterTwoStarted: state.chapterTwoStarted,
     chapterTwoComplete: state.chapterTwoComplete,
     chapterTwoOpenedEarly: state.chapterTwoOpenedEarly,

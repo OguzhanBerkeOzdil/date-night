@@ -1,5 +1,8 @@
 import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
+import {
+  adventurerProfileFromAnswers,
+  CHAPTER1_SURVEY_STEPS,
+} from "./chapter1-survey-data.js";
 import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
@@ -100,7 +103,10 @@ function reportEve(outcome) {
 
 /** Eve decline must not overwrite an accepted or completed quest. */
 export function questProgressBlocksEveDecline() {
+  const replayingAcceptedInvite =
+    state.chapter1InviteEverAccepted || (state.chapter1ReplayCount ?? 0) > 0;
   return (
+    replayingAcceptedInvite ||
     state.chapterOneComplete ||
     state.chapterTwoStarted ||
     state.chapterTwoComplete ||
@@ -148,25 +154,49 @@ function finishHonest() {
 }
 
 function personalizeName(name) {
+  const display = String(name || "").trim() || "Adventurer";
+  const titled = /^adventurer$/i.test(display) ? display : `Lady ${display}`;
   document.querySelectorAll("[data-lady]").forEach((el) => {
-    el.textContent = `Lady ${name}`;
+    el.textContent = titled;
   });
   document.querySelectorAll("[data-name-only]").forEach((el) => {
-    el.textContent = name;
+    el.textContent = display;
   });
 }
 
+function chapter1SurveyFinished() {
+  return (state.chapter1Step ?? 0) >= CHAPTER1_SURVEY_STEPS;
+}
+
+function paintPassScreen() {
+  const name =
+    state.eveAdventurerName || state.chapter1SealedName || "Adventurer";
+  $("passName").textContent = name;
+  $("passClosing").textContent = PASS_CLOSING;
+}
+
 function completeChapter1Invitation() {
-  if (!state.chapterOneComplete || state.eveOutcome !== "completed") {
+  const replayIndex = state.chapter1ReplayCount ?? 0;
+  const surveyDone = chapter1SurveyFinished();
+
+  if (surveyDone && state.chapter1CompletedReportedForReplay !== replayIndex) {
+    state.chapter1InviteEverAccepted = true;
+    state.chapter1SealedName = state.eveAdventurerName || state.chapter1SealedName;
     state.eveComplete = true;
     state.chapterOneComplete = true;
     state.chapter = "chapter-one-complete";
     state.secondDate = "yes";
+    state.eveOutcome = "completed";
+    state.chapter1CompletedReportedForReplay = replayIndex;
+    saveState();
     reportEve("completed");
+  } else if (state.chapter1InviteEverAccepted) {
+    state.chapterOneComplete = true;
+    state.eveComplete = true;
+    state.secondDate = state.secondDate || "yes";
+    state.chapter = state.chapter || "chapter-one-complete";
   }
-  const name = state.eveAdventurerName || "Adventurer";
-  $("passName").textContent = name;
-  $("passClosing").textContent = PASS_CLOSING;
+  paintPassScreen();
 }
 
 export function onEnterEve(screenId) {
@@ -190,18 +220,65 @@ export function onEnterEve(screenId) {
   if (screenId === "eve-pass") completeChapter1Invitation();
 }
 
-function openChapter1ReplayConfirm() {
-  const root = $("chapter1ReplayConfirm");
-  if (!root) return;
-  show(root);
-  root.removeAttribute("hidden");
-  $("chapter1ReplayCancel")?.focus();
-}
+let chapter1ReplayConfirmAbort = null;
 
 function closeChapter1ReplayConfirm() {
   const root = $("chapter1ReplayConfirm");
+  chapter1ReplayConfirmAbort?.abort();
+  chapter1ReplayConfirmAbort = null;
   hide(root);
   root?.setAttribute("hidden", "");
+}
+
+function openChapter1ReplayConfirm() {
+  const root = $("chapter1ReplayConfirm");
+  if (!root) return;
+  chapter1ReplayConfirmAbort?.abort();
+  const ac = new AbortController();
+  chapter1ReplayConfirmAbort = ac;
+  const { signal } = ac;
+  const prevFocus = document.activeElement;
+
+  show(root);
+  root.removeAttribute("hidden");
+  $("chapter1ReplayAccept")?.focus();
+
+  const trap = (e) => {
+    if (e.key !== "Tab" || !root.contains(document.activeElement)) return;
+    const focusable = root.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const list = [...focusable].filter((n) => !n.disabled);
+    if (!list.length) return;
+    const first = list[0];
+    const last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
+  const onKey = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeChapter1ReplayConfirm();
+      if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    }
+    trap(e);
+  };
+
+  document.addEventListener("keydown", onKey, { signal });
+  $("chapter1ReplayCancel")?.addEventListener(
+    "click",
+    () => {
+      closeChapter1ReplayConfirm();
+      if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus();
+    },
+    { signal }
+  );
 }
 
 export function initEvePrelude(nav) {
@@ -276,7 +353,6 @@ export function initEvePrelude(nav) {
 
   $("btnPlayChapter1Again")?.addEventListener("click", openChapter1ReplayConfirm);
   $("btnPlayChapter1AgainLock")?.addEventListener("click", openChapter1ReplayConfirm);
-  $("chapter1ReplayCancel")?.addEventListener("click", closeChapter1ReplayConfirm);
   $("chapter1ReplayAccept")?.addEventListener("click", () => {
     closeChapter1ReplayConfirm();
     const packing = $("packingList");

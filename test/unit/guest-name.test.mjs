@@ -26,3 +26,9 @@ test("sanitizeGuestName caps length at 40", () => {
 test("sanitizeGuestName strips lady prefix", () => {
   assert.equal(sanitizeGuestName("lady Elif"), "Elif");
 });
+
+test("Adventurer display name is not titled Lady", async () => {
+  const { isAdventurerDisplayName } = await import("../../js/state.js");
+  assert.equal(isAdventurerDisplayName("Adventurer"), true);
+  assert.equal(isAdventurerDisplayName("Ayse"), false);
+});

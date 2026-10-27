@@ -37,6 +37,8 @@ function persistAnswer(q, payload) {
 function advanceSurvey() {
   const next = (state.chapter1Step ?? 0) + 1;
   if (next >= CHAPTER1_SURVEY_STEPS) {
+    state.chapter1Step = CHAPTER1_SURVEY_STEPS;
+    saveState();
     navigate("eve-pass");
     return;
   }
