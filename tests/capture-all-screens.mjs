@@ -19,7 +19,6 @@ const SCREENS = [
   "summons",
   "steed",
   "sheet",
-  "rating",
   "journal",
   "dragon",
   "honest-no",
@@ -27,6 +26,7 @@ const SCREENS = [
   "potion",
   "stars",
   "oracle",
+  "rating",
   "decree",
 ];
 

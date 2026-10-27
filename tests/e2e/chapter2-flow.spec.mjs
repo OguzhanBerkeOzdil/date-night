@@ -56,3 +56,15 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await expect(page.locator("#horsePersonality")).toBeVisible();
   });
 }
+
+test("rating comes after oracle and before decree @ mobile-390", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-390");
+  const { reachDecreeMouse } = await import("./helpers/quest-path.mjs");
+  await page.addInitScript(() => {
+    globalThis.__CHAPTER_TWO_RELEASED_OVERRIDE__ = true;
+  });
+  await reachDecreeMouse(page);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
+  expect(saved.lastScreen).toBe("decree");
+  expect(saved.rating).toBeGreaterThanOrEqual(1);
+});

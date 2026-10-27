@@ -126,13 +126,13 @@ const MAIN_QUEST_SCREENS = new Set([
   "gerald-toll",
   "steed",
   "sheet",
-  "rating",
   "journal",
   "dragon",
   "tavern",
   "potion",
   "stars",
   "oracle",
+  "rating",
   "decree",
   "chapter-two-pause",
   "chapter-two-finish",
@@ -489,24 +489,33 @@ function initSheet() {
     $("classChosen").textContent = `Class chosen: ${state.steedClass}.`;
     show($("btnSheetNext"));
   });
-  $("btnSheetNext")?.addEventListener("click", () => navigate("rating"));
+  $("btnSheetNext")?.addEventListener("click", () => navigate("journal"));
+}
+
+const RATING_CAPTIONS = {
+  1: "Very calm: short plan, plenty of breathing room.",
+  2: "Easy pace: one plan and a reliable snack.",
+  3: "Balanced: room for fun and a snack break.",
+  4: "Adventurous: a little surprise is welcome.",
+  5: "Full quest energy: the horse packed extra courage.",
+};
+
+function syncRatingUi() {
+  const slider = $("ratingSlider");
+  const value = Number(state.rating) || 3;
+  if (slider) slider.value = String(value);
+  if ($("ratingValue")) $("ratingValue").textContent = String(value);
+  if ($("ratingCaption")) $("ratingCaption").textContent = RATING_CAPTIONS[value] || RATING_CAPTIONS[3];
 }
 
 function initRating() {
   const slider = $("ratingSlider");
-  const captions = {
-    1: "Very calm: short plan, plenty of breathing room.",
-    2: "Easy pace: one plan and a reliable snack.",
-    3: "Balanced: room for fun and a snack break.",
-    4: "Adventurous: a little surprise is welcome.",
-    5: "Full quest energy: the horse packed extra courage.",
-  };
   show($("ratingChipsField"));
   show($("ratingChipLead"));
   slider?.addEventListener("input", () => {
     state.rating = Number(slider.value);
     $("ratingValue").textContent = slider.value;
-    $("ratingCaption").textContent = captions[slider.value];
+    $("ratingCaption").textContent = RATING_CAPTIONS[slider.value];
     saveState();
   });
   $("ratingChips")?.addEventListener("click", (event) => {
@@ -516,7 +525,7 @@ function initRating() {
     selectChip($("ratingChips"), button);
     saveState();
   });
-  $("btnRatingNext")?.addEventListener("click", () => navigate("journal"));
+  $("btnRatingNext")?.addEventListener("click", () => navigate("decree"));
 }
 
 function initJournal() {
@@ -780,7 +789,7 @@ function initOracle() {
   });
   $("btnToDecree")?.addEventListener("click", () => {
     duckMusic(false);
-    navigate("decree");
+    navigate("rating");
   });
 }
 
@@ -944,6 +953,7 @@ export function onScreenEnter(id) {
   if (id.startsWith("eve-")) onEnterEve(id);
   if (id === "steed") onEnterSteed();
   if (id === "oracle") restoreOracleFromState();
+  if (id === "rating") syncRatingUi();
   if (id === "potion") {
     stirCount = state.potionName ? 3 : 0;
     potionBottled = Boolean(state.potionName);

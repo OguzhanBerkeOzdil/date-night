@@ -9,9 +9,6 @@ export async function breakSealKeyboard(page) {
 
 export async function runQuestToDragonKeyboard(page) {
   await page.goto("/?name=Ayse");
-  await tabTo(page, "#btnNewGame");
-  await activate(page);
-  await confirmNewQuestIfShown(page);
   await completeEveMouse(page);
   await waitForScreen(page, "summons");
   await breakSealKeyboard(page);
@@ -30,9 +27,6 @@ export async function runQuestToDragonKeyboard(page) {
   await tabTo(page, '[data-class="Knight of the Wildflowers"]');
   await activate(page);
   await tabTo(page, "#btnSheetNext");
-  await activate(page);
-  await waitForScreen(page, "rating");
-  await tabTo(page, "#btnRatingNext");
   await activate(page);
   await waitForScreen(page, "journal");
   await tabTo(page, ".journal-entry");
@@ -73,6 +67,9 @@ export async function runQuestToDecreeKeyboard(page) {
   await page.waitForSelector("#btnToDecree:not(.hidden)", { timeout: 8000 });
   await tabTo(page, "#btnToDecree");
   await activate(page);
+  await waitForScreen(page, "rating");
+  await tabTo(page, "#btnRatingNext");
+  await activate(page);
   await waitForScreen(page, "decree");
 }
 
@@ -94,7 +91,6 @@ export async function reachDecreeMouse(page) {
   await page.locator("#btnRoll").click();
   await page.locator('[data-class="Knight of the Wildflowers"]').click();
   await page.locator("#btnSheetNext").click();
-  await page.locator("#btnRatingNext").click();
   await page.locator(".journal-entry").first().click();
   await page.locator("#btnYes").click();
   await page.locator(".menu-item").first().click();
@@ -108,5 +104,7 @@ export async function reachDecreeMouse(page) {
   await page.locator(".tarot-card").first().click();
   await page.locator("#btnOpenLetter").click();
   await page.locator("#btnToDecree").click();
+  await page.waitForSelector('[data-screen="rating"].screen--active');
+  await page.locator("#btnRatingNext").click();
   await page.waitForSelector('[data-screen="decree"].screen--active');
 }

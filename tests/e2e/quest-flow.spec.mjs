@@ -24,7 +24,6 @@ async function reachDragon(page) {
   await page.locator("#btnRoll").click();
   await page.locator('[data-class="Knight of the Wildflowers"]').click();
   await page.locator("#btnSheetNext").click();
-  await page.locator("#btnRatingNext").click();
   await page.locator(".journal-entry").first().click();
   await page.waitForSelector('[data-screen="dragon"].screen--active');
 }

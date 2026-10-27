@@ -279,30 +279,6 @@
       </div>
     </section>
 
-    <section class="screen" data-screen="rating">
-      <div class="screen__inner ornate parchment">
-        <h2 class="title">Pick the quest's energy</h2>
-        <p class="sub">This rates the adventure level, not a person. The horse insisted we clarify.</p>
-        <div class="slider-wrap">
-          <label class="field-label" for="ratingSlider">Adventure energy</label>
-          <input type="range" id="ratingSlider" min="1" max="5" value="3" aria-describedby="ratingCaption">
-          <div class="slider-value" id="ratingValue" aria-hidden="true">3</div>
-          <p id="ratingCaption" class="caption">Balanced: room for fun and a snack break.</p>
-          <p class="sub-label hidden" id="ratingChipLead">Optional quest modifier</p>
-          <fieldset id="ratingChipsField" class="chip-field hidden" hidden>
-            <legend class="sub-label" id="ratingChipsLegend">Optional quest modifier</legend>
-          <div id="ratingChips" class="chip-row" role="group" aria-labelledby="ratingChipsLegend">
-            <button type="button" class="chip-select" data-rating-chip="keep it spontaneous">Keep it spontaneous</button>
-            <button type="button" class="chip-select" data-rating-chip="leave room for snacks">Leave room for snacks</button>
-            <button type="button" class="chip-select" data-rating-chip="gentle pace">Gentle pace</button>
-            <button type="button" class="chip-select" data-rating-chip="surprise me">Surprise me</button>
-          </div>
-          </fieldset>
-        </div>
-        <button type="button" class="btn btn--primary" id="btnRatingNext">Save the energy</button>
-      </div>
-    </section>
-
     <section class="screen" data-screen="journal">
       <div class="screen__inner journal-panel ornate">
         <h2 class="title">The quest could feel like…</h2>
@@ -399,6 +375,30 @@
           <div id="letterBody" class="letter-body"></div>
         </div>
         <button type="button" class="btn btn--primary hidden" id="btnToDecree">Continue to the quest log</button>
+      </div>
+    </section>
+
+    <section class="screen" data-screen="rating">
+      <div class="screen__inner ornate parchment">
+        <h2 class="title">Pick the quest's energy</h2>
+        <p class="sub">This rates the adventure level, not a person. The horse insisted we clarify.</p>
+        <div class="slider-wrap">
+          <label class="field-label" for="ratingSlider">Adventure energy</label>
+          <input type="range" id="ratingSlider" min="1" max="5" value="3" aria-describedby="ratingCaption">
+          <div class="slider-value" id="ratingValue" aria-hidden="true">3</div>
+          <p id="ratingCaption" class="caption">Balanced: room for fun and a snack break.</p>
+          <p class="sub-label hidden" id="ratingChipLead">Optional quest modifier</p>
+          <fieldset id="ratingChipsField" class="chip-field hidden" hidden>
+            <legend class="sub-label" id="ratingChipsLegend">Optional quest modifier</legend>
+          <div id="ratingChips" class="chip-row" role="group" aria-labelledby="ratingChipsLegend">
+            <button type="button" class="chip-select" data-rating-chip="keep it spontaneous">Keep it spontaneous</button>
+            <button type="button" class="chip-select" data-rating-chip="leave room for snacks">Leave room for snacks</button>
+            <button type="button" class="chip-select" data-rating-chip="gentle pace">Gentle pace</button>
+            <button type="button" class="chip-select" data-rating-chip="surprise me">Surprise me</button>
+          </div>
+          </fieldset>
+        </div>
+        <button type="button" class="btn btn--primary" id="btnRatingNext">Stamp the quest log →</button>
       </div>
     </section>
 
