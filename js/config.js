@@ -18,10 +18,11 @@ export const CONFIG = {
   defaultTitle: "my lady",
   letter: [
     "Dear {name},",
-    "I built a small kingdom just to ask you a few questions. A bit much? Yes. Worth it? Also yes.",
-    "Thank you for today. The oracle said you'd be good company, and the oracle undersold it.",
-    "I'd like another ride, another tavern, and another excuse to make you laugh.",
-    "— Your humble knight, {fromName} (and {steedName}, who insisted on being mentioned)",
+    "Thanks for opening round two of this very extra scroll. A bit much? Yes. Still funny? I hope so.",
+    "Today was a good quest. The horse has notes. The dragon lost an argument. I'd call that a win.",
+    "Nothing in here comes with pressure — an honest \"nay\" is a valid ending, and the log still saves.",
+    "If you're up for another ride, tavern stop, or potion-tasting experiment, I'm in.",
+    "— {fromName}, part-time knight & snack carrier ({steedName} asked to be cc'd)",
   ],
 };
 

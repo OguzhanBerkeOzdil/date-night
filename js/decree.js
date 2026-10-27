@@ -72,7 +72,7 @@ export function buildSummaryText() {
     `Secret ingredient: ${state.notes || "—"}`,
     fanumLine(),
     achLine,
-    "Sealed with wax (and a few butterflies).",
+    "Sealed with wax (and one horse hair, for authenticity).",
   ];
   return lines.join("\n");
 }
