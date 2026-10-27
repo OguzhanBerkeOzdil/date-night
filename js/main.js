@@ -1,6 +1,8 @@
 import { BG_BY_SCREEN, SCREENS } from "./config.js";
 import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
-import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
+import { loadSoundPref, setSoundOn, isSoundOn, ensureBackgroundMusic } from "./audio.js";
+import { flushFeedbackQueue } from "./feedback.js";
+import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
 import { initBardQuill, syncBardQuill } from "./bard.js";
 import { initEpigraphs, updateEpigraph } from "./epigraph.js";
 import { initHud, updateHud } from "./hud.js";
@@ -137,13 +139,17 @@ function initSoundToggle() {
   sync();
   btn?.addEventListener("click", () => {
     setSoundOn(!isSoundOn());
+    ensureBackgroundMusic();
     sync();
   });
 }
 
 function boot() {
+  flushFeedbackQueue();
   personalize();
   syncContinueButton();
+  const note = document.getElementById("feedbackNote");
+  if (note) note.textContent = FEEDBACK_HONESTY_NOTE;
   const sendBtn = document.getElementById("btnShare");
   if (sendBtn) {
     import("./config.js").then(({ CONFIG }) => {

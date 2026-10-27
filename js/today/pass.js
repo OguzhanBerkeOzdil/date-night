@@ -1,0 +1,62 @@
+import { QUEST_DATE_LABEL } from "../app-config.js";
+
+export async function renderQuestPassCanvas(guestName) {
+  await document.fonts.ready;
+  const w = 900;
+  const h = 1200;
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const g = c.getContext("2d");
+
+  const parchment = new Image();
+  parchment.src = "../assets/images/parchment.webp";
+  await parchment.decode().catch(() => {});
+  if (parchment.complete && parchment.naturalWidth) {
+    g.drawImage(parchment, 0, 0, w, h);
+  } else {
+    g.fillStyle = "#f4e8d0";
+    g.fillRect(0, 0, w, h);
+  }
+
+  g.strokeStyle = "#6b2d3a";
+  g.lineWidth = 4;
+  g.strokeRect(40, 40, w - 80, h - 80);
+
+  g.fillStyle = "#4a1f28";
+  g.font = '700 36px "Cinzel", serif';
+  g.textAlign = "center";
+  g.fillText("QUEST PASS", w / 2, 120);
+  g.font = '500 24px "Cinzel", serif';
+  g.fillText("Summoned for tomorrow's quest", w / 2, 170);
+
+  g.font = '400 28px "Crimson Pro", serif';
+  g.fillText(guestName, w / 2, 280);
+  g.font = 'italic 22px "Crimson Pro", serif';
+  g.fillText(QUEST_DATE_LABEL, w / 2, 330);
+
+  g.font = '400 20px "Crimson Pro", serif';
+  g.fillText("Present this to the realm tomorrow.", w / 2, 400);
+  g.fillText("(Or just show up. Paper optional.)", w / 2, 440);
+
+  const seal = new Image();
+  seal.src = "../assets/images/wax-seal.webp";
+  await seal.decode().catch(() => {});
+  if (seal.complete && seal.naturalWidth) {
+    g.drawImage(seal, w / 2 - 70, h - 280, 140, 140);
+  }
+
+  return c;
+}
+
+export async function downloadQuestPassPng(guestName) {
+  const c = await renderQuestPassCanvas(guestName);
+  const blob = await new Promise((resolve, reject) => {
+    c.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob null"))), "image/png");
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "quest-pass.png";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}

@@ -21,6 +21,7 @@ const port = Number(process.env.PORT || 4173);
 const server = createServer(async (req, res) => {
   let path = req.url?.split("?")[0] || "/";
   if (path === "/") path = "/index.html";
+  if (path === "/today" || path === "/today/") path = "/today/index.html";
   try {
     const file = join(root, path.replace(/^\//, ""));
     const data = await readFile(file);
