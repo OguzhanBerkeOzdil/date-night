@@ -2,6 +2,7 @@ import { QUEST_DATE_LABEL } from "../app-config.js";
 import { adventurerProfileFromAnswers } from "../chapter1-survey-data.js";
 import { CONFIG } from "../config.js";
 import { PASS_HEIGHT, PASS_WIDTH } from "../quest-pass-layout.js";
+import { questPassPresentLine, questPassSummonSubtitle } from "../quest-date.js";
 import { state } from "../state.js";
 
 const PARCHMENT_URL = new URL("../../assets/images/parchment.webp", import.meta.url).href;
@@ -40,7 +41,7 @@ export async function renderQuestPassCanvas(guestName) {
   g.textAlign = "center";
   g.fillText("QUEST PASS", w / 2, 120);
   g.font = '500 24px "Cinzel", serif';
-  g.fillText("Summoned for tomorrow's quest", w / 2, 170);
+  g.fillText(questPassSummonSubtitle(), w / 2, 170);
 
   g.font = '400 28px "Crimson Pro", serif';
   g.fillText(guestName, w / 2, 280);
@@ -48,7 +49,7 @@ export async function renderQuestPassCanvas(guestName) {
   g.fillText(QUEST_DATE_LABEL, w / 2, 330);
 
   g.font = '400 20px "Crimson Pro", serif';
-  g.fillText("Present this to the realm tomorrow.", w / 2, 400);
+  g.fillText(questPassPresentLine(), w / 2, 400);
   g.fillText("(Or just show up. Paper optional.)", w / 2, 440);
 
   const profile = adventurerProfileFromAnswers(state.chapter1Answers);

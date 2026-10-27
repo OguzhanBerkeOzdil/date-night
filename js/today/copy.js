@@ -67,8 +67,11 @@ export const PACKING_ITEMS = [
   { id: "shoes", label: PACKING_REAL_TIP, joke: false },
 ];
 
-export const PASS_TITLE = "Summoned for tomorrow's quest";
-import { chapterTwoPassClosingLine } from "../quest-date.js";
+import { chapterTwoPassClosingLine, questPassSummonSubtitle } from "../quest-date.js";
+
+export function passTitleLine() {
+  return questPassSummonSubtitle();
+}
 
 export function passClosingLine() {
   return chapterTwoPassClosingLine();

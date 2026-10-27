@@ -1,6 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chapterTwoIsAvailable, dateKeyInTimeZone, formatQuestDate } from "../../js/quest-date.js";
+import {
+  certificatePassSubtitle,
+  chapterTwoIsAvailable,
+  dateKeyInTimeZone,
+  formatQuestDate,
+  questDayHasArrived,
+  questPassPresentLine,
+  questPassSummonSubtitle,
+} from "../../js/quest-date.js";
 
 test("chapter II remains locked before the Warsaw calendar date", () => {
   const now = new Date("2026-10-27T22:30:00Z");
@@ -18,4 +26,34 @@ test("chapter II opens on the scheduled date only after owner release", () => {
 test("owner release never bypasses the scheduled date and readable date works", () => {
   assert.equal(chapterTwoIsAvailable({ scheduledDate: "2099-01-01", released: true }), false);
   assert.match(formatQuestDate("2026-10-28", "Europe/Warsaw"), /28 October/);
+});
+
+test("quest day copy switches from tomorrow to today on QUEST_DATE_ISO", () => {
+  const before = new Date("2026-10-27T12:00:00Z");
+  const onDay = new Date("2026-10-28T08:00:00Z");
+  assert.equal(questDayHasArrived({ now: before }), false);
+  assert.equal(questDayHasArrived({ now: onDay }), true);
+  assert.match(questPassSummonSubtitle({ now: before }), /tomorrow/i);
+  assert.match(questPassSummonSubtitle({ now: onDay }), /today/i);
+  assert.match(questPassPresentLine({ now: onDay }), /today/i);
+});
+
+test("certificate pass subtitle stays sealed until Chapter II is available", () => {
+  const onDay = new Date("2026-10-28T08:00:00Z");
+  assert.match(
+    certificatePassSubtitle({
+      now: onDay,
+      scheduledDate: "2026-10-28",
+      released: false,
+    }),
+    /seal pending/i
+  );
+  assert.match(
+    certificatePassSubtitle({
+      now: onDay,
+      scheduledDate: "2026-10-28",
+      released: true,
+    }),
+    /officially unlocked/i
+  );
 });

@@ -1,5 +1,5 @@
 import { CONFIG } from "./config.js";
-import { CHAPTER_TWO_RELEASED } from "./app-config.js";
+import { CHAPTER_TWO_RELEASED, QUEST_DATE_ISO, QUEST_DATE_LABEL } from "./app-config.js";
 
 export function dateKeyInTimeZone(date = new Date(), timeZone = CONFIG.timeZone) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -29,6 +29,47 @@ export function chapterTwoIsAvailable({
 export function chapterTwoOpensTomorrow({ scheduledDate = CONFIG.scheduledDate, timeZone = CONFIG.timeZone, now = new Date() } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledDate || "")) return true;
   return dateKeyInTimeZone(now, timeZone) < scheduledDate;
+}
+
+/** True on/after QUEST_DATE_ISO in Warsaw (Chapter I quest day). */
+export function questDayHasArrived({
+  questDate = QUEST_DATE_ISO,
+  timeZone = CONFIG.timeZone,
+  now = new Date(),
+} = {}) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(questDate || "")) return false;
+  return dateKeyInTimeZone(now, timeZone) >= questDate;
+}
+
+export function questPassSummonSubtitle(opts) {
+  return questDayHasArrived(opts) ? "Summoned for today's quest" : "Summoned for tomorrow's quest";
+}
+
+export function questPassPresentLine(opts) {
+  return questDayHasArrived(opts)
+    ? "Present this to the realm today."
+    : "Present this to the realm tomorrow.";
+}
+
+export function questPassSealUntilLine(opts) {
+  return questDayHasArrived(opts) ? "Seal it for today's quest" : "Seal it until tomorrow";
+}
+
+export function certificateSummonedForLine({
+  rideDayLabel = QUEST_DATE_LABEL,
+  ...opts
+} = {}) {
+  if (questDayHasArrived(opts)) {
+    return `Summoned for today's quest (${rideDayLabel})`;
+  }
+  return `Summoned for: ${rideDayLabel}`;
+}
+
+export function certificatePassSubtitle(opts = {}) {
+  if (chapterTwoIsAvailable(opts)) {
+    return "Second quest: officially unlocked";
+  }
+  return "Second quest: seal pending (wax still cooling)";
 }
 
 export function chapterLockMessage({
