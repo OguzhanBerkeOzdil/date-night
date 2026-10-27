@@ -1,16 +1,10 @@
 import { QUEST_DATE_LABEL } from "../app-config.js";
 import { adventurerProfileFromAnswers } from "../chapter1-survey-data.js";
 import { CONFIG } from "../config.js";
-import {
-  PASS_HEIGHT,
-  PASS_WIDTH,
-  coverBakedPassSeal,
-  passSealRect,
-} from "../quest-pass-layout.js";
+import { PASS_HEIGHT, PASS_WIDTH } from "../quest-pass-layout.js";
 import { state } from "../state.js";
 
 const PARCHMENT_URL = new URL("../../assets/images/parchment.webp", import.meta.url).href;
-const WAX_SEAL_URL = new URL("../../assets/images/wax-seal.webp", import.meta.url).href;
 
 async function loadImage(url) {
   const img = new Image();
@@ -36,7 +30,6 @@ export async function renderQuestPassCanvas(guestName) {
   const parchment = await loadImage(PARCHMENT_URL);
   if (parchment.naturalWidth) {
     g.drawImage(parchment, 0, 0, w, h);
-    coverBakedPassSeal(g, parchment, w, h);
   } else {
     g.fillStyle = "#f4e8d0";
     g.fillRect(0, 0, w, h);
@@ -63,12 +56,6 @@ export async function renderQuestPassCanvas(guestName) {
   g.fillText(`Class: ${profile.class} · Weapon: ${profile.weapon}`, w / 2, 500);
   g.fillText(`Companion: ${profile.companion}`, w / 2, 530);
   g.fillText(`Issued by ${CONFIG.fromName}`, w / 2, 580);
-
-  const seal = await loadImage(WAX_SEAL_URL);
-  const sealBox = passSealRect(w, h);
-  if (seal.naturalWidth) {
-    g.drawImage(seal, sealBox.x, sealBox.y, sealBox.w, sealBox.h);
-  }
 
   return c;
 }

@@ -88,3 +88,18 @@ test("certificate uses adventurer name without Lady prefix", async ({ page }) =>
   });
   expect(adventurerLine).toBe("Adventurer: Test");
 });
+
+test("certificate PNG keeps parchment baked seal only", async ({ page }) => {
+  await page.goto("/?name=Test");
+  const sealCheck = await page.evaluate(async () => {
+    const { renderCertificateCanvas } = await import("/js/certificate.js");
+    const { analyzeCertificateSeal } = await import("/js/pass-seal-analysis.js");
+    const parchment = new Image();
+    parchment.src = "/assets/images/parchment.webp";
+    await parchment.decode();
+    const canvas = await renderCertificateCanvas();
+    return analyzeCertificateSeal(canvas, parchment);
+  });
+  expect(sealCheck.hasDrawnWaxSeal).toBe(false);
+  expect(sealCheck.usesBakedSealOnly).toBe(true);
+});

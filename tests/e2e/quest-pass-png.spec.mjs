@@ -34,7 +34,7 @@ test("quest pass PNG loads assets without 404 and is not flat", async ({ page },
     return max - min;
   });
 
-  const asset404 = badUrls.filter((u) => /parchment|wax-seal/i.test(u));
+  const asset404 = badUrls.filter((u) => /parchment/i.test(u));
   expect(asset404).toEqual([]);
   expect(variance).toBeGreaterThan(25);
 
@@ -54,7 +54,9 @@ test("quest pass PNG loads assets without 404 and is not flat", async ({ page },
   });
   expect(sealCheck.seal.hasMaroonFrame).toBe(false);
   expect(sealCheck.seal.sealOverlapsRoll).toBe(false);
-  expect(sealCheck.seal.waxBlobCount).toBeLessThanOrEqual(1);
+  expect(sealCheck.seal.hasDrawnWaxSeal).toBe(false);
+  expect(sealCheck.seal.usesBakedSealOnly).toBe(true);
+  expect(sealCheck.seal.waxBlobCount).toBe(1);
   expect(sealCheck.roll.resemblesSource).toBe(true);
   expect(sealCheck.roll.whiteStripPixels).toBeLessThan(4);
   expect(sealCheck.roll.flatBandVariance).toBeGreaterThan(40);
