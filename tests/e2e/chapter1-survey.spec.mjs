@@ -54,6 +54,30 @@ test("each survey step shows character and reaction", async ({ page }, testInfo)
   await page.waitForSelector('[data-screen="eve-pass"].screen--active');
 });
 
+test("census witch stores inside-joke label for feedback", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-390");
+  await page.goto("/");
+  await page.locator("#btnNewGame").click();
+  await completeEveName(page, "Mina");
+  await page.locator("#btnExcitementNext").click();
+  await page.locator("#btnPackingNext").click();
+  for (let i = 0; i < 4; i++) {
+    await page.waitForSelector('[data-screen="eve-survey"].screen--active');
+    await page.locator("#btnSurveySkip").click();
+  }
+  await page.waitForSelector("#surveyCharacter", { hasText: "Royal census" });
+  await page.getByRole("button", { name: "A witch from the forestttt" }).click();
+  await expect(page.locator("#surveyReaction")).toHaveText(
+    "The forest has been notified. The mushrooms are nervous."
+  );
+  const census = await page.evaluate(() => {
+    const raw = localStorage.getItem("questLady_v3");
+    return raw ? JSON.parse(raw).chapter1Answers?.census : null;
+  });
+  expect(census?.label).toBe("A witch from the forestttt");
+  expect(census?.id).toBe("witch");
+});
+
 test("weapon and portrait images return 200", async ({ page }) => {
   const urls = [
     "assets/characters/lucius-bard.webp",

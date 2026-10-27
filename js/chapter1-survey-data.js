@@ -83,7 +83,11 @@ export const CHAPTER1_QUESTIONS = [
     type: "choices",
     choices: [
       { id: "knight", label: "Wandering knight", reaction: "Filed under \"polite chaos.\"" },
-      { id: "witch", label: "Forest witch", reaction: "Herbs noted. One frog salutes." },
+      {
+        id: "witch",
+        label: "A witch from the forestttt",
+        reaction: "The forest has been notified. The mushrooms are nervous.",
+      },
       { id: "whisperer", label: "Horse whisperer", reaction: "The horses have already gossiped about you." },
       { id: "legend", label: "Tavern legend", reaction: "Marta nods from offstage. No details requested." },
       { id: "mystery", label: "Mysterious stranger who refuses to explain", reaction: "Mystery kept. Gerald adds a question mark sticker." },
