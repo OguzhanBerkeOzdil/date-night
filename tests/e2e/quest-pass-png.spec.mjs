@@ -37,4 +37,25 @@ test("quest pass PNG loads assets without 404 and is not flat", async ({ page },
   const asset404 = badUrls.filter((u) => /parchment|wax-seal/i.test(u));
   expect(asset404).toEqual([]);
   expect(variance).toBeGreaterThan(25);
+
+  const sealCheck = await page.evaluate(async () => {
+    const pass = await import("/js/today/pass.js");
+    const { analyzeQuestPassSeal, analyzePassBottomRoll } = await import(
+      "/js/pass-seal-analysis.js"
+    );
+    const parchment = new Image();
+    parchment.src = "/assets/images/parchment.webp";
+    await parchment.decode();
+    const canvas = await pass.renderQuestPassCanvas("Ayse");
+    return {
+      seal: analyzeQuestPassSeal(canvas),
+      roll: analyzePassBottomRoll(canvas, parchment),
+    };
+  });
+  expect(sealCheck.seal.hasMaroonFrame).toBe(false);
+  expect(sealCheck.seal.sealOverlapsRoll).toBe(false);
+  expect(sealCheck.seal.waxBlobCount).toBeLessThanOrEqual(1);
+  expect(sealCheck.roll.resemblesSource).toBe(true);
+  expect(sealCheck.roll.whiteStripPixels).toBeLessThan(4);
+  expect(sealCheck.roll.flatBandVariance).toBeGreaterThan(40);
 });

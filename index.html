@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261109">
+  <link rel="manifest" href="manifest.webmanifest?v=20261111">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261109">
-  <link rel="stylesheet" href="css/styles.css?v=20261109">
-  <link rel="stylesheet" href="css/v2.css?v=20261109">
-  <link rel="stylesheet" href="css/desktop.css?v=20261109">
-  <link rel="stylesheet" href="css/today.css?v=20261109">
+  <link rel="stylesheet" href="css/fonts.css?v=20261111">
+  <link rel="stylesheet" href="css/styles.css?v=20261111">
+  <link rel="stylesheet" href="css/v2.css?v=20261111">
+  <link rel="stylesheet" href="css/desktop.css?v=20261111">
+  <link rel="stylesheet" href="css/today.css?v=20261111">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -95,6 +95,11 @@
     </div>
   </div>
 
+  <div class="sir-berke-cameo hidden" id="sirBerkeCameo" hidden aria-hidden="true">
+    <img id="sirBerkeImg" class="sir-berke-cameo__img" alt="" width="112" height="112" decoding="async" loading="lazy">
+    <p class="sir-berke-cameo__line" id="sirBerkeLine"></p>
+  </div>
+
   <main id="app" class="app app--v2">
     <section class="screen screen--active" data-screen="title">
       <div class="screen__inner title-screen">
@@ -113,6 +118,7 @@
 
     <section class="screen" data-screen="eve-name">
       <div class="screen__inner today-panel ornate">
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="eve-honest-slot" data-eve-honest-slot></div>
         <p class="kicker">Tonight · eve of the quest</p>
         <img class="today-character" src="assets/characters/goblin-herald.webp" alt="" width="120" height="120" loading="eager" decoding="async">
@@ -151,6 +157,7 @@
 
     <section class="screen" data-screen="eve-survey">
       <div class="screen__inner today-panel ornate">
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="eve-honest-slot" data-eve-honest-slot></div>
         <p class="chapter1-progress" id="chapter1Progress" aria-live="polite">Question 1/9</p>
         <img class="today-character" id="surveyPortrait" src="assets/characters/lucius-bard.webp" alt="" width="100" height="100" loading="lazy" decoding="async">
@@ -177,6 +184,7 @@
 
     <section class="screen" data-screen="eve-pass">
       <div class="screen__inner today-panel ornate today-panel--pass">
+        <div class="sir-berke-slot" data-sir-berke-slot></div>
         <h2 class="title">Quest Pass</h2>
         <p class="pass-name" id="passName"></p>
         <p class="sub">Summoned for tomorrow's quest</p>
@@ -500,6 +508,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261109"></script>
+  <script type="module" src="js/main.js?v=20261111"></script>
 </body>
 </html>

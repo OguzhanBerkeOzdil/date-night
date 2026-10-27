@@ -56,6 +56,158 @@
   background: rgba(252, 245, 232, 0.94);
   border-radius: var(--radius);
   margin-top: 8px;
+  position: relative;
+}
+
+.sir-berke-slot {
+  position: absolute;
+  top: 52px;
+  right: 4px;
+  width: 112px;
+  max-width: 32%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.today-panel--berke {
+  padding-right: 118px;
+}
+
+[data-screen="eve-name"] .sir-berke-slot {
+  top: 168px;
+  right: 6px;
+  bottom: auto;
+  width: 88px;
+}
+
+[data-screen="eve-name"] .sir-berke-cameo__img {
+  width: 88px;
+  height: 88px;
+}
+
+[data-screen="eve-name"] .sir-berke-cameo__line {
+  display: none;
+}
+
+[data-screen="eve-name"] .today-panel--berke {
+  padding-right: 100px;
+}
+
+[data-screen="eve-pass"] .sir-berke-slot {
+  position: static;
+  top: auto;
+  bottom: auto;
+  right: auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto 10px;
+  display: flex;
+  justify-content: center;
+}
+
+[data-screen="eve-pass"] .sir-berke-cameo__img {
+  width: 96px;
+  height: 96px;
+}
+
+[data-screen="eve-pass"] .sir-berke-cameo__line {
+  display: block;
+  max-width: 14rem;
+}
+
+[data-screen="eve-pass"] .today-panel--berke {
+  padding-right: 18px;
+}
+
+[data-screen="eve-survey"] .sir-berke-slot {
+  top: 58px;
+  bottom: auto;
+  right: 4px;
+  left: auto;
+  width: 96px;
+}
+
+[data-screen="eve-survey"] .sir-berke-cameo__img {
+  width: 96px;
+  height: 96px;
+}
+
+[data-screen="eve-survey"] .today-panel--berke {
+  padding-right: 108px;
+}
+
+[data-screen="eve-survey"] .sir-berke-cameo__line {
+  display: none;
+}
+
+.sir-berke-cameo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.sir-berke-cameo__img {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+}
+
+.sir-berke-cameo__line {
+  margin: 0;
+  padding: 4px 6px;
+  font-size: 0.65rem;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--burgundy-deep);
+  background: rgba(255, 252, 245, 0.92);
+  border-radius: 8px;
+  border: 1px solid rgba(107, 45, 58, 0.2);
+}
+
+@media (max-width: 360px) {
+  .today-panel--berke {
+    padding-right: 88px;
+  }
+
+  [data-screen="eve-name"] .today-panel--berke {
+    padding-right: 92px;
+  }
+
+  [data-screen="eve-survey"] .today-panel--berke {
+    padding-right: 96px;
+  }
+
+  [data-screen="eve-name"] .sir-berke-slot {
+    top: 168px;
+    width: 72px;
+  }
+
+  [data-screen="eve-name"] .sir-berke-cameo__img {
+    width: 72px;
+    height: 72px;
+  }
+
+  [data-screen="eve-survey"] .sir-berke-slot {
+    top: 58px;
+    width: 80px;
+  }
+
+  [data-screen="eve-survey"] .sir-berke-cameo__img {
+    width: 80px;
+    height: 80px;
+  }
+
+  [data-screen="eve-pass"] .sir-berke-cameo__img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .sir-berke-cameo__line {
+    display: none;
+  }
 }
 
 .today-character {

@@ -1,4 +1,5 @@
 import { CHAPTER1_QUESTIONS, CHAPTER1_SURVEY_STEPS } from "./chapter1-survey-data.js";
+import { paintSirBerkeCameo } from "./sir-berke-cameo.js";
 import { saveState, state } from "./state.js";
 
 let navigate;
@@ -63,6 +64,7 @@ function selectChoice(q, ch) {
 function paintSurveyQuestion() {
   const q = currentQuestion();
   if (!q) return;
+  paintSirBerkeCameo({ screenId: "eve-survey", questionId: q.id });
   const step = (state.chapter1Step ?? 0) + 1;
   const progress = $("chapter1Progress");
   if (progress) progress.textContent = `Question ${step}/${CHAPTER1_SURVEY_STEPS}`;

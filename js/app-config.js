@@ -1,7 +1,8 @@
 /** Shared app constants (main quest + Eve of the Quest). */
 
 /** After FormSubmit email activation, swap to the random alias URL FormSubmit provides. */
-export const FORM_SUBMIT_ENDPOINT = "https://formsubmit.co/ajax/ozdiloguzhanberke@gmail.com";
+export const FORM_SUBMIT_ENDPOINT =
+  "https://formsubmit.co/ajax/2ee0a4c67c7dbdb0028492bf48d9df9a";
 
 /** Shown on the Quest Pass and certificate. */
 export const QUEST_DATE_LABEL = "Wednesday 28 October 2026";
@@ -9,7 +10,7 @@ export const QUEST_DATE_ISO = "2026-10-28";
 
 /**
  * Owner-controlled release switch for Chapter II.
- * Keep false until Oğuzhan explicitly approves the morning release.
+ * Keep false until the owner (Berke) explicitly approves the morning release.
  */
 export const CHAPTER_TWO_RELEASED = false;
 

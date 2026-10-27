@@ -1,6 +1,12 @@
 import { QUEST_DATE_LABEL } from "../app-config.js";
 import { adventurerProfileFromAnswers } from "../chapter1-survey-data.js";
 import { CONFIG } from "../config.js";
+import {
+  PASS_HEIGHT,
+  PASS_WIDTH,
+  coverBakedPassSeal,
+  passSealRect,
+} from "../quest-pass-layout.js";
 import { state } from "../state.js";
 
 const PARCHMENT_URL = new URL("../../assets/images/parchment.webp", import.meta.url).href;
@@ -20,8 +26,8 @@ async function loadImage(url) {
 
 export async function renderQuestPassCanvas(guestName) {
   await document.fonts.ready;
-  const w = 900;
-  const h = 1200;
+  const w = PASS_WIDTH;
+  const h = PASS_HEIGHT;
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -30,14 +36,11 @@ export async function renderQuestPassCanvas(guestName) {
   const parchment = await loadImage(PARCHMENT_URL);
   if (parchment.naturalWidth) {
     g.drawImage(parchment, 0, 0, w, h);
+    coverBakedPassSeal(g, parchment, w, h);
   } else {
     g.fillStyle = "#f4e8d0";
     g.fillRect(0, 0, w, h);
   }
-
-  g.strokeStyle = "#6b2d3a";
-  g.lineWidth = 4;
-  g.strokeRect(40, 40, w - 80, h - 80);
 
   g.fillStyle = "#4a1f28";
   g.font = '700 36px "Cinzel", serif';
@@ -62,8 +65,9 @@ export async function renderQuestPassCanvas(guestName) {
   g.fillText(`Issued by ${CONFIG.fromName}`, w / 2, 580);
 
   const seal = await loadImage(WAX_SEAL_URL);
+  const sealBox = passSealRect(w, h);
   if (seal.naturalWidth) {
-    g.drawImage(seal, w / 2 - 70, h - 280, 140, 140);
+    g.drawImage(seal, sealBox.x, sealBox.y, sealBox.w, sealBox.h);
   }
 
   return c;
