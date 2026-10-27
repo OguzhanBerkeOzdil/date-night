@@ -31,6 +31,7 @@ const SAFE_STATE_KEYS = [
   "ratingBonus",
   "ratingChip",
   "todayVibe",
+  "dragonChoice",
   "secondDate",
   "food",
   "activities",

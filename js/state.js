@@ -49,7 +49,11 @@ function queryParam(name) {
 }
 
 export function parseGuestName() {
-  const name = sanitizeGuestName(queryParam("name"));
+  const fromUrl = sanitizeGuestName(queryParam("name"));
+  const fromSave = sanitizeGuestName(
+    typeof state === "undefined" ? "" : state?.eveAdventurerName || ""
+  );
+  const name = fromUrl || fromSave;
   if (!name) {
     const fallback = CONFIG.defaultTitle || "my lady";
     const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
@@ -107,6 +111,7 @@ export function defaultState() {
     ratingBonus: false,
     ratingChip: "",
     todayVibe: "",
+    dragonChoice: "",
     secondDate: "",
     noAttempts: 0,
     food: [],
@@ -183,6 +188,16 @@ export function hasQuestSave() {
 
 export let state = loadState();
 export const guest = parseGuestName();
+
+export function setGuestName(raw) {
+  const name = sanitizeGuestName(raw);
+  if (!name) return false;
+  state.eveAdventurerName = name;
+  guest.display = name;
+  guest.formal = name;
+  guest.isLady = true;
+  return true;
+}
 
 let pendingUndoSnapshot = null;
 let questResetInFlight = false;

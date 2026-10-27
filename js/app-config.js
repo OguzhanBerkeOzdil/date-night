@@ -11,7 +11,7 @@ export const QUEST_DATE_ISO = "2026-10-28";
  * Background music MP3 (lazy-loaded when user enables sound).
  * Leave empty to use the built-in procedural ambience until the new track lands.
  */
-export const MUSIC_SRC = "";
+export const MUSIC_SRC = "../assets/audio/quest-theme.mp3";
 
 /** Real packing tip (edit here). */
 export const PACKING_REAL_TIP =

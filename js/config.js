@@ -18,10 +18,10 @@ export const CONFIG = {
   timeZone: "Europe/Warsaw",
   letter: [
     "Dear {name},",
-    "Tomorrow's briefing is ready. A bit extra? Yes. Still less paperwork than a real royal mission.",
+    "The final briefing is ready. A bit extra? Yes. Still less paperwork than a real royal mission.",
     "Your choices are clues, not promises. Plans can change, snacks can improve, and the horse has agreed to remain flexible.",
     "There is no pressure hidden in the small print. An honest answer is always the correct answer.",
-    "If you're up for the quest, I'll bring the plan and probably one bad joke.",
+    "You brought the quest energy; I'll bring the plan and probably one bad joke.",
     "— {fromName}, part-time knight and snack carrier ({steedName} requested editorial credit)",
   ],
 };

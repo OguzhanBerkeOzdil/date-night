@@ -40,7 +40,7 @@ test("honest decline visible from first moment", async ({ page }) => {
   await reachDragon(page);
   const decline = page.locator("#btnNo");
   await expect(decline).toBeVisible();
-  await expect(decline).toHaveText("Not this time");
+  await expect(decline).toHaveText("Pause the quest here");
   await decline.click();
   await page.waitForSelector('[data-screen="honest-no"].screen--active');
   await expect(page.locator('section[data-screen="honest-no"]')).toContainText("No persuasion");

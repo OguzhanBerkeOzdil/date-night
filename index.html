@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261106">
+  <link rel="manifest" href="manifest.webmanifest?v=20261107">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261106">
-  <link rel="stylesheet" href="css/styles.css?v=20261106">
-  <link rel="stylesheet" href="css/v2.css?v=20261106">
-  <link rel="stylesheet" href="css/desktop.css?v=20261106">
-  <link rel="stylesheet" href="css/today.css?v=20261106">
+  <link rel="stylesheet" href="css/fonts.css?v=20261107">
+  <link rel="stylesheet" href="css/styles.css?v=20261107">
+  <link rel="stylesheet" href="css/v2.css?v=20261107">
+  <link rel="stylesheet" href="css/desktop.css?v=20261107">
+  <link rel="stylesheet" href="css/today.css?v=20261107">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -99,11 +99,11 @@
     <section class="screen screen--active" data-screen="title">
       <div class="screen__inner title-screen">
         <div class="title-hero-scrim">
-          <p class="kicker">Chapter I · tomorrow's briefing</p>
-          <h1 class="title-lockup">A Small Quest for <span data-lady>my lady</span></h1>
+          <p class="kicker">Chapter I · today's invitation</p>
+          <h1 class="title-lockup">A Quest in Two Chapters</h1>
         </div>
         <div class="menu-plaques">
-          <button type="button" class="btn btn--primary" id="btnNewGame">▶ New Game</button>
+          <button type="button" class="btn btn--primary" id="btnNewGame">Open today's invitation</button>
           <button type="button" class="btn btn--ghost hidden" id="btnContinue">Continue</button>
           <button type="button" class="btn btn--ghost" id="btnSoundTitle">♪ Sound: Off</button>
         </div>
@@ -161,7 +161,7 @@
         <p class="sub">Summoned for tomorrow's quest</p>
         <button type="button" class="btn btn--primary" id="btnSavePass">Save pass as PNG</button>
         <p class="body-text" id="passClosing"></p>
-        <button type="button" class="btn btn--secondary" id="btnEveContinue">Continue to tomorrow's briefing</button>
+        <button type="button" class="btn btn--secondary" id="btnEveContinue">Seal it until tomorrow</button>
         <p class="small-print" id="eveFeedbackNote"></p>
       </div>
     </section>
@@ -176,9 +176,9 @@
 
     <section class="screen" data-screen="summons">
       <div class="screen__inner parchment-textured ornate">
-        <p class="kicker">Tomorrow's quest briefing</p>
+        <p class="kicker">Chapter II · the full quest</p>
         <h2 class="title">A small summons for <span data-lady>my lady</span></h2>
-        <p class="body-text">You have been selected for a very official, mildly magical planning mission for tomorrow.</p>
+        <p class="body-text">The seal is open. The horse, the oracle and several questionable decisions are waiting.</p>
         <p class="small-print">Estimated time: a few minutes. Emotional paperwork: intentionally low.</p>
         <div class="wax-art-wrap">
           <button type="button" class="wax-seal-btn" id="waxSealBtn" aria-label="Break the seal">
@@ -239,7 +239,7 @@
 
     <section class="screen" data-screen="rating">
       <div class="screen__inner ornate parchment">
-        <h2 class="title">Pick tomorrow's energy</h2>
+        <h2 class="title">Pick the quest's energy</h2>
         <p class="sub">This rates the adventure level, not a person. The horse insisted we clarify.</p>
         <div class="slider-wrap">
           <label class="field-label" for="ratingSlider">Adventure energy</label>
@@ -263,7 +263,7 @@
 
     <section class="screen" data-screen="journal">
       <div class="screen__inner journal-panel ornate">
-        <h2 class="title">Tomorrow could feel like…</h2>
+        <h2 class="title">The quest could feel like…</h2>
         <div id="journalList" class="journal-list"></div>
       </div>
     </section>
@@ -275,12 +275,12 @@
         <picture class="horse-mascot horse-mascot--quest" id="horseQuest">
           <img id="horseQuestImg" class="horse-cutout small" src="assets/images/horse-idle.webp" alt="">
         </picture>
-        <h2 class="title">Accept tomorrow's quest?</h2>
-        <p class="privacy-note">Your choices will be shared with Oğuzhan so he can prepare tomorrow's quest. No location, photos or device tracking.</p>
+        <h2 class="title">A quick quest checkpoint</h2>
+        <p class="privacy-note">Still comfortable continuing? Your choices help Oğuzhan prepare. No tracking.</p>
         <div class="date-buttons" id="dateButtons">
-          <button type="button" class="btn btn--yes" id="btnYes">Accept tomorrow's quest</button>
-          <button type="button" class="btn btn--secondary" id="btnMaybe">Show me the plan first</button>
-          <button type="button" class="btn btn--ghost" id="btnNo">Not this time</button>
+          <button type="button" class="btn btn--yes" id="btnYes">Charge onward</button>
+          <button type="button" class="btn btn--secondary" id="btnMaybe">Proceed, but blame the horse</button>
+          <button type="button" class="btn btn--ghost" id="btnNo">Pause the quest here</button>
         </div>
         <p class="yes-toast hidden" id="yesToast">Quest accepted. The horse is updating the calendar.</p>
       </div>
@@ -306,7 +306,7 @@
 
     <section class="screen" data-screen="potion">
       <div class="screen__inner ornate">
-        <h2 class="title">Brew tomorrow's quest potion</h2>
+        <h2 class="title">Brew the quest potion</h2>
         <div class="cauldron-stage" aria-hidden="true">
           <div class="cauldron-glow" id="cauldronGlow"></div>
         </div>
@@ -341,14 +341,14 @@
     <section class="screen" data-screen="oracle">
       <div class="screen__inner ornate">
         <h2 class="title">The oracle offers one clue</h2>
-        <p class="sub">Choose tomorrow's omen. The oracle accepts no liability for weather.</p>
+        <p class="sub">Choose the quest's omen. The oracle accepts no liability for weather.</p>
         <div class="tarot-row">
           <button type="button" class="tarot-card" data-card="steeds"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-steeds.webp" alt="" decoding="async"><span class="tarot-label">The Two Steeds</span></div></button>
           <button type="button" class="tarot-card" data-card="golden"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-golden-hour.webp" alt="" decoding="async"><span class="tarot-label">The Golden Hour</span></div></button>
           <button type="button" class="tarot-card" data-card="hearth"><div class="tarot-inner"><img data-lazy-src="assets/images/tarot-back.webp" alt="" decoding="async"><img class="tarot-face" data-lazy-src="assets/images/tarot-hearth.webp" alt="" decoding="async"><span class="tarot-label">The Hearth</span></div></button>
         </div>
         <p class="tarot-fortune hidden" id="tarotFortune" aria-live="polite"></p>
-        <button type="button" class="btn btn--secondary hidden" id="btnOpenLetter">Open tomorrow's briefing</button>
+        <button type="button" class="btn btn--secondary hidden" id="btnOpenLetter">Open the final briefing</button>
         <div class="letter-panel hidden" id="letterPanel">
           <div id="letterBody" class="letter-body"></div>
         </div>
@@ -358,22 +358,21 @@
 
     <section class="screen" data-screen="decree">
       <div class="screen__inner celebration">
-        <p class="kicker light">Chapter I complete</p>
-        <h2 class="title light">Adventurer's pass — quest accepted</h2>
+        <p class="kicker light">Chapter II complete</p>
+        <h2 class="title light">The full quest is complete</h2>
         <div class="decree-wrap parchment-textured ornate">
           <img id="waxStampAnim" class="wax-stamp-anim" src="assets/images/wax-seal.webp" alt="">
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
-        <p class="chapter-teaser">Chapter II unlocks tomorrow. Rest, hydrate, and notify your horse.</p>
+        <p class="chapter-teaser">The horse files this adventure under: surprisingly successful paperwork.</p>
         <div class="action-row">
-          <button type="button" class="btn btn--primary" id="btnChapterTwo">Check chapter II</button>
-          <button type="button" class="btn btn--secondary" id="btnShare">Share the pass</button>
-          <button type="button" class="btn btn--secondary" id="btnSavePng">Save pass as image</button>
+          <button type="button" class="btn btn--secondary" id="btnShare">Share the quest log</button>
+          <button type="button" class="btn btn--secondary" id="btnSavePng">Save quest log as image</button>
           <button type="button" class="btn btn--secondary" id="btnSaveCertificate">Save quest certificate</button>
-          <button type="button" class="btn btn--secondary" id="btnCopy">Copy pass</button>
+          <button type="button" class="btn btn--secondary" id="btnCopy">Copy quest log</button>
           <button type="button" class="btn btn--ghost" id="btnReplay">Begin anew</button>
         </div>
-        <p class="copy-toast hidden" id="copyToast">Pass copied</p>
+        <p class="copy-toast hidden" id="copyToast">Quest log copied</p>
       </div>
     </section>
 
@@ -385,24 +384,17 @@
         <p class="sub">The horse is resting. The calendar dragon is guarding the door.</p>
         <button type="button" class="btn btn--primary" id="btnTryChapterTwo">Check again</button>
         <button type="button" class="btn btn--ghost" id="btnOpenEarly">Open early</button>
-        <button type="button" class="link-btn" id="btnBackToPass">Return to the adventurer's pass</button>
+        <button type="button" class="link-btn" id="btnBackToPass">Return to today's invitation</button>
       </div>
     </section>
 
     <section class="screen" data-screen="chapter-two-start">
       <div class="screen__inner ornate chapter-panel">
-        <p class="kicker">Chapter II · the quest continues</p>
-        <h2 class="title">Party briefing</h2>
+        <p class="kicker">Chapter II · the full quest</p>
+        <h2 class="title">The seal is ready to break</h2>
         <div class="quest-recap" id="questRecap"></div>
-        <fieldset class="chip-field">
-          <legend class="sub-label">Choose one party buff</legend>
-          <div class="buff-grid" id="partyBuffs">
-            <button type="button" class="chip-select" data-buff="Bad-joke shield">Bad-joke shield</button>
-            <button type="button" class="chip-select" data-buff="Horse-approved courage">Horse-approved courage</button>
-            <button type="button" class="chip-select" data-buff="Snack compass">Snack compass</button>
-          </div>
-        </fieldset>
-        <button type="button" class="btn btn--primary" id="btnStartAdventure">Start today's adventure</button>
+        <p class="body-text">Yesterday was the invitation. Today the complete adventure begins.</p>
+        <button type="button" class="btn btn--primary" id="btnStartAdventure">Break the seal and begin</button>
       </div>
     </section>
 
@@ -486,6 +478,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261106"></script>
+  <script type="module" src="js/main.js?v=20261107"></script>
 </body>
 </html>

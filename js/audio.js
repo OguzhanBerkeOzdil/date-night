@@ -1,8 +1,39 @@
+import { MUSIC_SRC } from "./app-config.js";
+
 let ctx = null;
-let musicGain = null;
 let sfxGain = null;
-let musicOsc = null;
+let music = null;
+let musicStarted = false;
+let musicDucked = false;
 let soundOn = false;
+
+const MUSIC_VOLUME = 0.22;
+const DUCKED_VOLUME = 0.08;
+
+function syncMusic() {
+  if (!music) return;
+  music.volume = musicDucked ? DUCKED_VOLUME : MUSIC_VOLUME;
+  if (!soundOn || !musicStarted) {
+    music.pause();
+    return;
+  }
+  music.play().catch(() => {
+    // A browser may require another direct gesture; the next toggle retries.
+  });
+}
+
+export function ensureBackgroundMusic() {
+  if (!MUSIC_SRC) return null;
+  if (!music) {
+    music = new Audio(new URL(MUSIC_SRC, import.meta.url).href);
+    music.loop = true;
+    music.preload = "metadata";
+    music.playsInline = true;
+  }
+  if (soundOn) musicStarted = true;
+  syncMusic();
+  return music;
+}
 
 export function isSoundOn() {
   return soundOn;
@@ -14,7 +45,9 @@ export function setSoundOn(v, userTouched = true) {
     localStorage.setItem("questSound", v ? "1" : "0");
     if (userTouched) localStorage.setItem("questSoundTouched", "1");
   } catch (_) {}
-  if (musicGain) musicGain.gain.value = v ? 0.12 : 0;
+  if (v) musicStarted = true;
+  if (sfxGain) sfxGain.gain.value = v ? 0.35 : 0;
+  ensureBackgroundMusic();
 }
 
 export function loadSoundPref() {
@@ -38,11 +71,8 @@ export function unlockAudio() {
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     ctx = new AC();
-    musicGain = ctx.createGain();
     sfxGain = ctx.createGain();
-    musicGain.connect(ctx.destination);
     sfxGain.connect(ctx.destination);
-    musicGain.gain.value = soundOn ? 0.12 : 0;
     sfxGain.gain.value = soundOn ? 0.35 : 0;
   }
   if (ctx.state === "suspended") ctx.resume();
@@ -87,25 +117,13 @@ export function playHorn() {
 }
 
 export function startAmbience() {
-  if (!ctx || musicOsc) return;
-  musicOsc = ctx.createOscillator();
-  const lfo = ctx.createOscillator();
-  const lfoG = ctx.createGain();
-  lfo.frequency.value = 0.08;
-  lfoG.gain.value = 30;
-  lfo.connect(lfoG);
-  lfoG.connect(musicOsc.frequency);
-  musicOsc.type = "triangle";
-  musicOsc.frequency.value = 196;
-  musicOsc.connect(musicGain);
-  musicOsc.start();
-  lfo.start();
-  if (musicGain) musicGain.gain.value = soundOn ? 0.12 : 0;
+  musicStarted = true;
+  ensureBackgroundMusic();
 }
 
 export function duckMusic(on) {
-  if (!musicGain || !ctx) return;
-  musicGain.gain.setTargetAtTime(on ? 0.05 : soundOn ? 0.12 : 0, ctx.currentTime, 0.3);
+  musicDucked = Boolean(on);
+  syncMusic();
 }
 
 export function vibrate(pattern) {

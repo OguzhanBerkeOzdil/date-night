@@ -1,7 +1,7 @@
 import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
 import { submitFeedback } from "./feedback.js";
 import { RUNTIME_CONFIG } from "./runtime-config.js";
-import { sanitizeGuestName, saveState, state } from "./state.js";
+import { sanitizeGuestName, saveState, setGuestName, state } from "./state.js";
 import { queueQuestSync } from "./sync.js";
 import { showAppToast } from "./ui-feedback.js";
 import {
@@ -165,6 +165,9 @@ function finishHonest() {
 
 function finishPass() {
   state.eveComplete = true;
+  state.chapterOneComplete = true;
+  state.chapter = "chapter-one-complete";
+  state.secondDate = "yes";
   reportEve("completed");
   const name = state.eveAdventurerName || "Adventurer";
   $("passName").textContent = name;
@@ -218,8 +221,14 @@ export function initEvePrelude(nav) {
       showAppToast("The owl needs a name. Any name.");
       return;
     }
-    state.eveAdventurerName = name;
+    setGuestName(name);
     saveState();
+    document.querySelectorAll("[data-lady]").forEach((el) => {
+      el.textContent = `Lady ${name}`;
+    });
+    document.querySelectorAll("[data-name-only]").forEach((el) => {
+      el.textContent = name;
+    });
     $("owlLine").textContent = owlWelcome(name);
     navigate("eve-excitement");
   });
@@ -254,8 +263,11 @@ export function initEvePrelude(nav) {
 
   $("btnEveContinue")?.addEventListener("click", () => {
     state.eveComplete = true;
+    state.chapterOneComplete = true;
+    state.chapter = "chapter-one-complete";
+    state.secondDate = "yes";
     saveState();
     queueQuestSync({ immediate: true });
-    navigate("summons");
+    navigate("chapter-lock");
   });
 }

@@ -105,6 +105,20 @@ let letterStarted = false;
 let sealing = false;
 let pickSteedIx = 0;
 
+const MAIN_QUEST_SCREENS = new Set([
+  "summons",
+  "steed",
+  "sheet",
+  "rating",
+  "journal",
+  "dragon",
+  "tavern",
+  "potion",
+  "stars",
+  "oracle",
+  "decree",
+]);
+
 function $(id) {
   return document.getElementById(id);
 }
@@ -159,11 +173,9 @@ export function chapterTwoAvailable() {
 
 export function resumeTarget() {
   if (state.chapter === "declined" || state.honestNo) return "honest-no";
-  if (state.chapterTwoComplete) return "quest-complete";
+  if (state.chapterTwoComplete) return "decree";
   if (state.chapterTwoStarted) {
-    return ["chapter-two-pause", "chapter-two-finish"].includes(state.lastScreen)
-      ? state.lastScreen
-      : "chapter-two-pause";
+    return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
   }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
   if (!state.eveComplete) {
@@ -480,18 +492,17 @@ function initJournal() {
 }
 
 function acceptQuest(answer) {
-  state.secondDate = answer;
-  state.honestNo = answer === "no";
+  state.dragonChoice = answer;
   state.consentShared = true;
   if (answer === "no") {
+    state.honestNo = true;
     state.chapter = "declined";
-    state.chapterOneComplete = true;
     saveState();
     queueQuestSync({ immediate: true });
     navigate("honest-no");
     return;
   }
-  state.chapter = "chapter-one-planning";
+  state.chapter = "chapter-two-active";
   saveState();
   queueQuestSync({ immediate: true });
   $("dragonImg").src = "assets/images/dragon-befriended.webp";
@@ -608,7 +619,7 @@ function initPotion() {
 
 function initStars() {
   const dateLabel = formatQuestDate(state.scheduledDate, state.timeZone);
-  const days = [`Tomorrow — ${dateLabel}`, "Another day", "Consult the calendar"];
+  const days = [`Today — ${dateLabel}`, "Another day", "Consult the calendar"];
   const dayWrap = $("dayChips");
   days.forEach((label, index) => {
     const button = document.createElement("button");
@@ -650,7 +661,7 @@ function initStars() {
   $("btnSealDate")?.addEventListener("click", () => {
     if (sealing) return;
     sealing = true;
-    if (!state.day) state.day = `Tomorrow — ${dateLabel}`;
+    if (!state.day) state.day = `Today — ${dateLabel}`;
     if (!state.time) state.time = sky?.value || "Evening stars";
     saveState();
     show($("bookingCountdown"));
@@ -787,7 +798,6 @@ function initDecree() {
       window.setTimeout(() => hide(toast), 2000);
     }
   });
-  $("btnChapterTwo")?.addEventListener("click", openChapterTwo);
   $("btnReplay")?.addEventListener("click", requestFreshQuestStart);
 }
 
@@ -820,34 +830,25 @@ function openEarlyDialog() {
 function initChapterLock() {
   $("btnTryChapterTwo")?.addEventListener("click", openChapterTwo);
   $("btnOpenEarly")?.addEventListener("click", openEarlyDialog);
-  $("btnBackToPass")?.addEventListener("click", () => navigate("decree"));
+  $("btnBackToPass")?.addEventListener("click", () => navigate("eve-pass"));
 }
 
 function renderRecap() {
   const rows = [
-    ["When", `${state.day || "Tomorrow"}${state.time ? ` · ${state.time}` : ""}`],
-    ["Energy", `${state.rating || 3}/5${state.ratingChip ? ` · ${state.ratingChip}` : ""}`],
-    ["Food clues", state.food.join(", ") || "Decide together"],
-    ["Activity clues", state.activities.join(", ") || "Keep it spontaneous"],
+    ["Adventurer", state.eveAdventurerName || guest.formal || "Guest"],
+    ["Excitement", `${state.eveExcitement || 3}/5`],
+    ["Status", "Invitation accepted · horse notified"],
   ];
   $("questRecap").innerHTML = rows.map(([label, value]) => `<div class="quest-recap__item"><span>${label}</span><strong>${value}</strong></div>`).join("");
 }
 
 function initChapterTwo() {
-  $("partyBuffs")?.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-buff]");
-    if (!button) return;
-    state.partyBuff = button.dataset.buff;
-    selectChip($("partyBuffs"), button);
-    saveState();
-  });
   $("btnStartAdventure")?.addEventListener("click", () => {
-    if (!state.partyBuff) state.partyBuff = "Improvised courage";
     state.chapter = "chapter-two-active";
     state.chapterTwoStarted = true;
     saveState();
     queueQuestSync({ immediate: true });
-    navigate("chapter-two-pause");
+    navigate("summons");
   });
   $("btnFinishQuest")?.addEventListener("click", () => navigate("chapter-two-finish"));
   $("favoriteMoment")?.addEventListener("input", (event) => {
@@ -915,8 +916,10 @@ export function onScreenEnter(id) {
     $("btnStir").textContent = potionBottled ? "Bottle it and continue" : "Stir the cauldron";
   }
   if (id === "decree") {
-    state.chapter = "chapter-one-complete";
+    state.chapter = "complete";
     state.chapterOneComplete = true;
+    state.chapterTwoStarted = true;
+    state.chapterTwoComplete = true;
     saveState();
     queueQuestSync({ immediate: true });
     reportMainFeedback();
