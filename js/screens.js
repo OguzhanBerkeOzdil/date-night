@@ -1,5 +1,5 @@
 import { CONFIG, COPY, tarotForKey } from "./config.js";
-import { clearAchievementToasts, unlock } from "./achievements.js";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js";
 import {
   duckMusic,
   isSoundOn,
@@ -46,7 +46,7 @@ import {
   steedHorseColorNote,
   tavernMartaTestimonyLine,
 } from "./chapter2-callbacks.js";
-import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js";
 import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
 import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
@@ -976,6 +976,7 @@ function restoreSelections() {
 }
 
 export function onScreenEnter(id) {
+  syncAchievementToastsForScreen(id);
   hydrateLazyImages(document.querySelector(`[data-screen="${id}"]`));
   restoreSelections();
   syncEveHonestButton(id);
@@ -1035,6 +1036,7 @@ export function onScreenEnter(id) {
     playStamp();
     $("waxStampAnim")?.classList.add("stamped");
     paintSirBerkeCameo({ screenId: "decree" });
+    void whenSirBerkeCameoReady();
   }
   if (id === "chapter-lock") {
     const lockOpts = { scheduledDate: state.scheduledDate, timeZone: state.timeZone };

@@ -963,10 +963,26 @@ body[data-screen="steed"] .dialogue-box--steed .dialogue-name {
 }
 
 body[data-screen="decree"] .achievement-wrap,
-body[data-screen="chapter-two-finish"] .achievement-wrap,
 body[data-screen="quest-complete"] .achievement-wrap,
 body[data-screen="chapter-two-pause"] .achievement-wrap {
   bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+
+body[data-screen="rating"] .achievement-wrap,
+body[data-screen="dragon"] .achievement-wrap,
+body[data-screen="tavern"] .achievement-wrap,
+body[data-screen="journal"] .achievement-wrap,
+body[data-screen="sheet"] .achievement-wrap {
+  top: calc(env(safe-area-inset-top, 0px) + 68px);
+  bottom: auto !important;
+  left: auto;
+  right: max(10px, env(safe-area-inset-right, 0px) + 10px);
+  align-items: flex-end;
+  max-width: min(260px, 58vw);
+}
+
+body[data-screen="chapter-two-finish"] .achievement-wrap {
+  display: none;
 }
 
 @media (min-width: 1024px) {
@@ -980,7 +996,6 @@ body[data-screen="chapter-two-pause"] .achievement-wrap {
   }
 
   body[data-screen="decree"] .achievement-wrap,
-  body[data-screen="chapter-two-finish"] .achievement-wrap,
   body[data-screen="quest-complete"] .achievement-wrap,
   body[data-screen="chapter-two-pause"] .achievement-wrap {
     top: auto;
@@ -988,6 +1003,22 @@ body[data-screen="chapter-two-pause"] .achievement-wrap {
     left: max(16px, env(safe-area-inset-left, 0px) + 16px);
     right: max(16px, env(safe-area-inset-right, 0px) + 16px);
     align-items: stretch;
+  }
+
+  body[data-screen="rating"] .achievement-wrap,
+  body[data-screen="dragon"] .achievement-wrap,
+  body[data-screen="tavern"] .achievement-wrap,
+  body[data-screen="journal"] .achievement-wrap,
+  body[data-screen="sheet"] .achievement-wrap {
+    top: calc(env(safe-area-inset-top, 0px) + 72px);
+    bottom: auto !important;
+    left: auto;
+    right: max(16px, env(safe-area-inset-right, 0px) + 16px);
+    align-items: flex-end;
+  }
+
+  body[data-screen="chapter-two-finish"] .achievement-wrap {
+    display: none;
   }
 }
 
@@ -1492,6 +1523,18 @@ body {
   margin: 0 auto 10px;
   display: flex;
   justify-content: center;
+}
+
+[data-screen="decree"] .sir-berke-cameo__img {
+  width: 96px;
+  height: 96px;
+  min-width: 96px;
+  min-height: 96px;
+}
+
+[data-screen="decree"] .sir-berke-cameo__line {
+  color: var(--ink);
+  background: rgba(255, 252, 245, 0.94);
 }
 
 .horse-breed-card {
