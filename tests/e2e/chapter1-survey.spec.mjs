@@ -4,6 +4,7 @@ import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
+    globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
     window.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
   });
   await page.route("**/formsubmit.co/**", (route) =>

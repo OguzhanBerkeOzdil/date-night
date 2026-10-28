@@ -13,6 +13,7 @@ test("interactive targets meet 44px minimum", async ({ page }, testInfo) => {
   test.skip(!["mobile-320", "mobile-360", "mobile-390", "desktop-1440"].includes(testInfo.project.name));
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
+    globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
     document.startViewTransition = undefined;
   });
   await page.goto("/?name=Ayse");

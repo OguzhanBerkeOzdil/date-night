@@ -22,7 +22,10 @@ async function assertCameoClearOfInteractives(page, targets) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.clear());
+  await page.addInitScript(() => {
+    globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
+    localStorage.clear();
+  });
   await page.route("**/formsubmit.co/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
   );

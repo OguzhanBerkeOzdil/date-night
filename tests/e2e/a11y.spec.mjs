@@ -28,6 +28,9 @@ for (const screen of ALL_SCREENS) {
   test(`axe: ${screen} @ mobile-390`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "mobile-390");
     await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript(() => {
+      globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
+    });
     await page.goto("/?name=Ayse");
     await page.evaluate((id) => window.__questNavigate(id), screen);
     await page.waitForSelector(`.screen[data-screen="${screen}"].screen--active`);
@@ -37,6 +40,9 @@ for (const screen of ALL_SCREENS) {
   test(`axe: ${screen} @ desktop-1440`, async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== "desktop-1440");
     await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.addInitScript(() => {
+      globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
+    });
     await page.goto("/?name=Ayse");
     await page.evaluate((id) => window.__questNavigate(id), screen);
     await page.waitForSelector(`.screen[data-screen="${screen}"].screen--active`);

@@ -16,6 +16,7 @@ import {
 } from "./copy.js";
 import { downloadQuestPassPng } from "./pass.js";
 import { APP_CACHE_VERSION } from "../cache-version.js";
+import { chapterOneIsArchived } from "../quest-phase.js";
 
 const state = {
   name: "",
@@ -216,6 +217,10 @@ function initSound() {
 }
 
 function boot() {
+  if (chapterOneIsArchived()) {
+    window.location.replace("../");
+    return;
+  }
   flushFeedbackQueue();
   $("feedbackNote").textContent = FEEDBACK_HONESTY_NOTE;
   initSound();

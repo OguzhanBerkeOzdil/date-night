@@ -53,6 +53,7 @@ import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from ".
 import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
 import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
+import { chapterOneIsArchived } from "./quest-phase.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
 import {
   chapterLockButtonLabel,
@@ -234,6 +235,9 @@ export function resumeTarget() {
     if (!state.partyBuff) return "chapter-two-start";
     return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
   }
+  if (chapterOneIsArchived()) {
+    return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
+  }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
   if (!state.eveComplete) {
     const eveScreens = ["eve-name", "eve-excitement", "eve-packing", "eve-survey", "eve-pass"];
@@ -270,6 +274,10 @@ function startFreshQuestWithUndo() {
 }
 
 function requestFreshQuestStart() {
+  if (chapterOneIsArchived()) {
+    navigate(resumeTarget());
+    return;
+  }
   if (hasQuestSave()) {
     showNewQuestConfirm({ onKeep: () => undefined, onStartOver: startFreshQuestWithUndo });
   } else {

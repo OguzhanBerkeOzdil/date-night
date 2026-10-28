@@ -12,6 +12,7 @@ import { initScreens, onScreenEnter, resumeTarget } from "./screens.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { initQuestSync } from "./sync.js";
 import { syncEveHonestButton } from "./eve-prelude.js";
+import { chapterOneIsArchived, isArchivedChapterOneScreen } from "./quest-phase.js";
 
 export { syncContinueButton };
 import { applyQuestSeedFromUrl } from "./seed-link.js";
@@ -99,6 +100,7 @@ function setBackground(screenId) {
 }
 
 export function navigate(screenId) {
+  if (isArchivedChapterOneScreen(screenId)) screenId = resumeTarget();
   resetScroll();
   const doNav = () => {
     resetScroll();
@@ -183,7 +185,12 @@ async function boot() {
   syncContinueButton();
   if (syncResult.status === "invalid") {
     navigate("invite-error");
-  } else if (state.chapterOneComplete || state.chapterTwoStarted || state.chapterTwoComplete) {
+  } else if (
+    chapterOneIsArchived() ||
+    state.chapterOneComplete ||
+    state.chapterTwoStarted ||
+    state.chapterTwoComplete
+  ) {
     navigate(resumeTarget());
   }
   syncEveHonestButton(document.body.dataset.screen || "title");
