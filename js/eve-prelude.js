@@ -177,9 +177,8 @@ function finishHonest() {
 
 function personalizeName(name) {
   const display = String(name || "").trim() || "Adventurer";
-  const titled = /^adventurer$/i.test(display) ? display : `Lady ${display}`;
   document.querySelectorAll("[data-lady]").forEach((el) => {
-    el.textContent = titled;
+    el.textContent = display;
   });
   document.querySelectorAll("[data-name-only]").forEach((el) => {
     el.textContent = display;

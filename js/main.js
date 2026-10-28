@@ -15,7 +15,7 @@ import { syncEveHonestButton } from "./eve-prelude.js";
 
 export { syncContinueButton };
 import { applyQuestSeedFromUrl } from "./seed-link.js";
-import { guest, questOfTitle, saveState, state } from "./state.js";
+import { questOfTitle, saveState, state } from "./state.js";
 
 let current = "title";
 
@@ -142,7 +142,7 @@ function personalize() {
   });
   document.title = `The Quest of ${questOfTitle()}`;
   document.querySelectorAll("[data-name-only]").forEach((el) => {
-    el.textContent = guest.isLady ? guest.formal : guest.display;
+    el.textContent = questOfTitle();
   });
 }
 

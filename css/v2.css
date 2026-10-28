@@ -1150,10 +1150,50 @@ body[data-screen="decree"] .achievement-wrap {
   background: linear-gradient(180deg, #f4e8d0 0%, #e8d4b0 48%, #e0c89a 100%);
 }
 
-.decree-wrap .ticket.decree {
+[data-screen="decree"] .decree-wrap .ticket.decree {
   padding-right: 92px;
   padding-bottom: 28px;
   box-shadow: none;
+}
+
+[data-screen="quest-complete"] .screen__inner.celebration {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  padding-inline: 0.85rem;
+}
+
+[data-screen="quest-complete"] .decree-wrap {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+[data-screen="quest-complete"] .decree-wrap .ticket.decree,
+[data-screen="quest-complete"] .decree-wrap--card .ticket.decree {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-right: 16px;
+  padding-left: 16px;
+  overflow-wrap: anywhere;
+}
+
+[data-screen="chapter-two-finish"] #favoriteMoment {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-height: 5.5rem;
+}
+
+body[data-screen="steed"] .achievement-wrap {
+  top: auto;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: auto;
+  right: max(10px, env(safe-area-inset-right, 0px) + 10px);
+  align-items: flex-end;
+  max-width: min(240px, 58vw);
 }
 
 .decree-corner-seal {

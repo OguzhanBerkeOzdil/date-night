@@ -1,5 +1,5 @@
 import { CONFIG, COPY, tarotForKey } from "./config.js";
-import { unlock } from "./achievements.js";
+import { clearAchievementToasts, unlock } from "./achievements.js";
 import {
   duckMusic,
   isSoundOn,
@@ -53,7 +53,9 @@ import { syncContinueButton } from "./app-chrome.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
 import {
   chapterLockButtonLabel,
+  chapterLockKicker,
   chapterLockMessage,
+  chapterLockSubline,
   chapterLockTitle,
   chapterTwoIsAvailable,
   formatQuestDate,
@@ -444,6 +446,7 @@ function initSteed() {
 }
 
 export function onEnterSteed() {
+  clearAchievementToasts();
   attachSteedDialogue();
   if (!state.horseId || !horseHasArt(state.horseId)) {
     state.horseId = presetHorseIdFromChapter1(state.chapter1Answers);
@@ -1009,8 +1012,9 @@ export function onScreenEnter(id) {
     $("fanumTaxExplain").textContent = fanumTaxExplanation();
     const marta = $("tavernMartaLine");
     if (marta) {
-      marta.textContent = tavernMartaTestimonyLine(state.chapter1Answers);
-      marta.classList.remove("hidden");
+      const line = tavernMartaTestimonyLine(state.chapter1Answers);
+      marta.textContent = line;
+      marta.classList.toggle("hidden", !line);
     }
     const nextFood = ensureChapter1TavernPreselect(state);
     if (nextFood.length !== (state.food || []).length) {
@@ -1034,8 +1038,10 @@ export function onScreenEnter(id) {
   }
   if (id === "chapter-lock") {
     const lockOpts = { scheduledDate: state.scheduledDate, timeZone: state.timeZone };
+    $("chapterLockKicker").textContent = chapterLockKicker(lockOpts);
     $("chapterLockTitle").textContent = chapterLockTitle(lockOpts);
     $("chapterLockDate").textContent = chapterLockMessage(lockOpts);
+    $("chapterLockSub").textContent = chapterLockSubline(lockOpts);
     const tryBtn = $("btnTryChapterTwo");
     if (tryBtn) tryBtn.textContent = chapterLockButtonLabel(lockOpts);
   }

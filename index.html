@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261121">
+  <link rel="manifest" href="manifest.webmanifest?v=20261122">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261121">
-  <link rel="stylesheet" href="css/styles.css?v=20261121">
-  <link rel="stylesheet" href="css/v2.css?v=20261121">
-  <link rel="stylesheet" href="css/desktop.css?v=20261121">
-  <link rel="stylesheet" href="css/today.css?v=20261121">
+  <link rel="stylesheet" href="css/fonts.css?v=20261122">
+  <link rel="stylesheet" href="css/styles.css?v=20261122">
+  <link rel="stylesheet" href="css/v2.css?v=20261122">
+  <link rel="stylesheet" href="css/desktop.css?v=20261122">
+  <link rel="stylesheet" href="css/today.css?v=20261122">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -427,10 +427,10 @@
 
     <section class="screen" data-screen="chapter-lock">
       <div class="screen__inner ornate chapter-panel center">
-        <p class="kicker">Chapter II · sealed</p>
+        <p class="kicker" id="chapterLockKicker">Chapter II · sealed</p>
         <h2 class="title" id="chapterLockTitle">The quest continues tomorrow</h2>
         <p class="body-text" id="chapterLockDate">Berke will unseal the next page tomorrow morning.</p>
-        <p class="sub">The horse is resting. The calendar dragon will not accept early bribes.</p>
+        <p class="sub" id="chapterLockSub">The horse is resting. The calendar dragon will not accept early bribes.</p>
         <button type="button" class="btn btn--primary" id="btnTryChapterTwo">Check again</button>
         <button type="button" class="link-btn" id="btnBackToPass">Return to today's invitation</button>
         <button type="button" class="link-btn" id="btnPlayChapter1AgainLock">Play Chapter I again</button>
@@ -443,7 +443,7 @@
         <h2 class="title">The seal is ready to break</h2>
         <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="quest-recap" id="questRecap"></div>
-        <p class="body-text">Yesterday was the invitation. Today the complete adventure begins.</p>
+        <p class="body-text">Chapter I was the invitation. Today the full adventure begins.</p>
         <button type="button" class="btn btn--primary" id="btnStartAdventure">Break the seal and begin</button>
       </div>
     </section>
@@ -528,6 +528,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261121"></script>
+  <script type="module" src="js/main.js?v=20261122"></script>
 </body>
 </html>

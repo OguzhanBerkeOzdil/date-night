@@ -93,6 +93,30 @@ export function chapterLockMessage({
   return `Berke will unseal Chapter II on ${formatQuestDate(scheduledDate, timeZone)} morning.`;
 }
 
+export function chapterLockKicker({
+  scheduledDate = CONFIG.scheduledDate,
+  timeZone = CONFIG.timeZone,
+  released = CHAPTER_TWO_RELEASED,
+  now = new Date(),
+} = {}) {
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released })) {
+    return "Chapter II · seal broken";
+  }
+  return "Chapter II · sealed";
+}
+
+export function chapterLockSubline({
+  scheduledDate = CONFIG.scheduledDate,
+  timeZone = CONFIG.timeZone,
+  released = CHAPTER_TWO_RELEASED,
+  now = new Date(),
+} = {}) {
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released })) {
+    return "The calendar dragon finally accepted the bribe. It was potatoes.";
+  }
+  return "The horse is resting. The calendar dragon will not accept early bribes.";
+}
+
 export function chapterLockTitle({
   scheduledDate = CONFIG.scheduledDate,
   timeZone = CONFIG.timeZone,

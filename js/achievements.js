@@ -36,6 +36,13 @@ const TOAST_VISIBLE_MS = 2400;
 const toastQueue = [];
 let toastDrainActive = false;
 
+export function clearAchievementToasts() {
+  const wrap = document.getElementById("achievementToasts");
+  if (wrap) wrap.replaceChildren();
+  toastQueue.length = 0;
+  toastDrainActive = false;
+}
+
 export function unlock(id, silent = false) {
   if (!DEFS[id] || state.achievements.includes(id)) return;
   state.achievements.push(id);

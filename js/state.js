@@ -70,11 +70,9 @@ export function parseGuestName() {
   );
   const name = fromUrl || fromSave;
   if (!name) {
-    const fallback = CONFIG.defaultTitle || "my lady";
-    const formal = fallback.charAt(0).toUpperCase() + fallback.slice(1);
-    return { display: fallback, formal, isLady: false };
+    return { display: "Adventurer", formal: "Adventurer", isLady: false };
   }
-  return { display: name, formal: name, isLady: !isAdventurerDisplayName(name) };
+  return { display: name, formal: name, isLady: false };
 }
 
 export function inviteTokenFromUrl() {
@@ -83,7 +81,11 @@ export function inviteTokenFromUrl() {
 }
 
 export function questOfTitle() {
-  return guest.isLady ? `Lady ${guest.formal}` : "My Lady";
+  const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
+  if (fromSave && !isAdventurerDisplayName(fromSave)) return fromSave;
+  const parsed = parseGuestName();
+  if (parsed.formal && !isAdventurerDisplayName(parsed.formal)) return parsed.formal;
+  return "Adventurer";
 }
 
 export function ladyTitle() {
@@ -95,7 +97,9 @@ export function grantedToLabel() {
 }
 
 export function letterSalutation() {
-  return guest.isLady ? `Dear ${guest.formal},` : "To the adventurer of this quest,";
+  const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
+  if (fromSave && !isAdventurerDisplayName(fromSave)) return `Dear ${fromSave},`;
+  return "To the adventurer of this quest,";
 }
 
 export function defaultState() {
