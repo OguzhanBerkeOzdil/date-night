@@ -71,29 +71,7 @@ test("buildChapter2ChoicesSnapshot includes steed, tavern, oracle, and rating", 
   assert.equal(snap.chapter1.horsePreset, "chestnut");
 });
 
-test("field quest start feedback includes the chosen buff and legacy answers once", () => {
-  const state = sampleState({
-    eveHeraldAnswers: { snacks: "essential", weather: "tavern", "quest-mood": "surprise" },
-  });
-  const posts = [];
-  globalThis.fetch = async (_url, init) => {
-    posts.push(JSON.parse(init.body));
-    return { ok: true };
-  };
-  globalThis.location = { hostname: "example.com" };
-  globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
-
-  chapter2.reportChapter2StartFeedback(state, () => {});
-  chapter2.reportChapter2StartFeedback(state, () => {});
-
-  assert.equal(state.feedbackStartSent, true);
-  assert.equal(posts.length, 1);
-  assert.equal(posts[0].part, "chapter-two-start");
-  assert.equal(JSON.parse(posts[0].choices).partyBuff, "Courage");
-  assert.equal(JSON.parse(posts[0].choices).chapter1.legacyChoices.weather, "tavern");
-});
-
-test("decree feedback uses stable idempotency and marks state sent", () => {
+test("completion marks delivery only after FormSubmit accepts it", async () => {
   const state = sampleState();
   const posts = [];
   globalThis.fetch = async (_url, init) => {
@@ -103,14 +81,24 @@ test("decree feedback uses stable idempotency and marks state sent", () => {
   globalThis.location = { hostname: "example.com" };
   globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
 
-  chapter2.reportChapter2DecreeFeedback(state, () => {});
-  assert.equal(state.feedbackDecreeSent, true);
+  const result = await chapter2.reportChapter2CompletionFeedback(state, () => {});
+  assert.equal(result.status, "sent");
+  assert.equal(state.feedbackCompleteSent, true);
+  assert.equal(state.feedbackCompleteStatus, "sent");
   assert.equal(posts.length, 1);
-  assert.equal(posts[0].idempotencyId, "ch2-decree-test-knight");
-  assert.equal(posts[0].part, "main");
-  assert.equal(posts[0].name, "Test Knight");
-  assert.match(posts[0].choices, /"steed"/);
+  assert.equal(posts[0].part, "completion");
+  assert.equal(JSON.parse(posts[0].choices).debrief.futureQuest, "yes");
+});
 
-  chapter2.reportChapter2DecreeFeedback(state, () => {});
-  assert.equal(posts.length, 1);
+test("rate-limited completion stays queued instead of pretending it was sent", async () => {
+  const state = sampleState();
+  globalThis.fetch = async () => ({ ok: false, status: 429 });
+  globalThis.location = { hostname: "example.com" };
+  globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
+
+  const result = await chapter2.reportChapter2CompletionFeedback(state, () => {});
+  assert.equal(result.status, "queued");
+  assert.equal(result.httpStatus, 429);
+  assert.equal(state.feedbackCompleteSent, false);
+  assert.equal(state.feedbackCompleteStatus, "queued");
 });

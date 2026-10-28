@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261128">
+  <link rel="manifest" href="manifest.webmanifest?v=20261129">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261128">
-  <link rel="stylesheet" href="css/styles.css?v=20261128">
-  <link rel="stylesheet" href="css/v2.css?v=20261128">
-  <link rel="stylesheet" href="css/desktop.css?v=20261128">
-  <link rel="stylesheet" href="css/today.css?v=20261128">
+  <link rel="stylesheet" href="css/fonts.css?v=20261129">
+  <link rel="stylesheet" href="css/styles.css?v=20261129">
+  <link rel="stylesheet" href="css/v2.css?v=20261129">
+  <link rel="stylesheet" href="css/desktop.css?v=20261129">
+  <link rel="stylesheet" href="css/today.css?v=20261129">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -345,6 +345,7 @@
     <section class="screen" data-screen="stars">
       <div class="screen__inner ornate">
         <h2 class="title">When shall we ride?</h2>
+        <p class="sub">This schedules the current quest (the horse asks about another date after the adventure).</p>
         <fieldset class="chip-field">
           <legend class="sub-label" id="dayChipsLegend">Day</legend>
           <div id="dayChips" class="chip-row" role="group" aria-labelledby="dayChipsLegend"></div>
@@ -397,14 +398,14 @@
           </div>
           </fieldset>
         </div>
-        <button type="button" class="btn btn--primary" id="btnRatingNext">Stamp the quest log →</button>
+        <button type="button" class="btn btn--primary" id="btnRatingNext">Stamp the quest plan →</button>
       </div>
     </section>
 
     <section class="screen" data-screen="decree">
       <div class="screen__inner celebration">
-        <p class="kicker light">Chapter II complete</p>
-        <h2 class="title light">The full quest is complete</h2>
+        <p class="kicker light">Quest plan ready</p>
+        <h2 class="title light">The field quest is ready</h2>
         <div class="decree-wrap decree-wrap--card">
           <div id="waxStampAnim" class="decree-corner-seal wax-stamp-anim" role="presentation" aria-hidden="true">
             <img class="decree-corner-seal__img" src="assets/images/wax-seal.webp" alt="" width="80" height="80" decoding="async">
@@ -412,8 +413,8 @@
           <pre class="ticket decree" id="decreePreview"></pre>
         </div>
         <div class="sir-berke-slot" data-sir-berke-slot></div>
-        <p class="chapter-teaser">The horse files this adventure under: surprisingly successful paperwork.</p>
-        <button type="button" class="btn btn--primary" id="btnDecreeToPause">Quest in progress — phones away</button>
+        <p class="chapter-teaser">Planning complete (the actual adventure starts after this very official horse paperwork).</p>
+        <button type="button" class="btn btn--primary" id="btnDecreeToPause">Start the real quest — phones away</button>
         <div class="action-row">
           <button type="button" class="btn btn--secondary" id="btnShare">Share the quest log</button>
           <button type="button" class="btn btn--secondary" id="btnSavePng">Save quest log as image</button>
@@ -439,7 +440,7 @@
 
     <section class="screen" data-screen="chapter-two-start">
       <div class="screen__inner ornate chapter-panel">
-        <p class="kicker">Chapter II · the field quest</p>
+        <p class="kicker">Chapter II · final quest setup</p>
         <h2 class="title">The tavern gates are ready</h2>
         <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="quest-recap" id="questRecap"></div>
@@ -453,7 +454,7 @@
           </div>
         </fieldset>
         <p class="field-error hidden" id="partyBuffError" role="alert">Choose one party buff before breaking the seal.</p>
-        <button type="button" class="btn btn--primary" id="btnStartAdventure">Activate buff — start the real quest</button>
+        <button type="button" class="btn btn--primary" id="btnStartAdventure">Activate buff — continue setup</button>
       </div>
     </section>
 
@@ -504,6 +505,8 @@
         <div class="decree-wrap decree-wrap--card">
           <pre class="ticket decree" id="finalPreview"></pre>
         </div>
+        <p class="privacy-note center" id="finalFeedbackStatus" role="status" aria-live="polite">Sending the quest notes to Berke… (The horse is locating the outbox.)</p>
+        <button type="button" class="btn btn--ghost hidden" id="btnRetryFeedback">Retry feedback now</button>
         <div class="action-row">
           <button type="button" class="btn btn--primary" id="btnShareFinal">Share the quest log</button>
           <button type="button" class="btn btn--secondary" id="btnSaveFinal">Save final certificate</button>
@@ -538,6 +541,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261128"></script>
+  <script type="module" src="js/main.js?v=20261129"></script>
 </body>
 </html>

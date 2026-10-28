@@ -84,16 +84,10 @@ test("a party buff is required before the real-world quest starts", async ({ pag
   await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
 });
 
-test("start and completion feedback are sent once with the real context", async ({ page }) => {
+test("completion sends one consolidated feedback payload with the real context", async ({ page }) => {
   const payloads = await stubFormSubmit(page);
   await startFullQuest(page);
-  await page.waitForTimeout(250);
-
-  const start = payloads.find((payload) => payload.part === "chapter-two-start");
-  expect(start).toBeTruthy();
-  const startChoices = JSON.parse(start.choices);
-  expect(startChoices.partyBuff).toBe("Snack compass");
-  expect(startChoices.chapter1.legacyChoices.weather).toBe("tavern");
+  expect(payloads).toHaveLength(0);
 
   await page.evaluate(() => window.__questNavigate("chapter-two-pause"));
   await page.reload();
@@ -104,14 +98,39 @@ test("start and completion feedback are sent once with the real context", async 
   await page.locator('[data-future="yes"]').click();
   await page.locator("#btnCompleteQuest").click();
   await expect(page.locator('section[data-screen="quest-complete"]')).toHaveClass(/screen--active/);
-  await page.waitForTimeout(250);
+  await expect(page.locator("#finalFeedbackStatus")).toContainText("sent to Berke");
 
   const completion = payloads.find((payload) => payload.part === "completion");
   expect(completion).toBeTruthy();
   const completionChoices = JSON.parse(completion.choices);
   expect(completionChoices.debrief.favoriteMoment).toBe("The precision trial");
   expect(completionChoices.debrief.futureQuest).toBe("yes");
-  expect(payloads.filter((payload) => payload.part === "chapter-two-start")).toHaveLength(1);
+  expect(completionChoices.debrief.partyBuff).toBe("Snack compass");
+  expect(completionChoices.chapter1.legacyChoices.weather).toBe("tavern");
+  expect(payloads).toHaveLength(1);
+});
+
+test("rate-limited completion is visibly queued and retryable", async ({ page }) => {
+  await page.route("**/formsubmit.co/**", (route) =>
+    route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      body: '{"success":false,"message":"Rate limit exceeded"}',
+    })
+  );
+  await startFullQuest(page);
+  await page.evaluate(() => window.__questNavigate("chapter-two-pause"));
+  await page.locator("#btnFinishQuest").click();
+  await page.locator('[data-future="maybe"]').click();
+  await page.locator("#btnCompleteQuest").click();
+
+  await expect(page.locator("#finalFeedbackStatus")).toContainText("retry automatically");
+  await expect(page.locator("#btnRetryFeedback")).toBeVisible();
+  const queued = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("questFeedbackQueue_v1") || "[]")
+  );
+  expect(queued).toHaveLength(1);
+  expect(queued[0].part).toBe("completion");
 });
 
 test("legacy mid-game saves resume at their exact full-quest screen", async ({ page }) => {

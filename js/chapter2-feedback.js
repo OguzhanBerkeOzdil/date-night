@@ -22,28 +22,6 @@ export function chapter1FeedbackContext(state) {
   };
 }
 
-export function reportChapter2StartFeedback(state, saveState) {
-  if (RUNTIME_CONFIG.questApiUrl) return;
-  if (state.feedbackStartSent) return;
-  state.feedbackStartSent = true;
-  saveState();
-  submitFeedback({
-    _subject: "Chapter II field quest started",
-    idempotencyId: `ch2-start-${guestSlug(state)}${replaySuffix(state)}`,
-    part: "chapter-two-start",
-    name: state.eveAdventurerName || "",
-    excitement: String(state.eveExcitement ?? ""),
-    packing: (state.evePacking || []).join(", "),
-    choices: JSON.stringify({
-      ...buildChapter2ChoicesSnapshot(state),
-      partyBuff: state.partyBuff,
-    }),
-    horse: state.horseId || "",
-    timestamp: new Date().toISOString(),
-    outcome: "field-quest-started",
-  });
-}
-
 /** Snapshot of Chapter II player choices for FormSubmit (JSON in `choices`). */
 export function buildChapter2ChoicesSnapshot(state) {
   return {
@@ -74,35 +52,11 @@ export function buildChapter2ChoicesSnapshot(state) {
   };
 }
 
-export function reportChapter2DecreeFeedback(state, saveState) {
-  if (RUNTIME_CONFIG.questApiUrl) return;
-  if (state.feedbackDecreeSent) return;
-  state.feedbackDecreeSent = true;
-  saveState();
-  submitFeedback({
-    _subject: "Chapter II quest answers (decree)",
-    idempotencyId: `ch2-decree-${guestSlug(state)}${replaySuffix(state)}`,
-    part: "main",
-    name: state.eveAdventurerName || "",
-    excitement: String(state.eveExcitement ?? ""),
-    packing: (state.evePacking || []).join(", "),
-    choices: JSON.stringify(buildChapter2ChoicesSnapshot(state)),
-    horse: state.horseId || "",
-    steedName: state.steedName || "",
-    date: state.day || "",
-    timestamp: new Date().toISOString(),
-    outcome: "decree",
-  });
-}
-
 export function reportChapter2CompletionFeedback(state, saveState) {
-  if (RUNTIME_CONFIG.questApiUrl) return;
-  if (state.feedbackCompleteSent) return;
-  state.feedbackCompleteSent = true;
-  saveState();
-  submitFeedback({
+  if (RUNTIME_CONFIG.questApiUrl) return Promise.resolve({ status: "external" });
+  return submitFeedback({
     _subject: "Chapter II campfire debrief",
-    idempotencyId: `ch2-complete-${guestSlug(state)}${replaySuffix(state)}`,
+    idempotencyId: chapter2CompletionFeedbackId(state),
     part: "completion",
     name: state.eveAdventurerName || "",
     excitement: String(state.eveExcitement ?? ""),
@@ -120,7 +74,16 @@ export function reportChapter2CompletionFeedback(state, saveState) {
     steedName: state.steedName || "",
     timestamp: new Date().toISOString(),
     outcome: "quest-complete",
+  }).then((result) => {
+    state.feedbackCompleteStatus = result.status;
+    state.feedbackCompleteSent = ["sent", "duplicate"].includes(result.status);
+    saveState();
+    return result;
   });
+}
+
+export function chapter2CompletionFeedbackId(state) {
+  return `ch2-complete-${guestSlug(state)}${replaySuffix(state)}`;
 }
 
 export function reportChapter2HonestNoFeedback(state, saveState) {

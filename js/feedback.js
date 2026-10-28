@@ -2,10 +2,24 @@ import { FORM_SUBMIT_ENDPOINT } from "./app-config.js";
 
 const QUEUE_KEY = "questFeedbackQueue_v1";
 const SENT_IDS_KEY = "questFeedbackSentIds_v1";
+const RETRY_DELAY_MS = 5 * 60 * 1000;
+
+const inFlight = new Map();
+let flushTask = null;
+let retryTimer = null;
+
+function compactQueue(items) {
+  const valid = Array.isArray(items) ? items.filter((item) => item?.idempotencyId) : [];
+  const hasCompletion = valid.some((item) => item.part === "completion");
+  if (!hasCompletion) return valid;
+  // The completion snapshot contains every Chapter II choice. Drop superseded
+  // start/decree mail so one playthrough produces one useful email.
+  return valid.filter((item) => !["chapter-two-start", "main"].includes(item.part));
+}
 
 function readQueue() {
   try {
-    return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+    return compactQueue(JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"));
   } catch {
     return [];
   }
@@ -13,7 +27,7 @@ function readQueue() {
 
 function writeQueue(items) {
   try {
-    localStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(compactQueue(items)));
   } catch {
     /* ignore */
   }
@@ -52,7 +66,7 @@ function isLocalPreview() {
 
 async function postPayload(body) {
   // Local development and Playwright runs must never email the real recipient.
-  if (isLocalPreview()) return;
+  if (isLocalPreview()) return { local: true };
   const res = await fetch(FORM_SUBMIT_ENDPOINT, {
     method: "POST",
     headers: {
@@ -61,7 +75,37 @@ async function postPayload(body) {
     },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new Error(`feedback ${res.status}`);
+  if (!res.ok) {
+    const error = new Error(`feedback ${res.status}`);
+    error.status = res.status;
+    throw error;
+  }
+  // FormSubmit can report an application-level failure in a successful HTTP
+  // response. Treat that as undelivered so the payload remains retryable.
+  if (typeof res.clone === "function") {
+    const data = await res.clone().json().catch(() => null);
+    if (data?.success === false) {
+      const error = new Error(data.message || "feedback rejected");
+      error.status = res.status;
+      throw error;
+    }
+  }
+  return { local: false };
+}
+
+function scheduleRetry() {
+  if (typeof window === "undefined" || retryTimer) return;
+  retryTimer = window.setTimeout(() => {
+    retryTimer = null;
+    void flushFeedbackQueue();
+  }, RETRY_DELAY_MS);
+}
+
+function prioritizeQueue(items) {
+  return [...items].sort((a, b) => {
+    const priority = (item) => (item.part === "completion" ? 0 : item.part === "honest" ? 1 : 2);
+    return priority(a) - priority(b);
+  });
 }
 
 /**
@@ -69,39 +113,62 @@ async function postPayload(body) {
  */
 export function submitFeedback(fields) {
   const id = fields.idempotencyId;
-  if (!id) return;
+  if (!id) return Promise.resolve({ status: "invalid" });
 
   const sent = readSentIds();
-  if (sent.has(id)) return;
+  if (sent.has(id)) return Promise.resolve({ status: "duplicate" });
+  if (inFlight.has(id)) return inFlight.get(id);
 
   const body = basePayload(fields);
-  const task = async () => {
+  if (body.part === "completion") {
+    writeQueue(readQueue().filter((item) => !["chapter-two-start", "main"].includes(item.part)));
+  }
+  const task = (async () => {
     try {
       await postPayload(body);
       sent.add(id);
       writeSentIds(sent);
       const q = readQueue().filter((item) => item.idempotencyId !== id);
       writeQueue(q);
-    } catch {
+      return { status: "sent" };
+    } catch (error) {
       const q = readQueue();
       if (!q.some((item) => item.idempotencyId === id)) {
         q.push(body);
         writeQueue(q);
       }
+      scheduleRetry();
+      return { status: "queued", httpStatus: Number(error?.status) || 0 };
     }
-  };
-  void task();
+  })().finally(() => inFlight.delete(id));
+  inFlight.set(id, task);
+  return task;
 }
 
 /** Flush queued submissions (call on load and when online). */
 export function flushFeedbackQueue() {
-  const q = readQueue();
-  if (!q.length) return;
-  for (const body of q) {
-    const id = body.idempotencyId;
-    if (!id || readSentIds().has(id)) continue;
-    submitFeedback(body);
-  }
+  if (flushTask) return flushTask;
+  flushTask = (async () => {
+    const q = prioritizeQueue(readQueue());
+    for (const body of q) {
+      const id = body.idempotencyId;
+      if (!id || readSentIds().has(id)) continue;
+      const result = await submitFeedback(body);
+      // Stop after the first failure instead of hammering the free endpoint.
+      if (result.status === "queued") break;
+    }
+  })().finally(() => {
+    flushTask = null;
+  });
+  return flushTask;
+}
+
+export function feedbackDeliveryStatus(id) {
+  if (!id) return "missing";
+  if (readSentIds().has(id)) return "sent";
+  if (readQueue().some((item) => item.idempotencyId === id)) return "queued";
+  if (inFlight.has(id)) return "sending";
+  return "missing";
 }
 
 export function __resetFeedbackForTest() {
@@ -118,10 +185,13 @@ export function __getSentIdsForTest() {
 }
 
 if (typeof window !== "undefined") {
-  window.addEventListener("online", () => flushFeedbackQueue());
+  window.addEventListener("online", () => void flushFeedbackQueue());
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") void flushFeedbackQueue();
+  });
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => flushFeedbackQueue());
+    document.addEventListener("DOMContentLoaded", () => void flushFeedbackQueue());
   } else {
-    flushFeedbackQueue();
+    void flushFeedbackQueue();
   }
 }
