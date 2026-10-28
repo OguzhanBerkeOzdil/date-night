@@ -47,18 +47,24 @@ import {
   tavernMartaTestimonyLine,
 } from "./chapter2-callbacks.js";
 import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
-import { chapterLockMessage } from "./quest-date.js";
 import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
-import { submitFeedback } from "./feedback.js";
-import { RUNTIME_CONFIG } from "./runtime-config.js";
-import { APP_CACHE_VERSION } from "./cache-version.js";
 import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
-import { chapterTwoIsAvailable, formatQuestDate } from "./quest-date.js";
+import {
+  chapterLockButtonLabel,
+  chapterLockMessage,
+  chapterLockTitle,
+  chapterTwoIsAvailable,
+  formatQuestDate,
+} from "./quest-date.js";
+import {
+  reportChapter2CompletionFeedback,
+  reportChapter2DecreeFeedback,
+  reportChapter2HonestNoFeedback,
+} from "./chapter2-feedback.js";
 import { queueQuestSync } from "./sync.js";
 import {
-  guest,
   letterSalutation,
   beginNewQuest,
   clearPendingUndo,
@@ -592,7 +598,7 @@ function acceptQuest(answer) {
   if (answer === "no") {
     state.honestNo = true;
     state.chapter = "declined";
-    saveState();
+    reportChapter2HonestNoFeedback(state, saveState);
     queueQuestSync({ immediate: true });
     navigate("honest-no");
     return;
@@ -853,28 +859,7 @@ function openChapterTwo() {
 }
 
 function reportMainFeedback() {
-  if (RUNTIME_CONFIG.questApiUrl) return;
-  if (state.feedbackDecreeSent) return;
-  state.feedbackDecreeSent = true;
-  saveState();
-  submitFeedback({
-    _subject: "Quest answers",
-    idempotencyId: `main-${guest.formal || "guest"}-decree-${APP_CACHE_VERSION}`,
-    part: "main",
-    name: guest.formal || guest.display,
-    excitement: "",
-    choices: JSON.stringify({
-      rating: state.rating,
-      food: state.food,
-      activities: state.activities,
-      tarot: state.tarotKey,
-    }),
-    horse: state.horseId || "",
-    steedName: state.steedName || "",
-    date: state.day || "",
-    timestamp: new Date().toISOString(),
-    outcome: "decree",
-  });
+  reportChapter2DecreeFeedback(state, saveState);
 }
 
 function initDecree() {
@@ -963,7 +948,7 @@ function initChapterTwo() {
     }
     state.chapter = "complete";
     state.chapterTwoComplete = true;
-    saveState();
+    reportChapter2CompletionFeedback(state, saveState);
     queueQuestSync({ immediate: true });
     navigate("quest-complete");
   });
@@ -1048,10 +1033,11 @@ export function onScreenEnter(id) {
     paintSirBerkeCameo({ screenId: "decree" });
   }
   if (id === "chapter-lock") {
-    $("chapterLockDate").textContent = chapterLockMessage({
-      scheduledDate: state.scheduledDate,
-      timeZone: state.timeZone,
-    });
+    const lockOpts = { scheduledDate: state.scheduledDate, timeZone: state.timeZone };
+    $("chapterLockTitle").textContent = chapterLockTitle(lockOpts);
+    $("chapterLockDate").textContent = chapterLockMessage(lockOpts);
+    const tryBtn = $("btnTryChapterTwo");
+    if (tryBtn) tryBtn.textContent = chapterLockButtonLabel(lockOpts);
   }
   if (id === "chapter-two-start") {
     renderRecap();

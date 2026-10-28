@@ -42,8 +42,7 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
       );
     }, CH1_SAMPLE);
     await page.goto("/?name=Test");
-    await page.evaluate(() => window.__questNavigate("chapter-two-start"));
-    await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
+    await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
     await expect(page.locator("#questRecap")).toContainText("Pacifist potato farmer");
     if (testInfo.project.name === "mobile-390") {
       const widthRatio = await page.evaluate(() => {

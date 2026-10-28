@@ -31,17 +31,26 @@ export async function reachEvePass(page, name = "Ayse") {
 export async function completeEveToLock(page) {
   await reachEvePass(page, "Ayse");
   await page.locator("#btnEveContinue").click();
-  await page.waitForSelector('[data-screen="chapter-lock"].screen--active');
+  await page.waitForSelector(
+    '[data-screen="chapter-lock"].screen--active, [data-screen="chapter-two-start"].screen--active'
+  );
 }
 
 export async function releaseMainQuestForTest(page) {
-  await page.evaluate(() => window.__questNavigate("chapter-two-start"));
-  await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
+  const onStart = page.locator('[data-screen="chapter-two-start"].screen--active');
+  if (!(await onStart.isVisible())) {
+    await page.locator("#btnTryChapterTwo").click();
+    await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
+  }
   await page.locator("#btnStartAdventure").click();
   await page.waitForSelector('[data-screen="summons"].screen--active');
 }
 
-export async function completeEveMouse(page) {
-  await completeEveToLock(page);
+export async function completeEveMouse(page, name = "Ayse") {
+  await reachEvePass(page, name);
+  await page.locator("#btnEveContinue").click();
+  await page.waitForSelector(
+    '[data-screen="chapter-lock"].screen--active, [data-screen="chapter-two-start"].screen--active'
+  );
   await releaseMainQuestForTest(page);
 }
