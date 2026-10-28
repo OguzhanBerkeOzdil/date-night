@@ -164,3 +164,11 @@ export function formatQuestDate(
     month: "long",
   }).format(new Date(Date.UTC(year, month - 1, day, 12)));
 }
+
+export function todayQuestDateLabel({
+  now = new Date(),
+  timeZone = CONFIG.timeZone,
+  locale = "en-GB",
+} = {}) {
+  return formatQuestDate(dateKeyInTimeZone(now, timeZone), timeZone, locale);
+}

@@ -13,6 +13,7 @@ import {
   questDayHasArrived,
   questPassPresentLine,
   questPassSummonSubtitle,
+  todayQuestDateLabel,
 } from "../../js/quest-date.js";
 
 test("chapter II remains locked before the Warsaw calendar date", () => {
@@ -36,6 +37,13 @@ test("the production Chapter II switch is open on October 28", () => {
 test("owner release never bypasses the scheduled date and readable date works", () => {
   assert.equal(chapterTwoIsAvailable({ scheduledDate: "2099-01-01", released: true }), false);
   assert.match(formatQuestDate("2026-10-28", "Europe/Warsaw"), /28 October/);
+});
+
+test("the ride-day option follows the current Warsaw calendar date", () => {
+  const beforeWarsawMidnight = new Date("2026-10-29T22:30:00Z");
+  const afterWarsawMidnight = new Date("2026-10-29T23:30:00Z");
+  assert.match(todayQuestDateLabel({ now: beforeWarsawMidnight }), /29 October/);
+  assert.match(todayQuestDateLabel({ now: afterWarsawMidnight }), /30 October/);
 });
 
 test("quest day copy switches from tomorrow to today on QUEST_DATE_ISO", () => {
