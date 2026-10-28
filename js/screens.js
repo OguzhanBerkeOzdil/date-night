@@ -55,6 +55,7 @@ import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { chapterOneIsArchived } from "./quest-phase.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
+import { feedbackDeliveryStatus, flushFeedbackQueue } from "./feedback.js";
 import {
   chapterLockButtonLabel,
   chapterLockKicker,
@@ -65,10 +66,9 @@ import {
   formatQuestDate,
 } from "./quest-date.js";
 import {
+  chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
-  reportChapter2DecreeFeedback,
   reportChapter2HonestNoFeedback,
-  reportChapter2StartFeedback,
 } from "./chapter2-feedback.js";
 import { queueQuestSync } from "./sync.js";
 import {
@@ -135,6 +135,7 @@ let potionBottled = false;
 let letterStarted = false;
 let sealing = false;
 let pickSteedIx = 0;
+let completionFeedbackTask = null;
 
 const MAIN_QUEST_SCREENS = new Set([
   "summons",
@@ -926,10 +927,6 @@ function openChapterTwo() {
   navigate(chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock");
 }
 
-function reportMainFeedback() {
-  reportChapter2DecreeFeedback(state, saveState);
-}
-
 function initDecree() {
   $("btnShare")?.addEventListener("click", () => shareDecree("pass"));
   $("btnSavePng")?.addEventListener("click", () => downloadDecreePng("pass"));
@@ -997,7 +994,7 @@ function initChapterTwo() {
     }
     state.chapter = "chapter-two-active";
     state.chapterTwoStarted = true;
-    reportChapter2StartFeedback(state, saveState);
+    saveState();
     queueQuestSync({ immediate: true });
     navigate("summons");
   });
@@ -1030,13 +1027,52 @@ function initChapterTwo() {
     }
     state.chapter = "complete";
     state.chapterTwoComplete = true;
-    reportChapter2CompletionFeedback(state, saveState);
+    state.feedbackCompleteStatus = "sending";
+    saveState();
     queueQuestSync({ immediate: true });
     navigate("quest-complete");
+    void deliverCompletionFeedback();
   });
+  $("btnRetryFeedback")?.addEventListener("click", () => void deliverCompletionFeedback());
   $("btnShareFinal")?.addEventListener("click", () => shareDecree("completion"));
   $("btnSaveFinal")?.addEventListener("click", () => downloadCertificatePng("completion"));
   $("btnCopyFinal")?.addEventListener("click", () => copyText(buildCompletionText(), $("finalPreview"), $("finalCopyToast")));
+}
+
+function completionFeedbackCopy(status) {
+  if (["sent", "duplicate"].includes(status)) {
+    return "Quest notes sent to Berke. (The horse successfully filed one form.)";
+  }
+  if (status === "queued") {
+    return "Quest notes are saved and will retry automatically. (The carrier pigeon hit traffic.)";
+  }
+  return "Sending the quest notes to Berke… (The horse is locating the outbox.)";
+}
+
+function renderCompletionFeedbackStatus(status) {
+  const line = $("finalFeedbackStatus");
+  if (line) {
+    line.textContent = completionFeedbackCopy(status);
+    line.dataset.status = status;
+  }
+  const retry = $("btnRetryFeedback");
+  if (retry) retry.classList.toggle("hidden", status !== "queued");
+}
+
+function deliverCompletionFeedback() {
+  if (completionFeedbackTask) return completionFeedbackTask;
+  state.feedbackCompleteStatus = "sending";
+  saveState();
+  renderCompletionFeedbackStatus("sending");
+  completionFeedbackTask = reportChapter2CompletionFeedback(state, saveState)
+    .then((result) => {
+      renderCompletionFeedbackStatus(result.status);
+      return result;
+    })
+    .finally(() => {
+      completionFeedbackTask = null;
+    });
+  return completionFeedbackTask;
 }
 
 function restoreSelections() {
@@ -1109,7 +1145,6 @@ export function onScreenEnter(id) {
     state.chapterTwoStarted = true;
     saveState();
     queueQuestSync({ immediate: true });
-    reportMainFeedback();
     $("decreePreview").textContent = buildSummaryText("pass");
     boostEmbers();
     playStamp();
@@ -1137,6 +1172,18 @@ export function onScreenEnter(id) {
     paintSirBerkeCameo({ screenId: "chapter-two-start" });
   } else if (!["decree", "dragon", "chapter-two-start", "eve-name", "eve-pass", "eve-survey"].includes(id)) {
     hideSirBerkeCameo();
+  }
+  if (id === "quest-complete") {
+    const feedbackId = chapter2CompletionFeedbackId(state);
+    const delivery = feedbackDeliveryStatus(feedbackId);
+    const status = delivery === "missing" ? state.feedbackCompleteStatus || "sending" : delivery;
+    renderCompletionFeedbackStatus(status);
+    if (delivery === "missing") void deliverCompletionFeedback();
+    else if (delivery === "queued") {
+      void flushFeedbackQueue().then(() => {
+        renderCompletionFeedbackStatus(feedbackDeliveryStatus(feedbackId));
+      });
+    }
   }
   if (id === "chapter-two-pause") {
     $("activeBuffText").textContent = `${state.partyBuff || "Improvised courage"} is active.`;

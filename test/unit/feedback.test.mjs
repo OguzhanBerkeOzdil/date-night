@@ -68,3 +68,57 @@ test("local previews never contact FormSubmit or queue test feedback", async () 
   if (originalLocation === undefined) delete globalThis.location;
   else globalThis.location = originalLocation;
 });
+
+test("completion feedback replaces queued Chapter II progress mail", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => {
+    const error = new Error("rate limited");
+    error.status = 429;
+    throw error;
+  };
+  await feedback.submitFeedback({
+    _subject: "Start",
+    idempotencyId: "start-1",
+    part: "chapter-two-start",
+  });
+  await feedback.submitFeedback({
+    _subject: "Decree",
+    idempotencyId: "decree-1",
+    part: "main",
+  });
+  const result = await feedback.submitFeedback({
+    _subject: "Complete",
+    idempotencyId: "complete-1",
+    part: "completion",
+  });
+  assert.equal(result.status, "queued");
+  assert.deepEqual(
+    feedback.__getFeedbackQueueForTest().map((item) => item.idempotencyId),
+    ["complete-1"]
+  );
+  globalThis.fetch = original;
+});
+
+test("an application-level rejection stays queued even when HTTP is successful", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: true,
+    status: 200,
+    clone: () => ({
+      json: async () => ({ success: false, message: "Rate limit exceeded" }),
+    }),
+  });
+
+  const result = await feedback.submitFeedback({
+    _subject: "Complete",
+    idempotencyId: "complete-soft-failure",
+    part: "completion",
+  });
+
+  assert.equal(result.status, "queued");
+  assert.deepEqual(
+    feedback.__getFeedbackQueueForTest().map((item) => item.idempotencyId),
+    ["complete-soft-failure"]
+  );
+  globalThis.fetch = original;
+});

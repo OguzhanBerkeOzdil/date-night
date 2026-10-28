@@ -44,7 +44,7 @@ export function whenWeRideLine() {
 export function buildPassText() {
   const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
   return [
-    "FULL QUEST COMPLETE · LOG NO. 002",
+    "QUEST PLAN READY · LOG NO. 002",
     `Issued to: ${adventurerDisplayName(state)}, ${decreeSteedClassLine(state)}`,
     decreeCompanionLogLine(state.chapter1Answers),
     `Steed: ${state.steedName}`,
@@ -60,7 +60,7 @@ export function buildPassText() {
       : []),
     `Note for the quest: ${state.notes || "—"}`,
     `Achievements found: ${achievementCount()}`,
-    "Quest complete. Plans may still change without angering the horse.",
+    "Quest plan sealed. Details may still change without angering the horse.",
   ].join("\n");
 }
 

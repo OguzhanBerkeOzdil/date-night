@@ -112,6 +112,7 @@ export function defaultState() {
     feedbackStartSent: false,
     feedbackDecreeSent: false,
     feedbackCompleteSent: false,
+    feedbackCompleteStatus: "idle",
     feedbackHonestCh2Sent: false,
     consentShared: false,
     scheduledDate: CONFIG.scheduledDate,

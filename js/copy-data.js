@@ -94,7 +94,7 @@ export const EPIGRAPHS = {
     "by": "W. B. Yeats"
   },
   "decree": {
-    "text": "The horse has filed this quest under: completed, with snacks.",
+    "text": "The horse has filed this quest under: planned, with snacks.",
     "by": "Berke, unofficial quest clerk"
   }
 };
