@@ -8,7 +8,10 @@ import {
 } from "../../js/seed-link.js";
 import { chapter1TestaSeedToken } from "./fixtures/chapter1-testa-seed.mjs";
 import { completeEveMouse, releaseMainQuestForTest } from "./helpers/eve-path.mjs";
-import { reachDecreeMouse } from "./helpers/quest-path.mjs";
+import {
+  advanceSheetKeepingChapter1Class,
+  reachDecreeMouse,
+} from "./helpers/quest-path.mjs";
 
 const workspace = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const ARTIFACT_DIR = join(workspace, "tests/e2e/artifacts/chapter2-release");
@@ -35,6 +38,20 @@ test.beforeEach(async ({ page }) => {
     globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
   });
 });
+
+async function assertScreenHeadingsClearOfToasts(page, screenId) {
+  const clear = await page.evaluate((id) => {
+    const screen = document.querySelector(`section[data-screen="${id}"].screen--active`);
+    if (!screen) return false;
+    const heading = screen.querySelector(".kicker, .title");
+    const toast = document.querySelector("#achievementToasts .achievement-toast");
+    if (!heading || !toast) return true;
+    const h = heading.getBoundingClientRect();
+    const t = toast.getBoundingClientRect();
+    return h.bottom <= t.top || h.top >= t.bottom;
+  }, screenId);
+  expect(clear).toBe(true);
+}
 
 async function captureShot(page, testInfo, vp, name, { fullPage = true } = {}) {
   await mkdir(ARTIFACT_DIR, { recursive: true });
@@ -149,6 +166,81 @@ test("FormSubmit completion payload includes campfire debrief", async ({ page })
   expect(completeChoices.debrief.futureQuest).toBe("yes");
 });
 
+test("Testa seed decree uses Chapter I class when sheet keeps prefill", async ({ page }) => {
+  const seed = chapter1TestaSeedToken();
+  await page.goto(`/?seed=${seed}`);
+  await page.waitForFunction(() => !globalThis.location.search.includes("seed="));
+  await releaseMainQuestForTest(page);
+  await page.waitForSelector('section[data-screen="summons"].screen--active');
+  await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
+  await page.waitForSelector("#btnSummonBegin:not(.hidden)");
+  await page.locator("#btnSummonBegin").click();
+  await page.locator("#btnPayPotatoes").click();
+  await page.waitForSelector('section[data-screen="steed"].screen--active');
+  for (let i = 0; i < 4; i++) {
+    const box = page.locator("#dialogueBox:not(.hidden)");
+    if (await box.count()) await box.click();
+  }
+  await page.locator("#btnSteedNext").click();
+  await advanceSheetKeepingChapter1Class(page);
+  const savedAfterSheet = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
+  expect(savedAfterSheet.steedClassPicked).toBe(false);
+  expect(savedAfterSheet.steedClass).toMatch(/Pacifist potato farmer/i);
+  await page.locator(".journal-entry").first().click();
+  await page.locator("#btnYes").click();
+  await page.locator(".menu-item").first().click();
+  await page.locator("#btnTavernNext").click();
+  await page.locator(".potion-ing").first().click();
+  await page.locator(".vial").first().click();
+  for (let i = 0; i < 4; i++) await page.locator("#btnStir").click();
+  await page.locator("#dayChips .chip-select").first().click();
+  await page.locator("#btnSealDate").click();
+  await page.waitForSelector('section[data-screen="oracle"].screen--active');
+  await page.locator(".tarot-card").first().click();
+  await page.locator("#btnOpenLetter").click();
+  await page.locator("#btnToDecree").click();
+  await page.locator("#btnRatingNext").click();
+  await page.waitForSelector('section[data-screen="decree"].screen--active');
+  await expect(page.locator("#decreePreview")).toContainText("Testa, Pacifist potato farmer");
+});
+
+test("explicit sheet class overrides Chapter I on the decree", async ({ page }) => {
+  const seed = chapter1TestaSeedToken();
+  await page.goto(`/?seed=${seed}`);
+  await page.waitForFunction(() => !globalThis.location.search.includes("seed="));
+  await releaseMainQuestForTest(page);
+  await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
+  await page.waitForSelector("#btnSummonBegin:not(.hidden)");
+  await page.locator("#btnSummonBegin").click();
+  await page.locator("#btnPayPotatoes").click();
+  await page.waitForSelector('section[data-screen="steed"].screen--active');
+  for (let i = 0; i < 4; i++) {
+    const box = page.locator("#dialogueBox:not(.hidden)");
+    if (await box.count()) await box.click();
+  }
+  await page.locator("#btnSteedNext").click();
+  await page.locator("#btnRoll").click();
+  await page.locator('[data-class="Knight of the Wildflowers"]').click();
+  await page.locator("#btnSheetNext").click();
+  await page.locator(".journal-entry").first().click();
+  await page.locator("#btnYes").click();
+  await page.locator(".menu-item").first().click();
+  await page.locator("#btnTavernNext").click();
+  await page.locator(".potion-ing").first().click();
+  await page.locator(".vial").first().click();
+  for (let i = 0; i < 4; i++) await page.locator("#btnStir").click();
+  await page.locator("#dayChips .chip-select").first().click();
+  await page.locator("#btnSealDate").click();
+  await page.waitForSelector('section[data-screen="oracle"].screen--active');
+  await page.locator(".tarot-card").first().click();
+  await page.locator("#btnOpenLetter").click();
+  await page.locator("#btnToDecree").click();
+  await page.locator("#btnRatingNext").click();
+  await page.waitForSelector('section[data-screen="decree"].screen--active');
+  await expect(page.locator("#decreePreview")).toContainText("Knight of the Wildflowers");
+  await expect(page.locator("#decreePreview")).not.toContainText("Pacifist potato farmer");
+});
+
 test("FormSubmit honest dragon no includes Chapter I context", async ({ page }) => {
   const payloads = await stubFormSubmit(page);
   await page.goto("/?name=Decliner");
@@ -164,9 +256,7 @@ test("FormSubmit honest dragon no includes Chapter I context", async ({ page }) 
     if (await box.count()) await box.click();
   }
   await page.locator("#btnSteedNext").click();
-  await page.locator("#btnRoll").click();
-  await page.locator('[data-class="Knight of the Wildflowers"]').click();
-  await page.locator("#btnSheetNext").click();
+  await advanceSheetKeepingChapter1Class(page);
   await page.locator(".journal-entry").first().click();
   await page.locator("#btnNo").click();
   await page.waitForSelector('section[data-screen="honest-no"].screen--active');
@@ -202,9 +292,6 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await page.locator("#btnSummonBegin").click();
     await page.locator("#btnPayPotatoes").click();
     await page.waitForSelector('section[data-screen="steed"].screen--active');
-    await expect(page.locator("#achievementToasts .achievement-toast")).toHaveCount(0, {
-      timeout: 8000,
-    });
     const steedOverlap = await page.evaluate(() => {
       const grid = document.querySelector(
         '[data-screen="steed"].screen--active .horse-breed-grid'
@@ -225,9 +312,7 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
       if (await box.count()) await box.click();
     }
     await page.locator("#btnSteedNext").click();
-    await page.locator("#btnRoll").click();
-    await page.locator('[data-class="Knight of the Wildflowers"]').click();
-    await page.locator("#btnSheetNext").click();
+    await advanceSheetKeepingChapter1Class(page);
     await page.locator(".journal-entry").first().click();
     await page.locator("#btnYes").click();
     await page.waitForSelector('section[data-screen="tavern"].screen--active');
@@ -249,17 +334,22 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await page.waitForSelector('[data-screen="rating"].screen--active');
     paths.push(await captureShot(page, testInfo, vp, "05-rating"));
     await page.locator("#btnRatingNext").click();
-    await page.waitForSelector('[data-screen="decree"].screen--active');
+    await page.waitForSelector('section[data-screen="decree"].screen--active');
+    await assertScreenHeadingsClearOfToasts(page, "decree");
+    await expect(page.locator("#decreePreview")).toContainText("Testa, Pacifist potato farmer");
     paths.push(await captureShot(page, testInfo, vp, "06-decree"));
     await page.locator("#btnDecreeToPause").click();
     await page.waitForSelector('[data-screen="chapter-two-pause"].screen--active');
     paths.push(await captureShot(page, testInfo, vp, "07-pause"));
     await page.locator("#btnFinishQuest").click();
-    await page.waitForSelector('[data-screen="chapter-two-finish"].screen--active');
+    await page.waitForSelector('section[data-screen="chapter-two-finish"].screen--active');
+    await assertScreenHeadingsClearOfToasts(page, "chapter-two-finish");
     paths.push(await captureShot(page, testInfo, vp, "08-finish"));
     await page.locator('[data-future="yes"]').click();
     await page.locator("#btnCompleteQuest").click();
-    await page.waitForSelector('[data-screen="quest-complete"].screen--active');
+    await page.waitForSelector('section[data-screen="quest-complete"].screen--active');
+    await assertScreenHeadingsClearOfToasts(page, "quest-complete");
+    await expect(page.locator("#finalPreview")).toContainText("Testa, Pacifist potato farmer");
     paths.push(await captureShot(page, testInfo, vp, "09-quest-complete"));
     testInfo.annotations.push({ type: "artifact-paths", description: paths.join("\n") });
   });

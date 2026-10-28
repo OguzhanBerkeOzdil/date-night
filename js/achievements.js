@@ -31,8 +31,8 @@ const DEFS = {
   bard: { id: "bard", title: "Bard's Favourite Audience", desc: "Heard 3 lines from the bard. Survived the cheese.", bonus: true },
 };
 
-const MAX_ACHIEVEMENT_TOASTS = 2;
-const TOAST_VISIBLE_MS = 2400;
+const MAX_ACHIEVEMENT_TOASTS = 1;
+const TOAST_VISIBLE_MS = 2500;
 const toastQueue = [];
 let toastDrainActive = false;
 

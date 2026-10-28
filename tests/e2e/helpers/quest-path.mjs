@@ -1,6 +1,12 @@
 import { tabTo, activate, dismissSteedDialogue, waitForScreen } from "./keyboard.mjs";
 import { completeEveMouse } from "./eve-path.mjs";
 
+/** Roll stats and keep Chapter I class prefill (do not pick a random sheet class). */
+export async function advanceSheetKeepingChapter1Class(page) {
+  await page.locator("#btnRoll").click();
+  await page.locator("#btnSheetNext").click();
+}
+
 export async function breakSealKeyboard(page) {
   await tabTo(page, "#waxSealBtn");
   await activate(page);
@@ -23,8 +29,6 @@ export async function runQuestToDragonKeyboard(page) {
   await activate(page);
   await waitForScreen(page, "sheet");
   await tabTo(page, "#btnRoll");
-  await activate(page);
-  await tabTo(page, '[data-class="Knight of the Wildflowers"]');
   await activate(page);
   await tabTo(page, "#btnSheetNext");
   await activate(page);
@@ -88,9 +92,7 @@ export async function reachDecreeMouse(page) {
     if (await box.count()) await box.click();
   }
   await page.locator("#btnSteedNext").click();
-  await page.locator("#btnRoll").click();
-  await page.locator('[data-class="Knight of the Wildflowers"]').click();
-  await page.locator("#btnSheetNext").click();
+  await advanceSheetKeepingChapter1Class(page);
   await page.locator(".journal-entry").first().click();
   await page.locator("#btnYes").click();
   await page.locator(".menu-item").first().click();
