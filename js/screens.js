@@ -220,7 +220,9 @@ export function chapterTwoAvailable() {
 
 export function resumeTarget() {
   const hasLegacyChapterTwoProgress =
-    state.eveComplete && LEGACY_MAIN_QUEST_SCREENS.has(state.lastScreen);
+    state.chapter === "chapter-two-active" &&
+    state.eveComplete &&
+    LEGACY_MAIN_QUEST_SCREENS.has(state.lastScreen);
   if (state.chapter === "declined" || state.honestNo) return "honest-no";
   if (
     (state.chapterTwoStarted || state.chapterTwoComplete || hasLegacyChapterTwoProgress) &&

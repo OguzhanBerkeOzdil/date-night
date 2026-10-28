@@ -169,7 +169,9 @@ function normalizeState(value) {
   const input = value && typeof value === "object" ? value : {};
   const base = defaultState();
   const scheduledDate =
-    !input.scheduledDate || input.scheduledDate === "2026-10-28"
+    !input.scheduledDate ||
+    input.scheduledDate === "2026-10-28" ||
+    input.scheduledDate === "2026-10-29"
       ? base.scheduledDate
       : input.scheduledDate;
   let eveComplete = input.eveComplete;
