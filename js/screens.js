@@ -63,7 +63,7 @@ import {
   chapterLockSubline,
   chapterLockTitle,
   chapterTwoIsAvailable,
-  formatQuestDate,
+  todayQuestDateLabel,
 } from "./quest-date.js";
 import {
   chapter2CompletionFeedbackId,
@@ -796,8 +796,12 @@ function initPotion() {
 }
 
 function initStars() {
-  const dateLabel = formatQuestDate(state.scheduledDate, state.timeZone);
-  const days = [`Today — ${dateLabel}`, "Another day", "Consult the calendar"];
+  const todayLabel = `Today — ${todayQuestDateLabel({ timeZone: state.timeZone })}`;
+  if ((state.day || "").startsWith("Today —") && state.day !== todayLabel) {
+    state.day = todayLabel;
+    saveState();
+  }
+  const days = [todayLabel, "Another day", "Consult the calendar"];
   const dayWrap = $("dayChips");
   days.forEach((label, index) => {
     const button = document.createElement("button");
@@ -814,6 +818,7 @@ function initStars() {
       saveState();
     });
     dayWrap?.appendChild(button);
+    if (state.day === label) selectChip(dayWrap, button);
   });
   $("datePicker")?.addEventListener("change", (event) => {
     state.day = formatPickerDate(event.target.value);
@@ -839,7 +844,7 @@ function initStars() {
   $("btnSealDate")?.addEventListener("click", () => {
     if (sealing) return;
     sealing = true;
-    if (!state.day) state.day = `Today — ${dateLabel}`;
+    if (!state.day) state.day = todayLabel;
     if (!state.time) state.time = sky?.value || "Evening stars";
     saveState();
     show($("bookingCountdown"));
