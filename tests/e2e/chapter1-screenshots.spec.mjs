@@ -2,6 +2,9 @@ import { test, expect } from "@playwright/test";
 import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js";
 
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
+  });
   await page.route("**/formsubmit.co/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
   );

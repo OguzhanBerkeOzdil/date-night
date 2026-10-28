@@ -14,6 +14,7 @@ const NON_EVE_SCREENS = [
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
+    globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
     document.startViewTransition = undefined;
   });
 });

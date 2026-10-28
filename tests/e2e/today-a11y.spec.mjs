@@ -8,6 +8,9 @@ for (const screen of SCREENS) {
     test(`today axe: ${screen} @ ${project}`, async ({ page }, testInfo) => {
       test.skip(testInfo.project.name !== project);
       await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.addInitScript(() => {
+        globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
+      });
       await page.goto("/?name=Ayse");
       await page.evaluate((id) => window.__questNavigate(id), screen);
       await page.waitForSelector(`.screen[data-screen="${screen}"].screen--active`);

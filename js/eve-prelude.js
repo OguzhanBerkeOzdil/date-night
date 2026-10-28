@@ -1,4 +1,5 @@
 import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
+import { chapterOneIsArchived } from "./quest-phase.js";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_SURVEY_STEPS,
@@ -382,9 +383,17 @@ export function initEvePrelude(nav) {
     navigate(chapterTwoIsAvailable(lockOpts) ? "chapter-two-start" : "chapter-lock");
   });
 
-  $("btnPlayChapter1Again")?.addEventListener("click", openChapter1ReplayConfirm);
-  $("btnPlayChapter1AgainLock")?.addEventListener("click", openChapter1ReplayConfirm);
+  $("btnPlayChapter1Again")?.addEventListener("click", () => {
+    if (!chapterOneIsArchived()) openChapter1ReplayConfirm();
+  });
+  $("btnPlayChapter1AgainLock")?.addEventListener("click", () => {
+    if (!chapterOneIsArchived()) openChapter1ReplayConfirm();
+  });
   $("chapter1ReplayAccept")?.addEventListener("click", () => {
+    if (chapterOneIsArchived()) {
+      closeChapter1ReplayConfirm();
+      return;
+    }
     closeChapter1ReplayConfirm();
     const packing = $("packingList");
     if (packing) delete packing.dataset.rendered;
