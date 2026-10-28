@@ -35,7 +35,7 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
           chapterTwoComplete: false,
           chapter1Answers: sample,
           eveAdventurerName: sample.eveAdventurerName,
-          scheduledDate: "2026-10-28",
+          scheduledDate: "2020-01-01",
           timeZone: "Europe/Warsaw",
           lastScreen: "chapter-lock",
         })
@@ -65,26 +65,35 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
       });
       expect(widthRatio).toBeGreaterThanOrEqual(0.9);
     }
+    await page.locator('[data-party-buff="Snack compass"]').click();
     await page.locator("#btnStartAdventure").click();
-    await page.waitForSelector('[data-screen="summons"].screen--active');
-    await page.evaluate(() => document.getElementById("waxSealBtn")?.click());
-    await page.waitForSelector("#btnSummonBegin:not(.hidden)");
-    await page.locator("#btnSummonBegin").click();
-    await expect(page.locator("#geraldTollInvoice")).toContainText("1000 potatoes");
-    await page.locator("#btnPayPotatoes").click();
-    await page.waitForSelector('[data-screen="steed"].screen--active');
-    await expect(page.locator("#horsePersonality")).toBeVisible();
+    await page.waitForSelector('[data-screen="chapter-two-pause"].screen--active');
+    await expect(page.locator("#activeBuffText")).toContainText("Snack compass");
+    await expect(page.locator("#fieldQuestText")).toContainText("precision trial");
   });
 }
 
-test("rating comes after oracle and before decree @ mobile-390", async ({ page }, testInfo) => {
+test("legacy feedback becomes the Chapter II briefing @ mobile-390", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile-390");
-  const { reachDecreeMouse } = await import("./helpers/quest-path.mjs");
-  await page.addInitScript(() => {
-    globalThis.__CHAPTER_TWO_RELEASED_OVERRIDE__ = true;
-  });
-  await reachDecreeMouse(page);
-  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
-  expect(saved.lastScreen).toBe("decree");
-  expect(saved.rating).toBeGreaterThanOrEqual(1);
+  await page.addInitScript(() => localStorage.setItem("questLady_v3", JSON.stringify({
+    schemaVersion: 3,
+    chapter: "chapter-one-complete",
+    chapterOneComplete: true,
+    chapterTwoStarted: false,
+    eveAdventurerName: "Berke",
+    eveExcitement: 3,
+    eveHeraldAnswers: { snacks: "essential", weather: "tavern", "quest-mood": "surprise" },
+    evePacking: ["coin", "shoes"],
+    horseId: "chestnut",
+    scheduledDate: "2020-01-01",
+    timeZone: "Europe/Warsaw",
+    lastScreen: "chapter-lock",
+  })));
+  await page.goto("/");
+  await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
+  await expect(page.locator("#questRecap")).toContainText("Tavern detour");
+  await expect(page.locator("#questRecap")).toContainText("Surprise me — within reason");
+  await expect(page.locator("#questRecap")).toContainText("one bard coin · comfy shoes");
+  await expect(page.locator("#chapterTwoBriefing")).toContainText("tavern surprise");
+  await expect(page.locator("#questRecap")).not.toContainText("unclassified adventurer");
 });

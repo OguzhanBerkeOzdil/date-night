@@ -109,6 +109,7 @@ export function defaultState() {
     chapterOneComplete: false,
     chapterTwoStarted: false,
     chapterTwoComplete: false,
+    feedbackStartSent: false,
     feedbackDecreeSent: false,
     feedbackCompleteSent: false,
     feedbackHonestCh2Sent: false,
@@ -167,6 +168,10 @@ export function defaultState() {
 function normalizeState(value) {
   const input = value && typeof value === "object" ? value : {};
   const base = defaultState();
+  const scheduledDate =
+    !input.scheduledDate || input.scheduledDate === "2026-10-28"
+      ? base.scheduledDate
+      : input.scheduledDate;
   let eveComplete = input.eveComplete;
   if (eveComplete === undefined && input.lastScreen) {
     const legacySkip = ![...EVE_SCREENS, "title"].includes(input.lastScreen);
@@ -176,6 +181,7 @@ function normalizeState(value) {
     ...base,
     ...input,
     schemaVersion: 3,
+    scheduledDate,
     eveComplete: eveComplete ?? base.eveComplete,
     eveHeraldAnswers:
       input.eveHeraldAnswers && typeof input.eveHeraldAnswers === "object"

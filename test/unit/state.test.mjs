@@ -60,6 +60,15 @@ test("migrates a legacy v2 save into schema v3", async () => {
   assert.equal(loaded.chapter, "chapter-one");
 });
 
+test("moves the old October 28 save to the corrected quest date", async () => {
+  localStorage.setItem(
+    "questLady_v3",
+    JSON.stringify({ scheduledDate: "2026-10-28", lastScreen: "chapter-lock" })
+  );
+  const loaded = S.loadState();
+  assert.equal(loaded.scheduledDate, "2026-10-29");
+});
+
 test("beginNewQuest and undo restore prior save", async () => {
   const { beginNewQuest, undoLastNewQuest, saveState, __setStateForTest } = S;
   __setStateForTest({ lastScreen: "dragon", steedName: "Thunder", noAttempts: 2 });

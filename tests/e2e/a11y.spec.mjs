@@ -8,18 +8,12 @@ const ALL_SCREENS = [
   "eve-packing",
   "eve-survey",
   "eve-pass",
-  "summons",
-  "steed",
-  "sheet",
-  "rating",
-  "journal",
-  "dragon",
+  "chapter-lock",
+  "chapter-two-start",
+  "chapter-two-pause",
+  "chapter-two-finish",
+  "quest-complete",
   "honest-no",
-  "tavern",
-  "potion",
-  "stars",
-  "oracle",
-  "decree",
 ];
 
 async function assertNoSeriousViolations(page, label) {

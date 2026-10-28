@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261124">
+  <link rel="manifest" href="manifest.webmanifest?v=20261125">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261124">
-  <link rel="stylesheet" href="css/styles.css?v=20261124">
-  <link rel="stylesheet" href="css/v2.css?v=20261124">
-  <link rel="stylesheet" href="css/desktop.css?v=20261124">
-  <link rel="stylesheet" href="css/today.css?v=20261124">
+  <link rel="stylesheet" href="css/fonts.css?v=20261125">
+  <link rel="stylesheet" href="css/styles.css?v=20261125">
+  <link rel="stylesheet" href="css/v2.css?v=20261125">
+  <link rel="stylesheet" href="css/desktop.css?v=20261125">
+  <link rel="stylesheet" href="css/today.css?v=20261125">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -439,12 +439,21 @@
 
     <section class="screen" data-screen="chapter-two-start">
       <div class="screen__inner ornate chapter-panel">
-        <p class="kicker">Chapter II · the full quest</p>
-        <h2 class="title">The seal is ready to break</h2>
+        <p class="kicker">Chapter II · the field quest</p>
+        <h2 class="title">The tavern gates are ready</h2>
         <div class="sir-berke-slot" data-sir-berke-slot></div>
         <div class="quest-recap" id="questRecap"></div>
-        <p class="body-text">Chapter I was the invitation. Today the full adventure begins.</p>
-        <button type="button" class="btn btn--primary" id="btnStartAdventure">Break the seal and begin</button>
+        <p class="body-text" id="chapterTwoBriefing">Chapter I was the invitation. Today the real adventure begins.</p>
+        <fieldset class="chip-field">
+          <legend class="sub-label">Pick one party buff</legend>
+          <div class="buff-grid" id="partyBuffChoices">
+            <button type="button" class="chip-select" data-party-buff="Bad-joke shield">Bad-joke shield</button>
+            <button type="button" class="chip-select" data-party-buff="Snack compass">Snack compass</button>
+            <button type="button" class="chip-select" data-party-buff="Surprise-within-reason ward">Surprise-within-reason ward</button>
+          </div>
+        </fieldset>
+        <p class="field-error hidden" id="partyBuffError" role="alert">Choose one party buff before breaking the seal.</p>
+        <button type="button" class="btn btn--primary" id="btnStartAdventure">Activate buff — start the real quest</button>
       </div>
     </section>
 
@@ -453,6 +462,7 @@
         <p class="kicker">Quest in progress</p>
         <h2 class="title">Phones away. Adventure starts now.</h2>
         <p class="body-text" id="activeBuffText">Your party buff is active.</p>
+        <p class="body-text" id="fieldQuestText">Choose two tiny trials together. The rest happens off-screen.</p>
         <p class="sub">Come back here together at the end. The horse will keep the page warm.</p>
         <button type="button" class="btn btn--primary" id="btnFinishQuest">We're back — debrief</button>
       </div>
@@ -528,6 +538,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261124"></script>
+  <script type="module" src="js/main.js?v=20261125"></script>
 </body>
 </html>
