@@ -169,6 +169,21 @@ body.bg-celebration .scene-bg__readability {
   50% { opacity: 1; transform: scale(1.08); }
 }
 
+/* Automatic fallback for devices that show sustained frame drops. */
+body.performance-lite .scene-bg__kenburns,
+body.performance-lite .candle-glow {
+  animation: none;
+}
+
+body.performance-lite .scene-bg::after {
+  display: none;
+}
+
+body.performance-lite .top-bar,
+body.performance-lite .bard-quill--hud {
+  backdrop-filter: none;
+}
+
 .ambient {
   position: fixed;
   inset: 0;

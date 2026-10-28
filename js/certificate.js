@@ -307,10 +307,15 @@ export async function downloadCertificatePng(mode = "pass") {
       c.toBlob((b) => (b ? resolve(b) : reject(new Error("toBlob null"))), "image/png");
     });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+    const objectUrl = URL.createObjectURL(blob);
+    a.href = objectUrl;
     a.download = "quest-certificate.png";
+    a.hidden = true;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(a.href);
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+    showAppToast("Quest certificate download started.");
   } catch {
     showAppToast("Couldn't save the certificate — try again in a moment.");
   }

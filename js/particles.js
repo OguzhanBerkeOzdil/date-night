@@ -2,6 +2,15 @@ let canvas, ctx, particles = [];
 let raf = 0;
 let reduced = false;
 let lowPower = false;
+let lastFrame = 0;
+let slowFrames = 0;
+const FRAME_INTERVAL = 1000 / 30;
+
+function setLowPowerMode(on = true) {
+  lowPower = on;
+  document.body.classList.toggle("performance-lite", on);
+  if (on) particles = particles.filter((particle) => particle.kind === "spark").slice(-14);
+}
 
 function applyReducedMotion() {
   reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,11 +28,22 @@ export function initParticles() {
   canvas = document.getElementById("particleCanvas");
   if (!canvas) return;
   ctx = canvas.getContext("2d");
+  const memory = Number(navigator.deviceMemory || 8);
+  const cores = Number(navigator.hardwareConcurrency || 8);
+  if (navigator.connection?.saveData || memory <= 4 || cores <= 4) setLowPowerMode();
   applyReducedMotion();
   window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", applyReducedMotion);
   resize();
   window.addEventListener("resize", resize);
-  if (!reduced) loop();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && raf) {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    } else if (!document.hidden && !reduced && !raf) {
+      lastFrame = 0;
+      loop();
+    }
+  });
   document.addEventListener(
     "pointerdown",
     (e) => {
@@ -40,8 +60,13 @@ function resize() {
   canvas.height = window.innerHeight;
 }
 
-function loop() {
+function loop(now = performance.now()) {
   if (!ctx) return;
+  if (now - lastFrame < FRAME_INTERVAL) {
+    raf = requestAnimationFrame(loop);
+    return;
+  }
+  lastFrame = now;
   const t0 = performance.now();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   particles = particles.filter((p) => p.life > 0);
@@ -87,14 +112,15 @@ function loop() {
     }
     ctx.globalAlpha = 1;
   });
-  if (particles.length < 60 && !lowPower && !reduced) {
+  if (particles.length < 36 && !lowPower && !reduced) {
     if (Math.random() < 0.04) addFirefly();
     if (Math.random() < 0.02) addPetal();
   }
   if (!reduced) raf = requestAnimationFrame(loop);
   else raf = 0;
   const dt = performance.now() - t0;
-  if (dt > 50) lowPower = true;
+  slowFrames = dt > 28 ? slowFrames + 1 : Math.max(0, slowFrames - 1);
+  if (slowFrames >= 3) setLowPowerMode();
 }
 
 function addFirefly() {
