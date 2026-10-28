@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261125";
+const APP_CACHE_VERSION = "20261126";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -65,6 +65,22 @@ const ASSET_PRECACHE = [
   "./assets/images/bg-title.jpg",
   "./assets/images/horse-idle.webp",
   "./assets/images/dragon-doubt.webp",
+  "./assets/horses/chestnut.webp",
+  "./assets/horses/palomino.webp",
+  "./assets/horses/dapple-grey.webp",
+  "./assets/horses/friesian.webp",
+  "./assets/horses/appaloosa.webp",
+  "./assets/horses/pinto.webp",
+  "./assets/horses/buckskin.webp",
+  "./assets/horses/definitely-a-horse.webp",
+  "./assets/horses/fed/chestnut.webp",
+  "./assets/horses/fed/palomino.webp",
+  "./assets/horses/fed/dapple-grey.webp",
+  "./assets/horses/fed/friesian.webp",
+  "./assets/horses/fed/appaloosa.webp",
+  "./assets/horses/fed/pinto.webp",
+  "./assets/horses/fed/buckskin.webp",
+  "./assets/horses/fed/definitely-a-horse.webp",
   "./assets/icons/icon-192.png",
   "./assets/icons/icon-512.png",
   "./assets/icons/apple-touch-icon.png",

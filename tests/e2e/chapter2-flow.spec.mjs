@@ -67,7 +67,8 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     }
     await page.locator('[data-party-buff="Snack compass"]').click();
     await page.locator("#btnStartAdventure").click();
-    await page.waitForSelector('[data-screen="chapter-two-pause"].screen--active');
+    await page.waitForSelector('[data-screen="summons"].screen--active');
+    await page.evaluate(() => window.__questNavigate("chapter-two-pause"));
     await expect(page.locator("#activeBuffText")).toContainText("Snack compass");
     await expect(page.locator("#fieldQuestText")).toContainText("precision trial");
   });

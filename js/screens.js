@@ -24,6 +24,7 @@ import {
 } from "./decree.js";
 import {
   horseById,
+  horseFedImageUrl,
   horseImageUrl,
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
@@ -135,8 +136,35 @@ let sealing = false;
 let pickSteedIx = 0;
 
 const MAIN_QUEST_SCREENS = new Set([
+  "summons",
+  "gerald-toll",
+  "steed",
+  "sheet",
+  "journal",
+  "dragon",
+  "tavern",
+  "potion",
+  "stars",
+  "oracle",
+  "rating",
+  "decree",
   "chapter-two-pause",
   "chapter-two-finish",
+]);
+
+const LEGACY_MAIN_QUEST_SCREENS = new Set([
+  "summons",
+  "gerald-toll",
+  "steed",
+  "sheet",
+  "journal",
+  "dragon",
+  "tavern",
+  "potion",
+  "stars",
+  "oracle",
+  "rating",
+  "decree",
 ]);
 
 function $(id) {
@@ -191,12 +219,18 @@ export function chapterTwoAvailable() {
 }
 
 export function resumeTarget() {
+  const hasLegacyChapterTwoProgress =
+    state.eveComplete && LEGACY_MAIN_QUEST_SCREENS.has(state.lastScreen);
   if (state.chapter === "declined" || state.honestNo) return "honest-no";
-  if ((state.chapterTwoStarted || state.chapterTwoComplete) && !chapterTwoAvailable()) return "chapter-lock";
+  if (
+    (state.chapterTwoStarted || state.chapterTwoComplete || hasLegacyChapterTwoProgress) &&
+    !chapterTwoAvailable()
+  ) return "chapter-lock";
   if (state.chapterTwoComplete) return "quest-complete";
-  if (state.chapterTwoStarted) {
+  if (state.chapterTwoStarted || hasLegacyChapterTwoProgress) {
+    if (hasLegacyChapterTwoProgress) return state.lastScreen;
     if (!state.partyBuff) return "chapter-two-start";
-    return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "chapter-two-pause";
+    return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
   }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
   if (!state.eveComplete) {
@@ -336,7 +370,11 @@ function applyHorseImg(img, horseId, { lazy = false, variant = "cutout" } = {}) 
     if (img.src.includes("/horses/") && useArt) img.className = "horse-cutout";
     else setCutoutClass();
   };
-  img.src = useArt ? horseImageUrl(horseId) : HORSE_PLACEHOLDER_SRC;
+  img.src = useArt
+    ? state.fed && !isThumb
+      ? horseFedImageUrl(horseId)
+      : horseImageUrl(horseId)
+    : HORSE_PLACEHOLDER_SRC;
   if (!useArt) setClass();
 }
 
@@ -346,6 +384,18 @@ function setHorsePreview(horseId) {
   applyHorseImg(img, horseId, { lazy: false });
   const pers = $("horsePersonality");
   if (pers) pers.textContent = horseById(horseId).personality;
+}
+
+const horseSelectionCounts = new Map();
+
+function horseSelectionLine(horseId) {
+  const horse = horseById(horseId);
+  const lines = horse.selectionLines?.length
+    ? horse.selectionLines
+    : [horse.personality || "A fine horse. Probably."];
+  const count = horseSelectionCounts.get(horseId) || 0;
+  horseSelectionCounts.set(horseId, count + 1);
+  return lines[count % lines.length];
 }
 
 function renderHorseBreedGrid() {
@@ -376,6 +426,7 @@ function pickHorseBreed(id) {
   state.horseId = id;
   saveState();
   setHorsePreview(id);
+  setPortrait(state.fed ? horseFedImageUrl(id) : horseImageUrl(id));
   document.querySelectorAll(".horse-breed-card").forEach((el) => {
     el.setAttribute("aria-selected", el.dataset.horseId === id ? "true" : "false");
   });
@@ -385,6 +436,7 @@ function pickHorseBreed(id) {
     saveState();
     setSteedName(state.steedName);
   }
+  say([horseSelectionLine(id)], undefined, { focus: false });
 }
 
 function pickSteed(name) {
@@ -419,10 +471,15 @@ function initSteed() {
     state.fed = true;
     saveState();
     renderAffection();
-    $("horseIdleImg").src = "assets/images/horse-munch.webp";
+    applyHorseImg($("horseIdleImg"), state.horseId || "chestnut", { lazy: false });
+    setPortrait(horseFedImageUrl(state.horseId || "chestnut"));
     unlock("snack");
     playNeigh();
-    say([COPY.steedCarrotLine]);
+    say(
+      [horseById(state.horseId || "chestnut").carrotLine || COPY.steedCarrotLine],
+      undefined,
+      { focus: false }
+    );
   });
   document.querySelectorAll("[data-steed-name]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -445,7 +502,13 @@ export function onEnterSteed() {
     saveState();
   }
   const hid = state.horseId || "chestnut";
-  setPortrait(horseHasArt(hid) ? horseImageUrl(hid) : HORSE_PLACEHOLDER_SRC);
+  setPortrait(
+    horseHasArt(hid)
+      ? state.fed
+        ? horseFedImageUrl(hid)
+        : horseImageUrl(hid)
+      : HORSE_PLACEHOLDER_SRC
+  );
   setHorsePreview(hid);
   document.querySelectorAll(".horse-breed-card").forEach((el) => {
     el.setAttribute("aria-selected", el.dataset.horseId === hid ? "true" : "false");
@@ -455,7 +518,7 @@ export function onEnterSteed() {
   const horseNote = steedHorseColorNote(state.chapter1Answers);
   say([
     `*soft neigh* Oh! You must be ${name}. I've heard a responsibly small amount about you.`,
-    horseNote || "I'm your steed for this quest. A head scratch is optional but politically wise.",
+    horseNote || horseSelectionLine(hid),
   ]);
 }
 
@@ -926,7 +989,7 @@ function initChapterTwo() {
     state.chapterTwoStarted = true;
     reportChapter2StartFeedback(state, saveState);
     queueQuestSync({ immediate: true });
-    navigate("chapter-two-pause");
+    navigate("summons");
   });
   $("btnFinishQuest")?.addEventListener("click", () => navigate("chapter-two-finish"));
   $("btnDecreeToPause")?.addEventListener("click", () => navigate("chapter-two-pause"));

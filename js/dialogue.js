@@ -91,15 +91,17 @@ function stripDuplicateName(line) {
   return line;
 }
 
-export function say(lines, done) {
+export function say(lines, done, { focus = true } = {}) {
   if (document.body.dataset.screen === "rating") return;
   if (document.body.dataset.screen === "steed") attachSteedDialogue();
+  if (steedHideTimer) clearTimeout(steedHideTimer);
+  steedHideTimer = null;
   queue = lines.map(stripDuplicateName);
   onDone = done || null;
   const box = document.getElementById("dialogueBox");
   box?.classList.remove("hidden");
   box?.setAttribute("tabindex", "0");
-  box?.focus();
+  if (focus) box?.focus();
   showNext();
 }
 
@@ -121,7 +123,7 @@ function scheduleSteedHide() {
   if (steedHideTimer) clearTimeout(steedHideTimer);
   steedHideTimer = window.setTimeout(() => {
     if (document.body.dataset.screen === "steed" && !queue.length && !typing) hideDialogue();
-  }, 2200);
+  }, 3500);
 }
 
 function showNext() {

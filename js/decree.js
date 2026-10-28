@@ -119,16 +119,16 @@ export async function renderDecreeCanvas(mode = "auto") {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 
-  const frame = 88;
-  const innerX = 128;
+  const frame = 126;
+  const innerX = 156;
   const innerW = canvas.width - innerX * 2;
-  const flatTop = 200;
-  const flatBottom = canvas.height - 260;
+  const flatTop = 220;
+  const flatBottom = canvas.height - 310;
   const sigY = flatBottom - 36;
 
   ctx.strokeStyle = "#6b2d3a";
   ctx.lineWidth = 6;
-  ctx.strokeRect(frame - 12, frame - 12, canvas.width - 2 * (frame - 12), canvas.height - 2 * (frame - 12));
+  ctx.strokeRect(frame - 14, frame - 14, canvas.width - 2 * (frame - 14), canvas.height - 2 * (frame - 14));
   ctx.strokeStyle = "#c9a227";
   ctx.lineWidth = 2;
   ctx.strokeRect(frame, frame, canvas.width - 2 * frame, canvas.height - 2 * frame);
@@ -173,10 +173,15 @@ export async function downloadDecreePng(mode = "auto") {
   try {
     const blob = await decreeToBlob(resolved);
     const anchor = document.createElement("a");
-    anchor.href = URL.createObjectURL(blob);
+    const objectUrl = URL.createObjectURL(blob);
+    anchor.href = objectUrl;
     anchor.download = resolved === "completion" ? "second-quest-complete.png" : "full-quest-log.png";
+    anchor.hidden = true;
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(anchor.href);
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+    showAppToast("Quest log download started.");
   } catch {
     showAppToast("Couldn't save the decree image — try Copy pass instead.");
   }
@@ -194,7 +199,8 @@ export async function shareDecree(mode = "auto") {
   const fileName = resolved === "completion" ? "second-quest-complete.png" : "full-quest-log.png";
   const title = resolved === "completion" ? "Second quest complete" : "Full quest complete";
   const waUrl = whatsAppFallbackUrl(summary);
-  const popup = window.open("about:blank", "_blank", "noopener,noreferrer");
+  const popup = window.open("about:blank", "quest-share");
+  if (popup) popup.opener = null;
 
   let blob = null;
   try {
