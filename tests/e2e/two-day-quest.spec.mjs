@@ -17,10 +17,10 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("today ends at an owner-controlled lock and release starts the full quest", async ({ page }) => {
+test("after Chapter I, release opens Chapter II start and the full quest", async ({ page }) => {
   await page.goto("/");
   await completeEveToLock(page);
-  await expect(page.locator('section[data-screen="chapter-lock"]')).toHaveClass(/screen--active/);
+  await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
   const afterToday = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
   expect(afterToday.eveAdventurerName).toBe("Ayse");
   expect(afterToday.chapterOneComplete).toBe(true);
@@ -36,7 +36,7 @@ test("today ends at an owner-controlled lock and release starts the full quest",
   expect(afterOpening.lastScreen).toBe("summons");
 });
 
-test("an old early-open save is forced back behind the owner lock", async ({ page }) => {
+test("a returning Chapter II save resumes mid-quest after owner release", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("questLady_v3", JSON.stringify({
       schemaVersion: 3,
@@ -45,14 +45,14 @@ test("an old early-open save is forced back behind the owner lock", async ({ pag
       chapterTwoStarted: true,
       chapterTwoComplete: false,
       chapterTwoOpenedEarly: true,
+      eveAdventurerName: "Ayse",
       scheduledDate: "2026-10-28",
       timeZone: "Europe/Warsaw",
       lastScreen: "steed",
     }));
   });
   await page.goto("/");
-  await expect(page.locator('section[data-screen="chapter-lock"]')).toHaveClass(/screen--active/);
-  await expect(page.locator('section[data-screen="steed"]')).not.toHaveClass(/screen--active/);
+  await expect(page.locator('section[data-screen="steed"]')).toHaveClass(/screen--active/);
   await expect(page.locator("#btnOpenEarly")).toHaveCount(0);
 });
 

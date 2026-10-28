@@ -2,6 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   certificatePassSubtitle,
+  chapterLockButtonLabel,
+  chapterLockKicker,
+  chapterLockMessage,
+  chapterLockSubline,
+  chapterLockTitle,
   chapterTwoIsAvailable,
   dateKeyInTimeZone,
   formatQuestDate,
@@ -36,6 +41,23 @@ test("quest day copy switches from tomorrow to today on QUEST_DATE_ISO", () => {
   assert.match(questPassSummonSubtitle({ now: before }), /tomorrow/i);
   assert.match(questPassSummonSubtitle({ now: onDay }), /today/i);
   assert.match(questPassPresentLine({ now: onDay }), /today/i);
+});
+
+test("chapter lock copy and button when Chapter II is open", () => {
+  const onDay = new Date("2026-10-28T08:00:00Z");
+  const opts = { now: onDay, scheduledDate: "2026-10-28", released: true };
+  assert.match(chapterLockKicker(opts), /seal broken/i);
+  assert.match(chapterLockTitle(opts), /open/i);
+  assert.match(chapterLockMessage(opts), /begin today's adventure/i);
+  assert.match(chapterLockSubline(opts), /potatoes/i);
+  assert.equal(chapterLockButtonLabel(opts), "Begin Chapter II");
+});
+
+test("chapter lock kicker stays sealed before release day", () => {
+  const before = new Date("2026-10-27T12:00:00Z");
+  const opts = { now: before, scheduledDate: "2026-10-28", released: true };
+  assert.match(chapterLockKicker(opts), /sealed/i);
+  assert.match(chapterLockSubline(opts), /will not accept early bribes/i);
 });
 
 test("certificate pass subtitle stays sealed until Chapter II is available", () => {

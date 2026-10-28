@@ -31,10 +31,35 @@ const DEFS = {
   bard: { id: "bard", title: "Bard's Favourite Audience", desc: "Heard 3 lines from the bard. Survived the cheese.", bonus: true },
 };
 
-const MAX_ACHIEVEMENT_TOASTS = 2;
-const TOAST_VISIBLE_MS = 2400;
+const MAX_ACHIEVEMENT_TOASTS = 1;
+const TOAST_VISIBLE_MS = 2500;
+const SUPPRESS_TOAST_SCREENS = new Set(["chapter-two-finish", "honest-no"]);
 const toastQueue = [];
 let toastDrainActive = false;
+let toastPausedForChoices = false;
+
+export function clearAchievementToasts() {
+  const wrap = document.getElementById("achievementToasts");
+  if (wrap) wrap.replaceChildren();
+  toastQueue.length = 0;
+  toastDrainActive = false;
+  toastPausedForChoices = false;
+}
+
+/** Campfire finish / honest screens: never cover choice buttons with toasts. */
+export function syncAchievementToastsForScreen(screenId) {
+  if (SUPPRESS_TOAST_SCREENS.has(screenId)) {
+    const wrap = document.getElementById("achievementToasts");
+    if (wrap) wrap.replaceChildren();
+    toastPausedForChoices = true;
+    toastDrainActive = false;
+    return;
+  }
+  if (toastPausedForChoices) {
+    toastPausedForChoices = false;
+    drainToastQueue();
+  }
+}
 
 export function unlock(id, silent = false) {
   if (!DEFS[id] || state.achievements.includes(id)) return;
@@ -49,9 +74,14 @@ function enqueueToast(def) {
 }
 
 function drainToastQueue() {
-  if (toastDrainActive) return;
+  if (toastDrainActive || toastPausedForChoices) return;
+  if (SUPPRESS_TOAST_SCREENS.has(document.body?.dataset?.screen || "")) return;
   toastDrainActive = true;
   const step = () => {
+    if (toastPausedForChoices || SUPPRESS_TOAST_SCREENS.has(document.body?.dataset?.screen || "")) {
+      toastDrainActive = false;
+      return;
+    }
     const wrap = document.getElementById("achievementToasts");
     if (!wrap) {
       toastDrainActive = false;

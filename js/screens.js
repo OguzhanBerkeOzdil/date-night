@@ -1,5 +1,5 @@
 import { CONFIG, COPY, tarotForKey } from "./config.js";
-import { unlock } from "./achievements.js";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js";
 import {
   duckMusic,
   isSoundOn,
@@ -46,19 +46,27 @@ import {
   steedHorseColorNote,
   tavernMartaTestimonyLine,
 } from "./chapter2-callbacks.js";
-import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
-import { chapterLockMessage } from "./quest-date.js";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js";
 import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
-import { submitFeedback } from "./feedback.js";
-import { RUNTIME_CONFIG } from "./runtime-config.js";
-import { APP_CACHE_VERSION } from "./cache-version.js";
 import { updateEpigraph } from "./epigraph.js";
 import { syncContinueButton } from "./app-chrome.js";
 import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
-import { chapterTwoIsAvailable, formatQuestDate } from "./quest-date.js";
+import {
+  chapterLockButtonLabel,
+  chapterLockKicker,
+  chapterLockMessage,
+  chapterLockSubline,
+  chapterLockTitle,
+  chapterTwoIsAvailable,
+  formatQuestDate,
+} from "./quest-date.js";
+import {
+  reportChapter2CompletionFeedback,
+  reportChapter2DecreeFeedback,
+  reportChapter2HonestNoFeedback,
+} from "./chapter2-feedback.js";
 import { queueQuestSync } from "./sync.js";
 import {
-  guest,
   letterSalutation,
   beginNewQuest,
   clearPendingUndo,
@@ -438,6 +446,7 @@ function initSteed() {
 }
 
 export function onEnterSteed() {
+  clearAchievementToasts();
   attachSteedDialogue();
   if (!state.horseId || !horseHasArt(state.horseId)) {
     state.horseId = presetHorseIdFromChapter1(state.chapter1Answers);
@@ -592,7 +601,7 @@ function acceptQuest(answer) {
   if (answer === "no") {
     state.honestNo = true;
     state.chapter = "declined";
-    saveState();
+    reportChapter2HonestNoFeedback(state, saveState);
     queueQuestSync({ immediate: true });
     navigate("honest-no");
     return;
@@ -853,28 +862,7 @@ function openChapterTwo() {
 }
 
 function reportMainFeedback() {
-  if (RUNTIME_CONFIG.questApiUrl) return;
-  if (state.feedbackDecreeSent) return;
-  state.feedbackDecreeSent = true;
-  saveState();
-  submitFeedback({
-    _subject: "Quest answers",
-    idempotencyId: `main-${guest.formal || "guest"}-decree-${APP_CACHE_VERSION}`,
-    part: "main",
-    name: guest.formal || guest.display,
-    excitement: "",
-    choices: JSON.stringify({
-      rating: state.rating,
-      food: state.food,
-      activities: state.activities,
-      tarot: state.tarotKey,
-    }),
-    horse: state.horseId || "",
-    steedName: state.steedName || "",
-    date: state.day || "",
-    timestamp: new Date().toISOString(),
-    outcome: "decree",
-  });
+  reportChapter2DecreeFeedback(state, saveState);
 }
 
 function initDecree() {
@@ -963,7 +951,7 @@ function initChapterTwo() {
     }
     state.chapter = "complete";
     state.chapterTwoComplete = true;
-    saveState();
+    reportChapter2CompletionFeedback(state, saveState);
     queueQuestSync({ immediate: true });
     navigate("quest-complete");
   });
@@ -988,6 +976,7 @@ function restoreSelections() {
 }
 
 export function onScreenEnter(id) {
+  syncAchievementToastsForScreen(id);
   hydrateLazyImages(document.querySelector(`[data-screen="${id}"]`));
   restoreSelections();
   syncEveHonestButton(id);
@@ -1024,8 +1013,9 @@ export function onScreenEnter(id) {
     $("fanumTaxExplain").textContent = fanumTaxExplanation();
     const marta = $("tavernMartaLine");
     if (marta) {
-      marta.textContent = tavernMartaTestimonyLine(state.chapter1Answers);
-      marta.classList.remove("hidden");
+      const line = tavernMartaTestimonyLine(state.chapter1Answers);
+      marta.textContent = line;
+      marta.classList.toggle("hidden", !line);
     }
     const nextFood = ensureChapter1TavernPreselect(state);
     if (nextFood.length !== (state.food || []).length) {
@@ -1046,12 +1036,16 @@ export function onScreenEnter(id) {
     playStamp();
     $("waxStampAnim")?.classList.add("stamped");
     paintSirBerkeCameo({ screenId: "decree" });
+    void whenSirBerkeCameoReady();
   }
   if (id === "chapter-lock") {
-    $("chapterLockDate").textContent = chapterLockMessage({
-      scheduledDate: state.scheduledDate,
-      timeZone: state.timeZone,
-    });
+    const lockOpts = { scheduledDate: state.scheduledDate, timeZone: state.timeZone };
+    $("chapterLockKicker").textContent = chapterLockKicker(lockOpts);
+    $("chapterLockTitle").textContent = chapterLockTitle(lockOpts);
+    $("chapterLockDate").textContent = chapterLockMessage(lockOpts);
+    $("chapterLockSub").textContent = chapterLockSubline(lockOpts);
+    const tryBtn = $("btnTryChapterTwo");
+    if (tryBtn) tryBtn.textContent = chapterLockButtonLabel(lockOpts);
   }
   if (id === "chapter-two-start") {
     renderRecap();

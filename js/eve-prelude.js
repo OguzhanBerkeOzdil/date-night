@@ -23,7 +23,7 @@ import {
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
 } from "./today/copy.js";
-import { questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js";
+import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js";
 import { downloadQuestPassPng } from "./today/pass.js";
 import { APP_CACHE_VERSION } from "./cache-version.js";
 
@@ -177,9 +177,8 @@ function finishHonest() {
 
 function personalizeName(name) {
   const display = String(name || "").trim() || "Adventurer";
-  const titled = /^adventurer$/i.test(display) ? display : `Lady ${display}`;
   document.querySelectorAll("[data-lady]").forEach((el) => {
-    el.textContent = titled;
+    el.textContent = display;
   });
   document.querySelectorAll("[data-name-only]").forEach((el) => {
     el.textContent = display;
@@ -379,7 +378,8 @@ export function initEvePrelude(nav) {
     state.secondDate = "yes";
     saveState();
     queueQuestSync({ immediate: true });
-    navigate("chapter-lock");
+    const lockOpts = { scheduledDate: state.scheduledDate, timeZone: state.timeZone };
+    navigate(chapterTwoIsAvailable(lockOpts) ? "chapter-two-start" : "chapter-lock");
   });
 
   $("btnPlayChapter1Again")?.addEventListener("click", openChapter1ReplayConfirm);

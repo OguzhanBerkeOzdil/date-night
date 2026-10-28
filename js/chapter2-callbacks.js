@@ -1,7 +1,5 @@
 /** Data-driven Chapter I callbacks for Chapter II (no hardcoded guest answers). */
 
-import { parseGuestName } from "./state.js";
-
 const FALLBACK = {
   class: "an unclassified adventurer",
   weapon: "mysterious intent",
@@ -64,10 +62,9 @@ const COMPANION_RECAP = {
 };
 
 export function adventurerDisplayName(state) {
-  const fromSave = (state?.eveAdventurerName || "").trim();
-  if (fromSave) return fromSave;
-  const guest = parseGuestName();
-  if (guest.formal && !/^adventurer$/i.test(guest.formal)) return guest.formal;
+  const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
+  if (fromSave && !/^adventurer$/i.test(fromSave)) return fromSave;
+  if (fromSave) return "Adventurer";
   return "Adventurer";
 }
 
@@ -163,8 +160,12 @@ export function chapter1TavernDrinkItem(answers) {
 }
 
 export function tavernMartaTestimonyLine(answers) {
-  const drink = chapter1Label(answers, "tavern", "tavern");
-  return `Marta pours ${drink} first — per your Chapter I testimony.`;
+  const ch1 = chapter1TavernDrinkItem(answers);
+  if (!ch1?.name) return "";
+  const lower = ch1.name.trim().toLowerCase();
+  if (!lower) return "";
+  const phrase = /^[aeiou]/.test(lower) ? `an ${lower}` : `the ${lower}`;
+  return `Marta pours ${phrase} first — per your Chapter I testimony.`;
 }
 
 export function fanumTaxExplanation() {

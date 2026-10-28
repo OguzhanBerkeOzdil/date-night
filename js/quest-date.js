@@ -87,7 +87,56 @@ export function chapterLockMessage({
   if (!effectiveReleased) {
     return "Berke is polishing the seal — check back soon.";
   }
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released: effectiveReleased })) {
+    return "Your Chapter I answers are sealed. Tap below to begin today's adventure.";
+  }
   return `Berke will unseal Chapter II on ${formatQuestDate(scheduledDate, timeZone)} morning.`;
+}
+
+export function chapterLockKicker({
+  scheduledDate = CONFIG.scheduledDate,
+  timeZone = CONFIG.timeZone,
+  released = CHAPTER_TWO_RELEASED,
+  now = new Date(),
+} = {}) {
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released })) {
+    return "Chapter II · seal broken";
+  }
+  return "Chapter II · sealed";
+}
+
+export function chapterLockSubline({
+  scheduledDate = CONFIG.scheduledDate,
+  timeZone = CONFIG.timeZone,
+  released = CHAPTER_TWO_RELEASED,
+  now = new Date(),
+} = {}) {
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released })) {
+    return "The calendar dragon finally accepted the bribe. It was potatoes.";
+  }
+  return "The horse is resting. The calendar dragon will not accept early bribes.";
+}
+
+export function chapterLockTitle({
+  scheduledDate = CONFIG.scheduledDate,
+  timeZone = CONFIG.timeZone,
+  released = CHAPTER_TWO_RELEASED,
+  now = new Date(),
+} = {}) {
+  const testOverride = globalThis.__CHAPTER_TWO_RELEASED_OVERRIDE__;
+  const effectiveReleased =
+    typeof testOverride === "boolean" ? testOverride : released;
+  if (chapterTwoIsAvailable({ scheduledDate, timeZone, now, released: effectiveReleased })) {
+    return "Chapter II is open";
+  }
+  if (chapterTwoOpensTomorrow({ scheduledDate, timeZone, now })) {
+    return "The quest continues tomorrow";
+  }
+  return "Chapter II · sealed";
+}
+
+export function chapterLockButtonLabel(opts = {}) {
+  return chapterTwoIsAvailable(opts) ? "Begin Chapter II" : "Check again";
 }
 
 export function chapterTwoPassClosingLine({

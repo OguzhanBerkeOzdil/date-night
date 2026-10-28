@@ -15,6 +15,8 @@ import {
   steedHorseColorNote,
   decreeSteedClassLine,
   provisionsForDecree,
+  tavernMartaTestimonyLine,
+  adventurerDisplayName,
 } from "../../js/chapter2-callbacks.js";
 
 const SAMPLE = {
@@ -74,6 +76,19 @@ test("decree companion log for goose traitor", () => {
 
 test("tavern drink item from chapter I mead", () => {
   assert.equal(chapter1TavernDrinkItem(SAMPLE)?.name, "Mead");
+});
+
+test("tavern marta line uses the mead drink name", () => {
+  assert.equal(
+    tavernMartaTestimonyLine(SAMPLE),
+    "Marta pours the mead first — per your Chapter I testimony."
+  );
+  assert.equal(tavernMartaTestimonyLine({}), "");
+});
+
+test("adventurer display name prefers Chapter I save", () => {
+  assert.equal(adventurerDisplayName({ eveAdventurerName: "Testa" }), "Testa");
+  assert.equal(adventurerDisplayName({}), "Adventurer");
 });
 
 test("potion song variants", () => {

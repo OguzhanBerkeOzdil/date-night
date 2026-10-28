@@ -8,11 +8,8 @@ export const FORM_SUBMIT_ENDPOINT =
 export const QUEST_DATE_LABEL = "Wednesday 28 October 2026";
 export const QUEST_DATE_ISO = "2026-10-28";
 
-/**
- * Owner-controlled release switch for Chapter II.
- * Keep false until the owner (Berke) explicitly approves the morning release.
- */
-export const CHAPTER_TWO_RELEASED = false;
+/** Owner-controlled release switch for Chapter II (flip to false to re-seal). */
+export const CHAPTER_TWO_RELEASED = true;
 
 /**
  * Background music MP3 (lazy-loaded when user enables sound).

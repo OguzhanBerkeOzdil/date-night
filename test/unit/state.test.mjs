@@ -30,6 +30,28 @@ test("hasQuestSave detects progressed screens", async () => {
   assert.equal(hasQuestSave(), true);
 });
 
+test("normalizeState preserves Chapter I fields and adds new feedback flags", async () => {
+  localStorage.setItem(
+    "questLady_v3",
+    JSON.stringify({
+      schemaVersion: 3,
+      eveAdventurerName: "Keeper",
+      chapterOneComplete: true,
+      chapter1Answers: { weapon: { id: "sword", label: "Sword" } },
+      eveExcitement: 5,
+      evePacking: ["boots"],
+      horseId: "grey",
+      steedName: "Ash",
+    })
+  );
+  const loaded = S.loadState();
+  assert.equal(loaded.eveAdventurerName, "Keeper");
+  assert.equal(loaded.chapter1Answers.weapon.id, "sword");
+  assert.equal(loaded.horseId, "grey");
+  assert.equal(loaded.feedbackCompleteSent, false);
+  assert.equal(loaded.feedbackHonestCh2Sent, false);
+});
+
 test("migrates a legacy v2 save into schema v3", async () => {
   localStorage.setItem("questLady_v2", JSON.stringify({ lastScreen: "oracle", steedName: "Legacy" }));
   const loaded = S.loadState();

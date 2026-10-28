@@ -63,12 +63,27 @@ export function paintSirBerkeCameo({ screenId, questionId } = {}) {
     return;
   }
 
+  img.loading = "eager";
+  img.decoding = "async";
   img.src = cfg.image;
   img.alt = "";
   line.textContent = cfg.line;
   root.classList.remove("hidden");
   root.removeAttribute("hidden");
   root.setAttribute("aria-hidden", "true");
+}
+
+/** Resolve when the cameo image has painted (for screenshots / decree). */
+export function whenSirBerkeCameoReady() {
+  const img = $("sirBerkeImg");
+  const root = $("sirBerkeCameo");
+  if (!img || !root || root.classList.contains("hidden")) return Promise.resolve();
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => resolve();
+    img.addEventListener("load", done, { once: true });
+    img.addEventListener("error", done, { once: true });
+  });
 }
 
 export function hideSirBerkeCameo() {
