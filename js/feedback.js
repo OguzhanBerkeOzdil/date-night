@@ -2,7 +2,10 @@ import { FORM_SUBMIT_ENDPOINT } from "./app-config.js";
 
 const QUEUE_KEY = "questFeedbackQueue_v1";
 const SENT_IDS_KEY = "questFeedbackSentIds_v1";
-const RETRY_DELAY_MS = 5 * 60 * 1000;
+const RETRY_META_KEY = "questFeedbackRetry_v1";
+const TRANSIENT_RETRY_DELAY_MS = 15 * 60 * 1000;
+const RATE_LIMIT_RETRY_DELAY_MS = 6 * 60 * 60 * 1000;
+const MAX_RETRY_DELAY_MS = 6 * 60 * 60 * 1000;
 
 const inFlight = new Map();
 let flushTask = null;
@@ -49,6 +52,47 @@ function writeSentIds(set) {
   }
 }
 
+function readRetryMeta() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(RETRY_META_KEY) || "{}");
+    return {
+      attempts: Math.max(0, Number(parsed.attempts) || 0),
+      nextAttemptAt: Math.max(0, Number(parsed.nextAttemptAt) || 0),
+      lastHttpStatus: Math.max(0, Number(parsed.lastHttpStatus) || 0),
+    };
+  } catch {
+    return { attempts: 0, nextAttemptAt: 0, lastHttpStatus: 0 };
+  }
+}
+
+function writeRetryMeta(meta) {
+  try {
+    localStorage.setItem(RETRY_META_KEY, JSON.stringify(meta));
+  } catch {
+    /* ignore */
+  }
+}
+
+function clearRetryMeta() {
+  try {
+    localStorage.removeItem(RETRY_META_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function recordRetry(error) {
+  const previous = readRetryMeta();
+  const attempts = previous.attempts + 1;
+  const status = Number(error?.status) || 0;
+  const delay = status === 429
+    ? RATE_LIMIT_RETRY_DELAY_MS
+    : Math.min(TRANSIENT_RETRY_DELAY_MS * (2 ** (attempts - 1)), MAX_RETRY_DELAY_MS);
+  const meta = { attempts, nextAttemptAt: Date.now() + delay, lastHttpStatus: status };
+  writeRetryMeta(meta);
+  return meta;
+}
+
 function basePayload(fields) {
   return {
     _subject: fields._subject,
@@ -86,7 +130,7 @@ async function postPayload(body) {
     const data = await res.clone().json().catch(() => null);
     if (data?.success === false) {
       const error = new Error(data.message || "feedback rejected");
-      error.status = res.status;
+      error.status = /rate limit/i.test(data.message || "") ? 429 : res.status;
       throw error;
     }
   }
@@ -95,10 +139,11 @@ async function postPayload(body) {
 
 function scheduleRetry() {
   if (typeof window === "undefined" || retryTimer) return;
+  const wait = Math.max(1_000, readRetryMeta().nextAttemptAt - Date.now());
   retryTimer = window.setTimeout(() => {
     retryTimer = null;
     void flushFeedbackQueue();
-  }, RETRY_DELAY_MS);
+  }, wait);
 }
 
 function prioritizeQueue(items) {
@@ -130,6 +175,7 @@ export function submitFeedback(fields) {
       writeSentIds(sent);
       const q = readQueue().filter((item) => item.idempotencyId !== id);
       writeQueue(q);
+      if (q.length === 0) clearRetryMeta();
       return { status: "sent" };
     } catch (error) {
       const q = readQueue();
@@ -137,6 +183,7 @@ export function submitFeedback(fields) {
         q.push(body);
         writeQueue(q);
       }
+      recordRetry(error);
       scheduleRetry();
       return { status: "queued", httpStatus: Number(error?.status) || 0 };
     }
@@ -146,10 +193,18 @@ export function submitFeedback(fields) {
 }
 
 /** Flush queued submissions (call on load and when online). */
-export function flushFeedbackQueue() {
+export function flushFeedbackQueue({ force = false } = {}) {
   if (flushTask) return flushTask;
   flushTask = (async () => {
     const q = prioritizeQueue(readQueue());
+    if (q.length === 0) {
+      clearRetryMeta();
+      return { status: "empty" };
+    }
+    if (!force && readRetryMeta().nextAttemptAt > Date.now()) {
+      scheduleRetry();
+      return { status: "deferred" };
+    }
     for (const body of q) {
       const id = body.idempotencyId;
       if (!id || readSentIds().has(id)) continue;
@@ -174,6 +229,9 @@ export function feedbackDeliveryStatus(id) {
 export function __resetFeedbackForTest() {
   writeQueue([]);
   writeSentIds(new Set());
+  clearRetryMeta();
+  if (retryTimer && typeof window !== "undefined") window.clearTimeout(retryTimer);
+  retryTimer = null;
 }
 
 export function __getFeedbackQueueForTest() {
@@ -182,6 +240,10 @@ export function __getFeedbackQueueForTest() {
 
 export function __getSentIdsForTest() {
   return readSentIds();
+}
+
+export function __getFeedbackRetryForTest() {
+  return readRetryMeta();
 }
 
 if (typeof window !== "undefined") {

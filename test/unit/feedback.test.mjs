@@ -122,3 +122,31 @@ test("an application-level rejection stays queued even when HTTP is successful",
   );
   globalThis.fetch = original;
 });
+
+test("rate limiting persists a long cooldown and automatic flush respects it", async () => {
+  const original = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return { ok: false, status: 429 };
+  };
+
+  const before = Date.now();
+  await feedback.submitFeedback({
+    _subject: "Complete",
+    idempotencyId: "complete-cooldown",
+    part: "completion",
+  });
+  const retry = feedback.__getFeedbackRetryForTest();
+  assert.equal(retry.lastHttpStatus, 429);
+  assert.ok(retry.nextAttemptAt >= before + (5 * 60 * 60 * 1000));
+
+  globalThis.fetch = async () => {
+    calls += 1;
+    return { ok: true, status: 200 };
+  };
+  const result = await feedback.flushFeedbackQueue();
+  assert.equal(result.status, "deferred");
+  assert.equal(calls, 1);
+  globalThis.fetch = original;
+});
