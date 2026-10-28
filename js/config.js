@@ -14,7 +14,7 @@ export const CONFIG = {
   fromName: "Berke",
   whatsappNumber: "",
   defaultTitle: "Adventurer",
-  scheduledDate: "2026-10-29",
+  scheduledDate: "2026-10-28",
   timeZone: "Europe/Warsaw",
   letter: [
     "Dear {name},",

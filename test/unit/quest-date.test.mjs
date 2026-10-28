@@ -28,6 +28,11 @@ test("chapter II opens on the scheduled date only after owner release", () => {
   assert.equal(chapterTwoIsAvailable({ scheduledDate: "2026-10-28", timeZone: "Europe/Warsaw", released: true, now }), true);
 });
 
+test("the production Chapter II switch is open on October 28", () => {
+  const questMorning = new Date("2026-10-28T08:00:00Z");
+  assert.equal(chapterTwoIsAvailable({ now: questMorning }), true);
+});
+
 test("owner release never bypasses the scheduled date and readable date works", () => {
   assert.equal(chapterTwoIsAvailable({ scheduledDate: "2099-01-01", released: true }), false);
   assert.match(formatQuestDate("2026-10-28", "Europe/Warsaw"), /28 October/);
