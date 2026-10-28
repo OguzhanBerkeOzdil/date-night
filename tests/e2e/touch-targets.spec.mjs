@@ -16,29 +16,17 @@ test("interactive targets meet 44px minimum", async ({ page }, testInfo) => {
     document.startViewTransition = undefined;
   });
   await page.goto("/?name=Ayse");
-  await page.evaluate(() => window.__questNavigate("steed"));
-  await page.waitForSelector('[data-screen="steed"].screen--active');
-  await assertMinSize(page, ".name-chips button");
-  await assertMinSize(page, "#carrotBtn");
-
-  await page.evaluate(() => window.__questNavigate("rating"));
-  await page.waitForSelector('[data-screen="rating"].screen--active');
-  await assertMinSize(page, "#ratingSlider");
-
   await page.evaluate(() => window.__questNavigate("eve-name"));
   await page.waitForSelector('[data-screen="eve-name"].screen--active');
   await assertMinSize(page, "#btnEveHonest");
 
-  await page.evaluate(() => window.__questNavigate("dragon"));
-  await page.waitForSelector('[data-screen="dragon"].screen--active');
-  await assertMinSize(page, "#btnNo");
+  await page.evaluate(() => window.__questNavigate("chapter-two-start"));
+  await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
+  await assertMinSize(page, "#partyBuffChoices .chip-select");
+  await assertMinSize(page, "#btnStartAdventure");
 
-  await page.evaluate(() => window.__questNavigate("potion"));
-  await page.waitForSelector('[data-screen="potion"].screen--active');
-  await assertMinSize(page, ".vial");
-
-  await page.evaluate(() => window.__questNavigate("stars"));
-  await page.waitForSelector('[data-screen="stars"].screen--active');
-  await page.waitForSelector("#dayChips .chip-select");
-  await assertMinSize(page, "#dayChips .chip-select");
+  await page.evaluate(() => window.__questNavigate("chapter-two-finish"));
+  await page.waitForSelector('[data-screen="chapter-two-finish"].screen--active');
+  await assertMinSize(page, "#questBadges .chip-select");
+  await assertMinSize(page, "#futureQuestChoices .chip-select");
 });

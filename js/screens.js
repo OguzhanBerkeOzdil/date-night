@@ -31,7 +31,9 @@ import {
 } from "./horses.js";
 import {
   adventurerDisplayName,
-  buildChapter2RecapRows,
+  buildChapter2RecapRowsForState,
+  chapter2BriefingLine,
+  chapter2FieldQuestLine,
   chapter1Label,
   chapter1Id,
   chapter1TavernDrinkItem,
@@ -64,6 +66,7 @@ import {
   reportChapter2CompletionFeedback,
   reportChapter2DecreeFeedback,
   reportChapter2HonestNoFeedback,
+  reportChapter2StartFeedback,
 } from "./chapter2-feedback.js";
 import { queueQuestSync } from "./sync.js";
 import {
@@ -132,18 +135,6 @@ let sealing = false;
 let pickSteedIx = 0;
 
 const MAIN_QUEST_SCREENS = new Set([
-  "summons",
-  "gerald-toll",
-  "steed",
-  "sheet",
-  "journal",
-  "dragon",
-  "tavern",
-  "potion",
-  "stars",
-  "oracle",
-  "rating",
-  "decree",
   "chapter-two-pause",
   "chapter-two-finish",
 ]);
@@ -204,7 +195,8 @@ export function resumeTarget() {
   if ((state.chapterTwoStarted || state.chapterTwoComplete) && !chapterTwoAvailable()) return "chapter-lock";
   if (state.chapterTwoComplete) return "quest-complete";
   if (state.chapterTwoStarted) {
-    return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "summons";
+    if (!state.partyBuff) return "chapter-two-start";
+    return MAIN_QUEST_SCREENS.has(state.lastScreen) ? state.lastScreen : "chapter-two-pause";
   }
   if (state.chapterOneComplete) return chapterTwoAvailable() ? "chapter-two-start" : "chapter-lock";
   if (!state.eveComplete) {
@@ -902,10 +894,11 @@ function initChapterLock() {
 
 function renderRecap() {
   const rows = [
-    { label: "Adventurer", value: adventurerDisplayName(state) },
     { label: "Excitement", value: `${state.eveExcitement || 3}/5` },
-    ...buildChapter2RecapRows(state.chapter1Answers),
+    ...buildChapter2RecapRowsForState(state),
   ];
+  const displayName = adventurerDisplayName(state);
+  if (displayName !== "Adventurer") rows.unshift({ label: "Adventurer", value: displayName });
   $("questRecap").innerHTML = rows
     .map(
       ({ label, value }) =>
@@ -915,12 +908,25 @@ function renderRecap() {
 }
 
 function initChapterTwo() {
+  $("partyBuffChoices")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-party-buff]");
+    if (!button) return;
+    state.partyBuff = button.dataset.partyBuff;
+    selectChip($("partyBuffChoices"), button);
+    hide($("partyBuffError"));
+    saveState();
+  });
   $("btnStartAdventure")?.addEventListener("click", () => {
+    if (!state.partyBuff) {
+      show($("partyBuffError"));
+      $("partyBuffChoices")?.querySelector("button")?.focus();
+      return;
+    }
     state.chapter = "chapter-two-active";
     state.chapterTwoStarted = true;
-    saveState();
+    reportChapter2StartFeedback(state, saveState);
     queueQuestSync({ immediate: true });
-    navigate("summons");
+    navigate("chapter-two-pause");
   });
   $("btnFinishQuest")?.addEventListener("click", () => navigate("chapter-two-finish"));
   $("btnDecreeToPause")?.addEventListener("click", () => navigate("chapter-two-pause"));
@@ -1049,12 +1055,19 @@ export function onScreenEnter(id) {
   }
   if (id === "chapter-two-start") {
     renderRecap();
+    $("chapterTwoBriefing").textContent = chapter2BriefingLine(state);
+    const savedBuff = state.partyBuff;
+    $("partyBuffChoices")?.querySelectorAll("[data-party-buff]").forEach((button) => {
+      button.classList.toggle("chip-select--on", button.dataset.partyBuff === savedBuff);
+      button.setAttribute("aria-pressed", String(button.dataset.partyBuff === savedBuff));
+    });
     paintSirBerkeCameo({ screenId: "chapter-two-start" });
   } else if (!["decree", "dragon", "chapter-two-start", "eve-name", "eve-pass", "eve-survey"].includes(id)) {
     hideSirBerkeCameo();
   }
   if (id === "chapter-two-pause") {
     $("activeBuffText").textContent = `${state.partyBuff || "Improvised courage"} is active.`;
+    $("fieldQuestText").textContent = chapter2FieldQuestLine(state);
   }
   if (id === "chapter-two-finish") {
     $("favoriteMoment").value = state.favoriteMoment || "";

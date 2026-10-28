@@ -80,7 +80,15 @@ test("certificate PNG builder includes realm notes", async ({ page }) => {
 });
 
 test("certificate uses adventurer name without Lady prefix", async ({ page }) => {
-  await page.goto("/?name=Test");
+  await page.addInitScript(() => {
+    localStorage.setItem("questLady_v3", JSON.stringify({
+      schemaVersion: 3,
+      eveAdventurerName: "Test",
+      chapter1SealedName: "Test",
+      lastScreen: "title",
+    }));
+  });
+  await page.goto("/");
   const adventurerLine = await page.evaluate(async () => {
     const { buildCertificateLines } = await import("/js/certificate.js");
     return buildCertificateLines().find((l) => l.startsWith("Adventurer:"));

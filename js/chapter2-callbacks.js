@@ -63,9 +63,103 @@ const COMPANION_RECAP = {
 
 export function adventurerDisplayName(state) {
   const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
+  if (/^(berke|o[gğ]uzhan(?:\s+berke)?|o[gğ]uzhan\s+berke\s+[oö]zdil)$/i.test(fromSave)) {
+    return "Adventurer";
+  }
   if (fromSave && !/^adventurer$/i.test(fromSave)) return fromSave;
   if (fromSave) return "Adventurer";
   return "Adventurer";
+}
+
+const LEGACY_EVE_LABELS = {
+  snacks: {
+    essential: "Essential — the council agrees.",
+    very: "Very essential — correctly louder.",
+    triple: "Spare snack for the snack.",
+  },
+  weather: {
+    cloak: "Cloak and carry on.",
+    tavern: "Tavern detour.",
+    puddles: "Puddles are mini lakes.",
+  },
+  "quest-mood": {
+    laugh: "More laughing than looting.",
+    walk: "Long walk, short agenda.",
+    surprise: "Surprise me — within reason.",
+  },
+};
+
+const PACKING_LABELS = {
+  cloak: "dramatic cloak",
+  snacks: "emergency snacks",
+  coin: "one bard coin",
+  smile: "willingness to roll with the bit",
+  shoes: "comfy shoes",
+};
+
+const HORSE_LABELS = {
+  chestnut: "Chestnut",
+  palomino: "Palomino",
+  "dapple-grey": "Dapple grey",
+  friesian: "Friesian",
+  appaloosa: "Appaloosa",
+  pinto: "Pinto",
+  buckskin: "Buckskin",
+  bay: "Bay",
+  roan: "Blue roan",
+  "definitely-a-horse": "Definitely a horse",
+};
+
+function hasSurveyAnswers(answers) {
+  return Boolean(answers && Object.values(answers).some((answer) => answer && !answer.skipped));
+}
+
+function legacyEveLabel(group, id) {
+  return LEGACY_EVE_LABELS[group]?.[id] || "Not recorded";
+}
+
+/** Recap only facts the player actually supplied; old Chapter I saves stay useful. */
+export function buildChapter2RecapRowsForState(questState = {}) {
+  if (hasSurveyAnswers(questState.chapter1Answers)) {
+    return buildChapter2RecapRows(questState.chapter1Answers);
+  }
+
+  const old = questState.eveHeraldAnswers || {};
+  const packing = (questState.evePacking || [])
+    .map((item) => PACKING_LABELS[item] || item)
+    .filter(Boolean)
+    .join(" · ");
+  const rows = [];
+  if (old.snacks) rows.push({ label: "Snack law", value: legacyEveLabel("snacks", old.snacks) });
+  if (old.weather) rows.push({ label: "Rain plan", value: legacyEveLabel("weather", old.weather) });
+  if (old["quest-mood"]) {
+    rows.push({ label: "Quest mood", value: legacyEveLabel("quest-mood", old["quest-mood"]) });
+  }
+  if (packing) rows.push({ label: "Field kit", value: packing });
+  if (questState.horseId) {
+    rows.push({ label: "Steed omen", value: HORSE_LABELS[questState.horseId] || questState.horseId });
+  }
+  return rows;
+}
+
+export function chapter2BriefingLine(questState = {}) {
+  const old = questState.eveHeraldAnswers || {};
+  if (old.weather === "tavern" && old["quest-mood"] === "surprise") {
+    return "The oracle kept its promise: a tavern surprise, safely within reason. Snack law remains in force.";
+  }
+  if (old["quest-mood"] === "laugh") {
+    return "Tonight's official objective: more laughing than looting. Everything else is optional.";
+  }
+  return "Your old answers are clues, not obligations. Pick one party buff and let the real adventure do the rest.";
+}
+
+export function chapter2FieldQuestLine(questState = {}) {
+  const snacksMatter = ["essential", "very", "triple"].includes(
+    questState.eveHeraldAnswers?.snacks
+  );
+  return snacksMatter
+    ? "Choose any two together: one precision trial, one strange potion, or one round of strategy. Emergency snacks remain legally protected."
+    : "Choose any two together: one precision trial, one strange potion, or one round of strategy. Laughter counts as a critical hit.";
 }
 
 export function buildChapter2RecapRows(answers = {}) {

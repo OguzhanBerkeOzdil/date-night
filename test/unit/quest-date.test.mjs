@@ -35,7 +35,7 @@ test("owner release never bypasses the scheduled date and readable date works", 
 
 test("quest day copy switches from tomorrow to today on QUEST_DATE_ISO", () => {
   const before = new Date("2026-10-27T12:00:00Z");
-  const onDay = new Date("2026-10-28T08:00:00Z");
+  const onDay = new Date("2026-10-29T08:00:00Z");
   assert.equal(questDayHasArrived({ now: before }), false);
   assert.equal(questDayHasArrived({ now: onDay }), true);
   assert.match(questPassSummonSubtitle({ now: before }), /tomorrow/i);

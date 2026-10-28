@@ -53,6 +53,7 @@ function sampleState(overrides = {}) {
     questBadge: "hero",
     futureQuest: "yes",
     partyBuff: "Courage",
+    feedbackStartSent: false,
     feedbackDecreeSent: false,
     feedbackCompleteSent: false,
     feedbackHonestCh2Sent: false,
@@ -68,6 +69,28 @@ test("buildChapter2ChoicesSnapshot includes steed, tavern, oracle, and rating", 
   assert.equal(snap.oracle.tarotKey, "sun");
   assert.equal(snap.rating.chip, "legendary");
   assert.equal(snap.chapter1.horsePreset, "chestnut");
+});
+
+test("field quest start feedback includes the chosen buff and legacy answers once", () => {
+  const state = sampleState({
+    eveHeraldAnswers: { snacks: "essential", weather: "tavern", "quest-mood": "surprise" },
+  });
+  const posts = [];
+  globalThis.fetch = async (_url, init) => {
+    posts.push(JSON.parse(init.body));
+    return { ok: true };
+  };
+  globalThis.location = { hostname: "example.com" };
+  globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
+
+  chapter2.reportChapter2StartFeedback(state, () => {});
+  chapter2.reportChapter2StartFeedback(state, () => {});
+
+  assert.equal(state.feedbackStartSent, true);
+  assert.equal(posts.length, 1);
+  assert.equal(posts[0].part, "chapter-two-start");
+  assert.equal(JSON.parse(posts[0].choices).partyBuff, "Courage");
+  assert.equal(JSON.parse(posts[0].choices).chapter1.legacyChoices.weather, "tavern");
 });
 
 test("decree feedback uses stable idempotency and marks state sent", () => {

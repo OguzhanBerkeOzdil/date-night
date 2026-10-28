@@ -35,22 +35,3 @@ export async function completeEveToLock(page) {
     '[data-screen="chapter-lock"].screen--active, [data-screen="chapter-two-start"].screen--active'
   );
 }
-
-export async function releaseMainQuestForTest(page) {
-  const onStart = page.locator('[data-screen="chapter-two-start"].screen--active');
-  if (!(await onStart.isVisible())) {
-    await page.locator("#btnTryChapterTwo").click();
-    await page.waitForSelector('[data-screen="chapter-two-start"].screen--active');
-  }
-  await page.locator("#btnStartAdventure").click();
-  await page.waitForSelector('[data-screen="summons"].screen--active');
-}
-
-export async function completeEveMouse(page, name = "Ayse") {
-  await reachEvePass(page, name);
-  await page.locator("#btnEveContinue").click();
-  await page.waitForSelector(
-    '[data-screen="chapter-lock"].screen--active, [data-screen="chapter-two-start"].screen--active'
-  );
-  await releaseMainQuestForTest(page);
-}

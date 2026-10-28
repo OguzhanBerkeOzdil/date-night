@@ -17,6 +17,9 @@ import {
   provisionsForDecree,
   tavernMartaTestimonyLine,
   adventurerDisplayName,
+  buildChapter2RecapRowsForState,
+  chapter2BriefingLine,
+  chapter2FieldQuestLine,
 } from "../../js/chapter2-callbacks.js";
 
 const SAMPLE = {
@@ -88,7 +91,33 @@ test("tavern marta line uses the mead drink name", () => {
 
 test("adventurer display name prefers Chapter I save", () => {
   assert.equal(adventurerDisplayName({ eveAdventurerName: "Testa" }), "Testa");
+  assert.equal(adventurerDisplayName({ eveAdventurerName: "Berke" }), "Adventurer");
   assert.equal(adventurerDisplayName({}), "Adventurer");
+});
+
+test("legacy Chapter I feedback drives the Chapter II recap", () => {
+  const oldSave = {
+    eveHeraldAnswers: {
+      snacks: "essential",
+      weather: "tavern",
+      "quest-mood": "surprise",
+    },
+    evePacking: ["coin", "shoes"],
+    horseId: "chestnut",
+    chapter1Answers: {},
+  };
+  const rows = buildChapter2RecapRowsForState(oldSave);
+  assert.deepEqual(rows.map((row) => row.label), [
+    "Snack law",
+    "Rain plan",
+    "Quest mood",
+    "Field kit",
+    "Steed omen",
+  ]);
+  assert.match(rows[2].value, /within reason/i);
+  assert.match(rows[3].value, /bard coin.*comfy shoes/i);
+  assert.match(chapter2BriefingLine(oldSave), /tavern surprise/i);
+  assert.match(chapter2FieldQuestLine(oldSave), /snacks remain legally protected/i);
 });
 
 test("potion song variants", () => {

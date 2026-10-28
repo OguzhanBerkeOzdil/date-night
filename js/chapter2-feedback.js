@@ -14,11 +14,34 @@ function replaySuffix(state) {
 export function chapter1FeedbackContext(state) {
   return {
     survey: state.chapter1Answers || {},
+    legacyChoices: state.eveHeraldAnswers || {},
     excitement: state.eveExcitement,
     packing: state.evePacking || [],
     horsePreset: state.horseId || "",
     profile: adventurerProfileFromAnswers(state.chapter1Answers),
   };
+}
+
+export function reportChapter2StartFeedback(state, saveState) {
+  if (RUNTIME_CONFIG.questApiUrl) return;
+  if (state.feedbackStartSent) return;
+  state.feedbackStartSent = true;
+  saveState();
+  submitFeedback({
+    _subject: "Chapter II field quest started",
+    idempotencyId: `ch2-start-${guestSlug(state)}${replaySuffix(state)}`,
+    part: "chapter-two-start",
+    name: state.eveAdventurerName || "",
+    excitement: String(state.eveExcitement ?? ""),
+    packing: (state.evePacking || []).join(", "),
+    choices: JSON.stringify({
+      ...buildChapter2ChoicesSnapshot(state),
+      partyBuff: state.partyBuff,
+    }),
+    horse: state.horseId || "",
+    timestamp: new Date().toISOString(),
+    outcome: "field-quest-started",
+  });
 }
 
 /** Snapshot of Chapter II player choices for FormSubmit (JSON in `choices`). */
