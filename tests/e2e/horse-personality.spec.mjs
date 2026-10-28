@@ -27,6 +27,11 @@ test("feeding uses the selected horse's dedicated carrot artwork", async ({ page
 
   await page.locator('[data-horse-id="pinto"]').click();
   await expect(page.locator("#horseIdleImg")).toHaveAttribute("src", /horses\/fed\/pinto\.webp/);
+  await expect
+    .poll(() =>
+      page.locator("#horseIdleImg").evaluate((image) => image.complete && image.naturalWidth > 0)
+    )
+    .toBe(true);
 
   const dimensions = await page.locator("#horseIdleImg").evaluate((image) => {
     const rect = image.getBoundingClientRect();
