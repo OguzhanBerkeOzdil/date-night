@@ -58,7 +58,6 @@ import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
 import {
   feedbackDeliveryStatus,
   flushFeedbackQueue,
-  openVerifiedFeedbackFallback,
 } from "./feedback.js";
 import {
   chapterLockButtonLabel,
@@ -70,7 +69,6 @@ import {
   todayQuestDateLabel,
 } from "./quest-date.js";
 import {
-  buildChapter2CompletionFeedbackPayload,
   chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
   reportChapter2HonestNoFeedback,
@@ -1043,9 +1041,6 @@ function initChapterTwo() {
     navigate("quest-complete");
     void deliverCompletionFeedback();
   });
-  $("btnVerifiedFeedback")?.addEventListener("click", () => {
-    openVerifiedFeedbackFallback(buildChapter2CompletionFeedbackPayload(state));
-  });
   $("btnShareFinal")?.addEventListener("click", () => shareDecree("completion"));
   $("btnSaveFinal")?.addEventListener("click", () => downloadCertificatePng("completion"));
   $("btnCopyFinal")?.addEventListener("click", () => copyText(buildCompletionText(), $("finalPreview"), $("finalCopyToast")));
@@ -1070,10 +1065,6 @@ function renderCompletionFeedbackStatus(status) {
     line.textContent = completionFeedbackCopy(status);
     line.dataset.status = status;
   }
-  const verified = $("btnVerifiedFeedback");
-  if (verified) verified.classList.toggle("hidden", status !== "queued");
-  const verifiedHint = $("verifiedFeedbackHint");
-  if (verifiedHint) verifiedHint.classList.toggle("hidden", status !== "queued");
 }
 
 function deliverCompletionFeedback() {
