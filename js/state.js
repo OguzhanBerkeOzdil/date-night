@@ -348,6 +348,38 @@ export function resetChapterOneProgress() {
   saveState();
 }
 
+/** Reset Chapter II only; preserve the sealed Chapter I profile and sync metadata. */
+export function resetChapterTwoProgress() {
+  const keep = {
+    chapterOneComplete: state.chapterOneComplete,
+    feedbackStartSent: state.feedbackStartSent,
+    feedbackDecreeSent: state.feedbackDecreeSent,
+    consentShared: state.consentShared,
+    scheduledDate: state.scheduledDate,
+    timeZone: state.timeZone,
+    serverRevision: state.serverRevision,
+    syncStatus: state.syncStatus,
+    eveComplete: state.eveComplete,
+    eveAdventurerName: state.eveAdventurerName,
+    eveExcitement: state.eveExcitement,
+    eveHeraldAnswers: state.eveHeraldAnswers,
+    evePacking: state.evePacking,
+    eveOutcome: state.eveOutcome,
+    chapter1Step: state.chapter1Step,
+    chapter1Answers: state.chapter1Answers,
+    chapter1ReplayCount: state.chapter1ReplayCount,
+    chapter1InviteEverAccepted: state.chapter1InviteEverAccepted,
+    chapter1SealedName: state.chapter1SealedName,
+    chapter1CompletedReportedForReplay: state.chapter1CompletedReportedForReplay,
+  };
+  Object.assign(state, defaultState(), keep, {
+    chapter: "chapter-one-complete",
+    horseId: "",
+    lastScreen: "chapter-two-start",
+  });
+  saveState();
+}
+
 export function beginNewQuest() {
   if (questResetInFlight) return false;
   questResetInFlight = true;

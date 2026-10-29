@@ -69,7 +69,14 @@ export function countUndoToasts() {
   return document.querySelectorAll(".app-toast__action").length;
 }
 
-export function showNewQuestConfirm({ onKeep, onStartOver }) {
+export function showNewQuestConfirm({
+  onKeep,
+  onStartOver,
+  title = "Start a new quest?",
+  message = "Your current progress will be lost.",
+  keepLabel = "Keep my quest",
+  startLabel = "Start over",
+}) {
   const root = $("questConfirm");
   if (!root) {
     onStartOver();
@@ -83,6 +90,12 @@ export function showNewQuestConfirm({ onKeep, onStartOver }) {
 
   const keep = $("questConfirmKeep");
   const start = $("questConfirmStart");
+  const titleEl = $("questConfirmTitle");
+  const messageEl = $("questConfirmMessage");
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) messageEl.textContent = message;
+  if (keep) keep.textContent = keepLabel;
+  if (start) start.textContent = startLabel;
   const close = () => {
     root.classList.add("hidden");
     root.setAttribute("hidden", "");

@@ -16,13 +16,13 @@
   <meta name="twitter:description" content="A playful court survey disguised as a fantasy adventure.">
   <meta name="twitter:image" content="assets/icons/icon-512.png">
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" sizes="180x180">
-  <link rel="manifest" href="manifest.webmanifest?v=20261202">
+  <link rel="manifest" href="manifest.webmanifest?v=20261208">
   <title>The Quest</title>
-  <link rel="stylesheet" href="css/fonts.css?v=20261202">
-  <link rel="stylesheet" href="css/styles.css?v=20261202">
-  <link rel="stylesheet" href="css/v2.css?v=20261202">
-  <link rel="stylesheet" href="css/desktop.css?v=20261202">
-  <link rel="stylesheet" href="css/today.css?v=20261202">
+  <link rel="stylesheet" href="css/fonts.css?v=20261208">
+  <link rel="stylesheet" href="css/styles.css?v=20261208">
+  <link rel="stylesheet" href="css/v2.css?v=20261208">
+  <link rel="stylesheet" href="css/desktop.css?v=20261208">
+  <link rel="stylesheet" href="css/today.css?v=20261208">
 </head>
 <body>
   <div class="scene-bg" id="bgLayer" aria-hidden="true">
@@ -87,7 +87,7 @@
   <div id="questConfirm" class="quest-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="questConfirmTitle" hidden>
     <div class="quest-confirm__panel ornate">
       <h2 id="questConfirmTitle" class="title">Start a new quest?</h2>
-      <p class="body-text">Your current progress will be lost.</p>
+      <p class="body-text" id="questConfirmMessage">Your current progress will be lost.</p>
       <div class="quest-confirm__actions">
         <button type="button" class="btn btn--ghost" id="questConfirmKeep">Keep my quest</button>
         <button type="button" class="btn btn--primary" id="questConfirmStart">Start over</button>
@@ -526,6 +526,7 @@
           <button type="button" class="btn btn--primary" id="btnShareFinal">Share the quest log</button>
           <button type="button" class="btn btn--secondary" id="btnSaveFinal">Save final certificate</button>
           <button type="button" class="btn btn--secondary" id="btnCopyFinal">Copy quest log</button>
+          <button type="button" class="btn btn--secondary" id="btnRestartChapterTwo">Restart Chapter II</button>
         </div>
         <p class="copy-toast hidden" id="finalCopyToast">Quest log copied</p>
       </div>
@@ -556,6 +557,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/main.js?v=20261202"></script>
+  <script type="module" src="js/main.js?v=20261208"></script>
 </body>
 </html>

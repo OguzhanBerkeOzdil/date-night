@@ -98,3 +98,62 @@ test("legacy feedback becomes the Chapter II briefing @ mobile-390", async ({ pa
   await expect(page.locator("#chapterTwoBriefing")).toContainText("tavern surprise");
   await expect(page.locator("#questRecap")).not.toContainText("unclassified adventurer");
 });
+
+test("completed Chapter II can restart without clearing Chapter I @ desktop-1440", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-1440");
+  await page.addInitScript((sample) => {
+    localStorage.setItem("questLady_v3", JSON.stringify({
+      schemaVersion: 3,
+      chapter: "complete",
+      chapterOneComplete: true,
+      chapterTwoStarted: true,
+      chapterTwoComplete: true,
+      consentShared: true,
+      chapter1Answers: sample,
+      eveComplete: true,
+      eveAdventurerName: sample.eveAdventurerName,
+      scheduledDate: "2020-01-01",
+      timeZone: "Europe/Warsaw",
+      horseId: "black-friesian",
+      steedName: "Sir Biscuit",
+      steedClass: "Wandering Bard",
+      steedClassPicked: true,
+      affection: 5,
+      fed: true,
+      food: ["Pizza"],
+      activities: ["Horse riding"],
+      potionBase: "Moonlight Dew",
+      potionName: "Elixir of Moonlight Dew & Horse riding",
+      tarotKey: "sun",
+      tarotCard: "The Sun",
+      partyBuff: "Snack compass",
+      favoriteMoment: "The live restart test",
+      questBadge: "Best banter",
+      futureQuest: "yes",
+      lastScreen: "quest-complete",
+    }));
+  }, CH1_SAMPLE);
+
+  await page.goto("/");
+  await expect(page.locator('section[data-screen="quest-complete"]')).toHaveClass(/screen--active/);
+  await page.locator("#btnRestartChapterTwo").click();
+  await expect(page.locator("#questConfirmTitle")).toHaveText("Restart Chapter II?");
+  await expect(page.locator("#questConfirmMessage")).toContainText("Chapter I answers stay sealed");
+  await page.locator("#questConfirmStart").click();
+  await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
+
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
+  expect(saved.chapterOneComplete).toBe(true);
+  expect(saved.chapter1Answers.class.label).toBe("Pacifist potato farmer");
+  expect(saved.eveAdventurerName).toBe("Test");
+  expect(saved.consentShared).toBe(true);
+  expect(saved.chapterTwoStarted).toBe(false);
+  expect(saved.chapterTwoComplete).toBe(false);
+  expect(saved.partyBuff).toBe("");
+  expect(saved.favoriteMoment).toBe("");
+  expect(saved.questBadge).toBe("");
+  expect(saved.futureQuest).toBe("");
+  expect(saved.steedName).toBe("Clover");
+  expect(saved.horseId).toBe("");
+  expect(saved.lastScreen).toBe("chapter-two-start");
+});

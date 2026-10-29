@@ -79,6 +79,7 @@ import {
   beginNewQuest,
   clearPendingUndo,
   hasQuestSave,
+  resetChapterTwoProgress,
   saveState,
   state,
   undoLastNewQuest,
@@ -1044,6 +1045,21 @@ function initChapterTwo() {
   $("btnShareFinal")?.addEventListener("click", () => shareDecree("completion"));
   $("btnSaveFinal")?.addEventListener("click", () => downloadCertificatePng("completion"));
   $("btnCopyFinal")?.addEventListener("click", () => copyText(buildCompletionText(), $("finalPreview"), $("finalCopyToast")));
+  $("btnRestartChapterTwo")?.addEventListener("click", () => {
+    showNewQuestConfirm({
+      title: "Restart Chapter II?",
+      message: "Your Chapter I answers stay sealed, but every Chapter II choice will be cleared.",
+      keepLabel: "Keep my completed quest",
+      startLabel: "Restart Chapter II",
+      onKeep: () => undefined,
+      onStartOver: () => {
+        resetChapterTwoProgress();
+        resetQuestSessionFlags();
+        navigate("chapter-two-start");
+        syncContinueButton();
+      },
+    });
+  });
 }
 
 function completionFeedbackCopy(status) {
