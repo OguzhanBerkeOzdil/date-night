@@ -1,5 +1,7 @@
 /** Data-driven Chapter I callbacks for Chapter II (no hardcoded guest answers). */
 
+import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261212";
+
 const FALLBACK = {
   class: "an unclassified adventurer",
   weapon: "mysterious intent",
@@ -63,12 +65,8 @@ const COMPANION_RECAP = {
 
 export function adventurerDisplayName(state) {
   const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
-  if (/^(berke|o[gğ]uzhan(?:\s+berke)?|o[gğ]uzhan\s+berke\s+[oö]zdil)$/i.test(fromSave)) {
-    return "Adventurer";
-  }
-  if (fromSave && !/^adventurer$/i.test(fromSave)) return fromSave;
-  if (fromSave) return "Adventurer";
-  return "Adventurer";
+  if (fromSave) return resolvePlayerDisplayName(fromSave);
+  return defaultPlayerDisplayName();
 }
 
 const LEGACY_EVE_LABELS = {
@@ -295,12 +293,25 @@ export function sheetClassPrefillLine(answers) {
   return SHEET_CLASS_PREFILL[id] || `Natural 20 on ${chapter1Label(answers, "class", "class")}.`;
 }
 
-/** Class line for decree / pass when Chapter I class is on file unless the guest picked a sheet class. */
+/** Class suffix for decree / pass (empty when unknown — do not emit "—" or generic Adventurer). */
 export function decreeSteedClassLine(questState) {
-  const chapterClass = chapter1Label(questState.chapter1Answers, "class", "");
-  if (questState.steedClassPicked && questState.steedClass) return questState.steedClass;
-  if (chapterClass) return chapterClass;
-  return questState.steedClass || "Adventurer";
+  if (questState.steedClassPicked && (questState.steedClass || "").trim()) {
+    return questState.steedClass.trim();
+  }
+  const ans = getChapter1Answer(questState.chapter1Answers, "class");
+  const chapterClass = (ans?.label || ans?.freeText || "").trim();
+  if (chapterClass && chapterClass !== "—") return chapterClass;
+  const rolled = (questState.steedClass || "").trim();
+  if (rolled && !/^adventurer$/i.test(rolled) && rolled !== "—") return rolled;
+  return "";
+}
+
+/** e.g. "Issued to: Jonata" or "Issued to: Jonata, Pacifist potato farmer". */
+export function adventurerLineWithOptionalClass(prefix, displayName, questState) {
+  const name = (displayName || "").trim();
+  const cls = decreeSteedClassLine(questState);
+  if (!cls) return `${prefix}: ${name}`;
+  return `${prefix}: ${name}, ${cls}`;
 }
 
 /** Provisions including Chapter I tavern preselect even if the guest never tapped the menu. */

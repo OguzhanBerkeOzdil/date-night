@@ -1,32 +1,33 @@
-import { FEEDBACK_HONESTY_NOTE } from "./app-config.js?v=20261210";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261210";
+import { DEFAULT_PLAYER_NAME, FEEDBACK_HONESTY_NOTE } from "./app-config.js?v=20261212";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261212";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261212";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_SURVEY_STEPS,
-} from "./chapter1-survey-data.js?v=20261210";
-import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js?v=20261210";
-import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js?v=20261210";
-import { submitFeedback } from "./feedback.js?v=20261210";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261210";
+} from "./chapter1-survey-data.js?v=20261212";
+import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js?v=20261212";
+import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js?v=20261212";
+import { submitFeedback } from "./feedback.js?v=20261212";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
 import {
   sanitizeHeraldName,
   resetChapterOneProgress,
   saveState,
   setGuestName,
   state,
-} from "./state.js?v=20261210";
-import { queueQuestSync } from "./sync.js?v=20261210";
-import { showAppToast } from "./ui-feedback.js?v=20261210";
+} from "./state.js?v=20261212";
+import { queueQuestSync } from "./sync.js?v=20261212";
+import { showAppToast } from "./ui-feedback.js?v=20261212";
 import {
   EXCITEMENT_TIERS,
   PACKING_ITEMS,
   passClosingLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
-} from "./today/copy.js?v=20261210";
-import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js?v=20261210";
-import { downloadQuestPassPng } from "./today/pass.js?v=20261210";
-import { APP_CACHE_VERSION } from "./cache-version.js?v=20261210";
+} from "./today/copy.js?v=20261212";
+import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js?v=20261212";
+import { downloadQuestPassPng } from "./today/pass.js?v=20261212";
+import { APP_CACHE_VERSION } from "./cache-version.js?v=20261212";
 
 let navigate;
 
@@ -88,7 +89,7 @@ function reportEve(outcome) {
       _subject: `Chapter I invitation answers${replayTag}`,
       idempotencyId: feedbackId(outcome),
       part: "eve",
-      name: state.eveAdventurerName || "",
+      name: adventurerDisplayName(state),
       excitement: String(state.eveExcitement || ""),
       choices: JSON.stringify({
         herald: state.eveHeraldAnswers || {},
@@ -177,12 +178,13 @@ function finishHonest() {
 }
 
 function personalizeName(name) {
-  const display = String(name || "").trim() || "Adventurer";
+  const display = String(name || "").trim();
+  const resolved = display ? adventurerDisplayName({ eveAdventurerName: display }) : DEFAULT_PLAYER_NAME;
   document.querySelectorAll("[data-lady]").forEach((el) => {
-    el.textContent = display;
+    el.textContent = resolved;
   });
   document.querySelectorAll("[data-name-only]").forEach((el) => {
-    el.textContent = display;
+    el.textContent = resolved;
   });
 }
 
@@ -191,9 +193,7 @@ function chapter1SurveyFinished() {
 }
 
 function paintPassScreen() {
-  const name =
-    state.eveAdventurerName || state.chapter1SealedName || "Adventurer";
-  $("passName").textContent = name;
+  $("passName").textContent = adventurerDisplayName(state);
   const passSummon = $("passSummonLine");
   if (passSummon) passSummon.textContent = questPassSummonSubtitle();
   $("passClosing").textContent = passClosingLine();

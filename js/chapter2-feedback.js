@@ -1,9 +1,11 @@
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261210";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261210";
-import { submitFeedback } from "./feedback.js?v=20261210";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261212";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
+import { submitFeedback } from "./feedback.js?v=20261212";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261212";
+import { buildPassText } from "./decree.js?v=20261212";
 
 function guestSlug(state) {
-  return (state.eveAdventurerName || "guest").replace(/\s+/g, "-").toLowerCase();
+  return adventurerDisplayName(state).replace(/\s+/g, "-").toLowerCase();
 }
 
 function replaySuffix(state) {
@@ -57,7 +59,7 @@ export function buildChapter2CompletionFeedbackPayload(state) {
     _subject: "Chapter II campfire debrief",
     idempotencyId: chapter2CompletionFeedbackId(state),
     part: "completion",
-    name: state.eveAdventurerName || "",
+    name: adventurerDisplayName(state),
     excitement: String(state.eveExcitement ?? ""),
     packing: (state.evePacking || []).join(", "),
     choices: JSON.stringify({
@@ -71,6 +73,7 @@ export function buildChapter2CompletionFeedbackPayload(state) {
     }),
     horse: state.horseId || "",
     steedName: state.steedName || "",
+    questLog: buildPassText(state),
     timestamp: new Date().toISOString(),
     outcome: "quest-complete",
   };
@@ -99,7 +102,7 @@ export function reportChapter2HonestNoFeedback(state, saveState) {
     _subject: "Chapter II honest decline (dragon)",
     idempotencyId: `ch2-honest-${guestSlug(state)}${replaySuffix(state)}`,
     part: "honest",
-    name: state.eveAdventurerName || "",
+    name: adventurerDisplayName(state),
     excitement: String(state.eveExcitement ?? ""),
     packing: (state.evePacking || []).join(", "),
     choices: JSON.stringify({

@@ -1,4 +1,4 @@
-export { APP_CACHE_VERSION } from "./cache-version.js?v=20261210";
+export { APP_CACHE_VERSION } from "./cache-version.js?v=20261212";
 
 import {
   BARD_LINES,
@@ -8,12 +8,13 @@ import {
   STEED_PICK_LINES,
   TAROT_FORTUNES,
   YES_TOASTS,
-} from "./copy-data.js?v=20261210";
+} from "./copy-data.js?v=20261212";
+import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261212";
 
 export const CONFIG = {
   fromName: "Berke",
   whatsappNumber: "",
-  defaultTitle: "Adventurer",
+  defaultTitle: DEFAULT_PLAYER_NAME,
   scheduledDate: "2026-10-28",
   timeZone: "Europe/Warsaw",
   letter: [

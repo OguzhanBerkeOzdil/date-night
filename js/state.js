@@ -1,5 +1,6 @@
-import { CONFIG } from "./config.js?v=20261210";
-import { showSaveWarningToast } from "./ui-feedback.js?v=20261210";
+import { CONFIG } from "./config.js?v=20261212";
+import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261212";
+import { showSaveWarningToast } from "./ui-feedback.js?v=20261212";
 
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";
@@ -63,6 +64,25 @@ export function isAdventurerDisplayName(name) {
   return /^adventurer$/i.test(String(name || "").trim());
 }
 
+export function isReservedGuestName(name) {
+  return /^(berke|o[gğ]uzhan(?:\s+berke)?|o[gğ]uzhan\s+berke\s+[oö]zdil)$/i.test(
+    String(name || "").trim()
+  );
+}
+
+export function defaultPlayerDisplayName() {
+  return DEFAULT_PLAYER_NAME;
+}
+
+/** Player-visible name: saved name wins; reserved owner names and empty fall back to Jonata. */
+export function resolvePlayerDisplayName(rawName) {
+  const trimmed = String(rawName || "").trim();
+  if (trimmed && !isAdventurerDisplayName(trimmed) && !isReservedGuestName(trimmed)) {
+    return trimmed;
+  }
+  return DEFAULT_PLAYER_NAME;
+}
+
 export function parseGuestName() {
   const fromUrl = sanitizeGuestName(queryParam("name"));
   const fromSave = sanitizeGuestName(
@@ -70,9 +90,10 @@ export function parseGuestName() {
   );
   const name = fromUrl || fromSave;
   if (!name) {
-    return { display: "Adventurer", formal: "Adventurer", isLady: false };
+    return { display: DEFAULT_PLAYER_NAME, formal: DEFAULT_PLAYER_NAME, isLady: false };
   }
-  return { display: name, formal: name, isLady: false };
+  const resolved = resolvePlayerDisplayName(name);
+  return { display: resolved, formal: resolved, isLady: false };
 }
 
 export function inviteTokenFromUrl() {
@@ -82,10 +103,9 @@ export function inviteTokenFromUrl() {
 
 export function questOfTitle() {
   const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
-  if (fromSave && !isAdventurerDisplayName(fromSave)) return fromSave;
+  if (fromSave) return resolvePlayerDisplayName(fromSave);
   const parsed = parseGuestName();
-  if (parsed.formal && !isAdventurerDisplayName(parsed.formal)) return parsed.formal;
-  return "Adventurer";
+  return parsed.formal;
 }
 
 export function ladyTitle() {
@@ -98,8 +118,8 @@ export function grantedToLabel() {
 
 export function letterSalutation() {
   const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
-  if (fromSave && !isAdventurerDisplayName(fromSave)) return `Dear ${fromSave},`;
-  return "To the adventurer of this quest,";
+  if (fromSave) return `Dear ${resolvePlayerDisplayName(fromSave)},`;
+  return `Dear ${DEFAULT_PLAYER_NAME},`;
 }
 
 export function defaultState() {

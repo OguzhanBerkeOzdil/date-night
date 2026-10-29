@@ -14,8 +14,8 @@ beforeEach(async () => {
     removeItem: (k) => store.delete(k),
   };
   globalThis.location = { search: "?name=Elif", pathname: "/", href: "http://localhost/" };
-  S = await import("../../js/state.js?v=20261210");
-  decree = await import("../../js/decree.js?v=20261210");
+  S = await import("../../js/state.js?v=20261212");
+  decree = await import("../../js/decree.js?v=20261212");
   S.__resetModuleForTest();
 });
 
@@ -34,6 +34,46 @@ test("adventurer pass reflects a pressure-free decline", async () => {
   assert.match(text, /declined/i);
   assert.doesNotMatch(text, /flee|shame|try again/i);
   assert.match(whenWeRideLine(), /Saturday/);
+});
+
+test("pass omits class suffix and empty placeholder lines when Chapter I is blank", async () => {
+  const { __setStateForTest } = S;
+  const { buildSummaryText } = decree;
+  __setStateForTest({
+    secondDate: "yes",
+    steedName: "Clover",
+    rating: 3,
+    eveAdventurerName: "",
+    chapter1Answers: {},
+    todayVibe: "",
+    notes: "",
+    activities: [],
+    food: [],
+    potionName: "",
+    day: "",
+    time: "",
+  });
+  const text = buildSummaryText();
+  assert.match(text, /^Issued to: Jonata$/m);
+  assert.doesNotMatch(text, /Issued to: Jonata,/);
+  assert.doesNotMatch(text, /Note for the quest:/);
+  assert.doesNotMatch(text, /The quest could feel like: —/);
+});
+
+test("pass includes class after name when Chapter I class is on file", async () => {
+  const { __setStateForTest } = S;
+  const { buildSummaryText } = decree;
+  __setStateForTest({
+    secondDate: "yes",
+    steedName: "Clover",
+    rating: 3,
+    eveAdventurerName: "Testa",
+    chapter1Answers: {
+      class: { id: "potato", label: "Pacifist potato farmer" },
+    },
+  });
+  const text = buildSummaryText();
+  assert.match(text, /Issued to: Testa, Pacifist potato farmer/);
 });
 
 test("adventurer pass records acceptance and adventure energy", async () => {

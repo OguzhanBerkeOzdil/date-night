@@ -1,5 +1,5 @@
-import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261210";
-import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261210";
+import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261212";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261212";
 import {
   duckMusic,
   isSoundOn,
@@ -10,18 +10,18 @@ import {
   startAmbience,
   unlockAudio,
   vibrate,
-} from "./audio.js?v=20261210";
-import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261210";
-import { hydrateLazyImages } from "./image-utils.js?v=20261210";
-import { iconFood } from "./icons.js?v=20261210";
-import { spawnSparkles, boostEmbers } from "./particles.js?v=20261210";
-import { downloadCertificatePng } from "./certificate.js?v=20261210";
+} from "./audio.js?v=20261212";
+import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261212";
+import { hydrateLazyImages } from "./image-utils.js?v=20261212";
+import { iconFood } from "./icons.js?v=20261212";
+import { spawnSparkles, boostEmbers } from "./particles.js?v=20261212";
+import { downloadCertificatePng } from "./certificate.js?v=20261212";
 import {
   buildCompletionText,
   buildSummaryText,
   downloadDecreePng,
   shareDecree,
-} from "./decree.js?v=20261210";
+} from "./decree.js?v=20261212";
 import {
   horseById,
   horseFedImageUrl,
@@ -29,7 +29,7 @@ import {
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
   selectableHorseBreeds,
-} from "./horses.js?v=20261210";
+} from "./horses.js?v=20261212";
 import {
   adventurerDisplayName,
   buildChapter2RecapRowsForState,
@@ -48,17 +48,17 @@ import {
   sheetClassPrefillLine,
   steedHorseColorNote,
   tavernMartaTestimonyLine,
-} from "./chapter2-callbacks.js?v=20261210";
-import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261210";
-import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261210";
-import { updateEpigraph } from "./epigraph.js?v=20261210";
-import { syncContinueButton } from "./app-chrome.js?v=20261210";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261210";
-import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261210";
+} from "./chapter2-callbacks.js?v=20261212";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261212";
+import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261212";
+import { updateEpigraph } from "./epigraph.js?v=20261212";
+import { syncContinueButton } from "./app-chrome.js?v=20261212";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261212";
+import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261212";
 import {
   feedbackDeliveryStatus,
   flushFeedbackQueue,
-} from "./feedback.js?v=20261210";
+} from "./feedback.js?v=20261212";
 import {
   chapterLockButtonLabel,
   chapterLockKicker,
@@ -67,13 +67,13 @@ import {
   chapterLockTitle,
   chapterTwoIsAvailable,
   todayQuestDateLabel,
-} from "./quest-date.js?v=20261210";
+} from "./quest-date.js?v=20261212";
 import {
   chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
   reportChapter2HonestNoFeedback,
-} from "./chapter2-feedback.js?v=20261210";
-import { queueQuestSync } from "./sync.js?v=20261210";
+} from "./chapter2-feedback.js?v=20261212";
+import { queueQuestSync } from "./sync.js?v=20261212";
 import {
   letterSalutation,
   beginNewQuest,
@@ -83,7 +83,7 @@ import {
   saveState,
   state,
   undoLastNewQuest,
-} from "./state.js?v=20261210";
+} from "./state.js?v=20261212";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A dependable classic with heroic cheese" },
@@ -977,7 +977,7 @@ function renderRecap() {
     ...buildChapter2RecapRowsForState(state),
   ];
   const displayName = adventurerDisplayName(state);
-  if (displayName !== "Adventurer") rows.unshift({ label: "Adventurer", value: displayName });
+  rows.unshift({ label: "Adventurer", value: displayName });
   $("questRecap").innerHTML = rows
     .map(
       ({ label, value }) =>

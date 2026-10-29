@@ -21,6 +21,9 @@ export const QUEST_DATE_ISO = "2026-10-28";
 /** Owner-controlled release switch for Chapter II (flip to false to re-seal). */
 export const CHAPTER_TWO_RELEASED = true;
 
+/** Default player-facing name when none is saved (and for blocked owner names). */
+export const DEFAULT_PLAYER_NAME = "Jonata";
+
 /** Chapter I is finished in production; keep its screens only for archived QA/replay fixtures. */
 export const CHAPTER_ONE_ARCHIVED = true;
 
