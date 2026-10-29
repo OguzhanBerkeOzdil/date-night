@@ -125,12 +125,29 @@ test("rate-limited completion is visibly queued and retryable", async ({ page })
   await page.locator("#btnCompleteQuest").click();
 
   await expect(page.locator("#finalFeedbackStatus")).toContainText("retry automatically");
-  await expect(page.locator("#btnRetryFeedback")).toBeVisible();
+  await expect(page.locator("#btnVerifiedFeedback")).toBeVisible();
   const queued = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("questFeedbackQueue_v1") || "[]")
   );
   expect(queued).toHaveLength(1);
   expect(queued[0].part).toBe("completion");
+
+  await page.evaluate(() => {
+    HTMLFormElement.prototype.submit = function captureVerifiedFallback() {
+      globalThis.__verifiedFallbackCapture = {
+        action: this.action,
+        target: this.target,
+        fields: Object.fromEntries(new FormData(this).entries()),
+      };
+    };
+  });
+  await page.locator("#btnVerifiedFeedback").click();
+  const fallback = await page.evaluate(() => globalThis.__verifiedFallbackCapture);
+  expect(fallback.action).toBe("https://formsubmit.co/2ee0a4c67c7dbdb0028492bf48d9df9a");
+  expect(fallback.target).toBe("_blank");
+  expect(fallback.fields._url).toBe("https://oguzhanberkeozdil.github.io/date-night/");
+  expect(fallback.fields._captcha).toBeUndefined();
+  expect(fallback.fields.part).toBe("completion");
 });
 
 test("local playtest never claims that an email was delivered", async ({ page }) => {

@@ -4,6 +4,14 @@
 export const FORM_SUBMIT_ENDPOINT =
   "https://formsubmit.co/ajax/2ee0a4c67c7dbdb0028492bf48d9df9a";
 
+/** CAPTCHA-protected fallback used only after the automatic AJAX route is rejected. */
+export const FORM_SUBMIT_FALLBACK_ENDPOINT =
+  "https://formsubmit.co/2ee0a4c67c7dbdb0028492bf48d9df9a";
+
+/** Explicit source avoids FormSubmit mistaking a local preview for the live form. */
+export const FORM_SOURCE_URL =
+  "https://oguzhanberkeozdil.github.io/date-night/";
+
 /** Shown on the Quest Pass and certificate. */
 export const QUEST_DATE_LABEL = "Wednesday 28 October 2026";
 export const QUEST_DATE_ISO = "2026-10-28";
