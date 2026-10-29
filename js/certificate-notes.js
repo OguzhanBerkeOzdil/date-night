@@ -5,8 +5,8 @@ import {
   geraldTollAmount,
   potionSongSideEffect,
   provisionsForDecree,
-} from "./chapter2-callbacks.js?v=20261209";
-import { state } from "./state.js?v=20261209";
+} from "./chapter2-callbacks.js?v=20261210";
+import { state } from "./state.js?v=20261210";
 
 const FALLBACK_NOTES = [
   "Gerald has filed this certificate in triplicate. He is thrilled.",

@@ -1,32 +1,32 @@
-import { FEEDBACK_HONESTY_NOTE } from "./app-config.js?v=20261209";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261209";
+import { FEEDBACK_HONESTY_NOTE } from "./app-config.js?v=20261210";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261210";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_SURVEY_STEPS,
-} from "./chapter1-survey-data.js?v=20261209";
-import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js?v=20261209";
-import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js?v=20261209";
-import { submitFeedback } from "./feedback.js?v=20261209";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261209";
+} from "./chapter1-survey-data.js?v=20261210";
+import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js?v=20261210";
+import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js?v=20261210";
+import { submitFeedback } from "./feedback.js?v=20261210";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261210";
 import {
   sanitizeHeraldName,
   resetChapterOneProgress,
   saveState,
   setGuestName,
   state,
-} from "./state.js?v=20261209";
-import { queueQuestSync } from "./sync.js?v=20261209";
-import { showAppToast } from "./ui-feedback.js?v=20261209";
+} from "./state.js?v=20261210";
+import { queueQuestSync } from "./sync.js?v=20261210";
+import { showAppToast } from "./ui-feedback.js?v=20261210";
 import {
   EXCITEMENT_TIERS,
   PACKING_ITEMS,
   passClosingLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
-} from "./today/copy.js?v=20261209";
-import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js?v=20261209";
-import { downloadQuestPassPng } from "./today/pass.js?v=20261209";
-import { APP_CACHE_VERSION } from "./cache-version.js?v=20261209";
+} from "./today/copy.js?v=20261210";
+import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js?v=20261210";
+import { downloadQuestPassPng } from "./today/pass.js?v=20261210";
+import { APP_CACHE_VERSION } from "./cache-version.js?v=20261210";
 
 let navigate;
 

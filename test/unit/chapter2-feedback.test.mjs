@@ -18,9 +18,9 @@ beforeEach(async () => {
   store.clear();
   installMocks();
   globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "https://docs.google.com/forms/d/e/test/formResponse";
-  feedback = await import("../../js/feedback.js?v=20261209");
+  feedback = await import("../../js/feedback.js?v=20261210");
   feedback.__resetFeedbackForTest();
-  chapter2 = await import("../../js/chapter2-feedback.js?v=20261209");
+  chapter2 = await import("../../js/chapter2-feedback.js?v=20261210");
 });
 
 function sampleState(overrides = {}) {

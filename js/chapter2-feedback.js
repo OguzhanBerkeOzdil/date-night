@@ -1,6 +1,6 @@
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261209";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261209";
-import { submitFeedback } from "./feedback.js?v=20261209";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261210";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261210";
+import { submitFeedback } from "./feedback.js?v=20261210";
 
 function guestSlug(state) {
   return (state.eveAdventurerName || "guest").replace(/\s+/g, "-").toLowerCase();

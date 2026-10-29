@@ -14,7 +14,7 @@ import {
   questPassPresentLine,
   questPassSummonSubtitle,
   todayQuestDateLabel,
-} from "../../js/quest-date.js?v=20261209";
+} from "../../js/quest-date.js?v=20261210";
 
 test("chapter II remains locked before the Warsaw calendar date", () => {
   const now = new Date("2026-10-27T22:30:00Z");

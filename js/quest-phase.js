@@ -1,4 +1,4 @@
-import { CHAPTER_ONE_ARCHIVED } from "./app-config.js?v=20261209";
+import { CHAPTER_ONE_ARCHIVED } from "./app-config.js?v=20261210";
 
 const CHAPTER_ONE_SCREENS = new Set([
   "eve-name",

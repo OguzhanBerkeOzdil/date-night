@@ -1,5 +1,5 @@
-import { MAP_NODE } from "./config.js?v=20261209";
-import { ensureQuestMapImage, preloadUrl } from "./image-utils.js?v=20261209";
+import { MAP_NODE } from "./config.js?v=20261210";
+import { ensureQuestMapImage, preloadUrl } from "./image-utils.js?v=20261210";
 
 /** Token position (% of track) for each map node 0–8 */
 const NODE_X = [4, 14, 28, 42, 56, 70, 84, 92, 98];

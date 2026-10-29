@@ -1,5 +1,5 @@
-import { CONFIG } from "./config.js?v=20261209";
-import { showSaveWarningToast } from "./ui-feedback.js?v=20261209";
+import { CONFIG } from "./config.js?v=20261210";
+import { showSaveWarningToast } from "./ui-feedback.js?v=20261210";
 
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";

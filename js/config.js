@@ -1,4 +1,4 @@
-export { APP_CACHE_VERSION } from "./cache-version.js?v=20261209";
+export { APP_CACHE_VERSION } from "./cache-version.js?v=20261210";
 
 import {
   BARD_LINES,
@@ -8,7 +8,7 @@ import {
   STEED_PICK_LINES,
   TAROT_FORTUNES,
   YES_TOASTS,
-} from "./copy-data.js?v=20261209";
+} from "./copy-data.js?v=20261210";
 
 export const CONFIG = {
   fromName: "Berke",

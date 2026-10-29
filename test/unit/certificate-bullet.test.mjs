@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { layoutBulletNoteRows } from "../../js/certificate-bullet.js?v=20261209";
+import { layoutBulletNoteRows } from "../../js/certificate-bullet.js?v=20261210";
 
 test("wrapped bullet uses hanging indent without extra bullets", () => {
   const measure = (text) => text.length * 8;

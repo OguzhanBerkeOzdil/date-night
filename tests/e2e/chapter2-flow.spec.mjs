@@ -102,6 +102,7 @@ test("legacy feedback becomes the Chapter II briefing @ mobile-390", async ({ pa
 test("completed Chapter II can restart without clearing Chapter I @ desktop-1440", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-1440");
   await page.addInitScript((sample) => {
+    if (sessionStorage.getItem("chapter2-restart-fixture") === "ready") return;
     localStorage.setItem("questLady_v3", JSON.stringify({
       schemaVersion: 3,
       chapter: "complete",
@@ -132,6 +133,7 @@ test("completed Chapter II can restart without clearing Chapter I @ desktop-1440
       futureQuest: "yes",
       lastScreen: "quest-complete",
     }));
+    sessionStorage.setItem("chapter2-restart-fixture", "ready");
   }, CH1_SAMPLE);
 
   await page.goto("/");
@@ -139,7 +141,10 @@ test("completed Chapter II can restart without clearing Chapter I @ desktop-1440
   await page.locator("#btnRestartChapterTwo").click();
   await expect(page.locator("#questConfirmTitle")).toHaveText("Restart Chapter II?");
   await expect(page.locator("#questConfirmMessage")).toContainText("Chapter I answers stay sealed");
-  await page.locator("#questConfirmStart").click();
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+    page.locator("#questConfirmStart").click(),
+  ]);
   await expect(page.locator('section[data-screen="chapter-two-start"]')).toHaveClass(/screen--active/);
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("questLady_v3")));
@@ -156,4 +161,10 @@ test("completed Chapter II can restart without clearing Chapter I @ desktop-1440
   expect(saved.steedName).toBe("Clover");
   expect(saved.horseId).toBe("");
   expect(saved.lastScreen).toBe("chapter-two-start");
+
+  await page.evaluate(() => window.__questNavigate("steed"));
+  await expect(page.locator("#affectionBar")).toHaveAttribute(
+    "aria-label",
+    "Horse bond: 0 of 5 carrots"
+  );
 });

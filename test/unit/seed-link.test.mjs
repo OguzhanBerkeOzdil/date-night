@@ -7,7 +7,7 @@ import {
   mergeSeedIntoState,
   parseSeedFromSearch,
   validateSeedPayload,
-} from "../../js/seed-link.js?v=20261209";
+} from "../../js/seed-link.js?v=20261210";
 
 const FAKE_SURVEY = {
   class: { id: "potato", label: "Pacifist potato farmer" },

@@ -1,6 +1,6 @@
-import { playDing, vibrate } from "./audio.js?v=20261209";
-import { state, saveState } from "./state.js?v=20261209";
-import { icons } from "./icons.js?v=20261209";
+import { playDing, vibrate } from "./audio.js?v=20261210";
+import { state, saveState } from "./state.js?v=20261210";
+import { icons } from "./icons.js?v=20261210";
 
 export const MAIN_ACHIEVEMENT_IDS = [
   "seal",

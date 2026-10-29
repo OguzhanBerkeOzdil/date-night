@@ -20,7 +20,7 @@ import {
   buildChapter2RecapRowsForState,
   chapter2BriefingLine,
   chapter2FieldQuestLine,
-} from "../../js/chapter2-callbacks.js?v=20261209";
+} from "../../js/chapter2-callbacks.js?v=20261210";
 
 const SAMPLE = {
   class: { id: "potato", label: "Pacifist potato farmer" },

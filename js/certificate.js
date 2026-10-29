@@ -1,13 +1,13 @@
-import { QUEST_DATE_LABEL } from "./app-config.js?v=20261209";
-import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261209";
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261209";
-import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261209";
-import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261209";
-import { horseById } from "./horses.js?v=20261209";
-import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261209";
-import { state } from "./state.js?v=20261209";
-import { dayLabelForDecree } from "./decree.js?v=20261209";
-import { showAppToast } from "./ui-feedback.js?v=20261209";
+import { QUEST_DATE_LABEL } from "./app-config.js?v=20261210";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261210";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261210";
+import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261210";
+import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261210";
+import { horseById } from "./horses.js?v=20261210";
+import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261210";
+import { state } from "./state.js?v=20261210";
+import { dayLabelForDecree } from "./decree.js?v=20261210";
+import { showAppToast } from "./ui-feedback.js?v=20261210";
 
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
