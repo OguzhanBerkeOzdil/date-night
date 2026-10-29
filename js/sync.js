@@ -1,10 +1,10 @@
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261213";
 import {
   applyRemoteState,
   inviteTokenFromUrl,
   state,
   updateSyncMeta,
-} from "./state.js?v=20261212";
+} from "./state.js?v=20261213";
 
 const SAFE_STATE_KEYS = [
   "schemaVersion",

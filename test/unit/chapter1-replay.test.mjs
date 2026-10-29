@@ -14,7 +14,7 @@ beforeEach(async () => {
 });
 
 test("resetChapterOneProgress clears Chapter I but keeps Chapter II fields", async () => {
-  const S = await import("../../js/state.js?v=20261212");
+  const S = await import("../../js/state.js?v=20261213");
   S.__resetModuleForTest();
   S.__setStateForTest({
     chapterOneComplete: true,

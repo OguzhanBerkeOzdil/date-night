@@ -1,6 +1,6 @@
 /** Cross-device Chapter I seed via ?seed= base64url JSON (compact keys). */
 
-import { CHAPTER1_QUESTIONS } from "./chapter1-survey-data.js?v=20261212";
+import { CHAPTER1_QUESTIONS } from "./chapter1-survey-data.js?v=20261213";
 
 export const SEED_MAX_BYTES = 4096;
 export const SEED_SCHEMA_VERSION = 1;

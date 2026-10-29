@@ -1,8 +1,8 @@
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261212";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
-import { submitFeedback } from "./feedback.js?v=20261212";
-import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261212";
-import { buildPassText } from "./decree.js?v=20261212";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261213";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261213";
+import { submitFeedback } from "./feedback.js?v=20261213";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261213";
+import { buildPassText } from "./decree.js?v=20261213";
 
 function guestSlug(state) {
   return adventurerDisplayName(state).replace(/\s+/g, "-").toLowerCase();

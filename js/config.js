@@ -1,4 +1,4 @@
-export { APP_CACHE_VERSION } from "./cache-version.js?v=20261212";
+export { APP_CACHE_VERSION } from "./cache-version.js?v=20261213";
 
 import {
   BARD_LINES,
@@ -8,8 +8,8 @@ import {
   STEED_PICK_LINES,
   TAROT_FORTUNES,
   YES_TOASTS,
-} from "./copy-data.js?v=20261212";
-import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261212";
+} from "./copy-data.js?v=20261213";
+import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261213";
 
 export const CONFIG = {
   fromName: "Berke",

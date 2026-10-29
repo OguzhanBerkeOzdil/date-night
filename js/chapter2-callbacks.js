@@ -1,6 +1,6 @@
 /** Data-driven Chapter I callbacks for Chapter II (no hardcoded guest answers). */
 
-import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261212";
+import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261213";
 
 const FALLBACK = {
   class: "an unclassified adventurer",
@@ -25,6 +25,12 @@ export function getChapter1Answer(answers, questionId) {
 export function chapter1Label(answers, questionId, fallbackKey) {
   const ans = getChapter1Answer(answers, questionId);
   return ans?.label || ans?.freeText || FALLBACK[fallbackKey] || "—";
+}
+
+/** Saved Chapter I answer label only (no copy fallbacks or em dashes). */
+export function chapter1AnswerLabel(answers, questionId) {
+  const ans = getChapter1Answer(answers, questionId);
+  return (ans?.label || ans?.freeText || "").trim();
 }
 
 export function chapter1Id(answers, questionId) {

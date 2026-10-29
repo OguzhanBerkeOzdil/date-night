@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_QUESTIONS,
-} from "../../js/chapter1-survey-data.js?v=20261212";
+} from "../../js/chapter1-survey-data.js?v=20261213";
 
 test("adventurerProfileFromAnswers picks class, weapon, companion labels", () => {
   const profile = adventurerProfileFromAnswers({
@@ -15,6 +15,14 @@ test("adventurerProfileFromAnswers picks class, weapon, companion labels", () =>
     class: "Bard",
     weapon: "Sword",
     companion: "Goose (traitor — will betray you)",
+  });
+});
+
+test("adventurerProfileFromAnswers leaves missing fields empty (not em dash)", () => {
+  assert.deepEqual(adventurerProfileFromAnswers({}), {
+    class: "",
+    weapon: "",
+    companion: "",
   });
 });
 

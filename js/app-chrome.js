@@ -1,5 +1,5 @@
-import { hasQuestSave } from "./state.js?v=20261212";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261212";
+import { hasQuestSave } from "./state.js?v=20261213";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261213";
 
 /** Update Continue visibility — safe to call from any module (no main.js re-import). */
 export function syncContinueButton() {

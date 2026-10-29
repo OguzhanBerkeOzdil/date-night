@@ -1,13 +1,13 @@
-import { QUEST_DATE_LABEL } from "./app-config.js?v=20261212";
-import { adventurerDisplayName, adventurerLineWithOptionalClass } from "./chapter2-callbacks.js?v=20261212";
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261212";
-import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261212";
-import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261212";
-import { horseById } from "./horses.js?v=20261212";
-import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261212";
-import { state } from "./state.js?v=20261212";
-import { dayLabelForDecree } from "./decree.js?v=20261212";
-import { showAppToast } from "./ui-feedback.js?v=20261212";
+import { QUEST_DATE_LABEL } from "./app-config.js?v=20261213";
+import { adventurerDisplayName, adventurerLineWithOptionalClass } from "./chapter2-callbacks.js?v=20261213";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261213";
+import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261213";
+import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261213";
+import { horseById } from "./horses.js?v=20261213";
+import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261213";
+import { state } from "./state.js?v=20261213";
+import { dayLabelForDecree } from "./decree.js?v=20261213";
+import { showAppToast } from "./ui-feedback.js?v=20261213";
 
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
@@ -17,6 +17,20 @@ export const CERT_TOP_RESERVE = 124;
 export const CERT_BOTTOM_RESERVE = 210;
 const BODY_MARGIN_X = 100;
 const BODY_MAX_W = CERT_WIDTH - 200;
+
+function hasProfileField(value) {
+  const text = String(value ?? "").trim();
+  return Boolean(text && text !== "—");
+}
+
+export function buildCertificateProfileSection(profile) {
+  const rows = [];
+  if (hasProfileField(profile.class)) rows.push(`Class: ${profile.class.trim()}`);
+  if (hasProfileField(profile.weapon)) rows.push(`Weapon: ${profile.weapon.trim()}`);
+  if (hasProfileField(profile.companion)) rows.push(`Companion: ${profile.companion.trim()}`);
+  if (!rows.length) return [];
+  return ["", "Adventurer profile (Chapter I):", ...rows, ""];
+}
 
 export function buildCertificateLines(mode = "pass") {
   const horse = horseById(state.horseId || "chestnut");
@@ -35,12 +49,7 @@ export function buildCertificateLines(mode = "pass") {
     adventurerLineWithOptionalClass("Adventurer", adventurer, state),
     `Steed: ${horse.coat} — named "${state.steedName || horse.defaultName}"`,
     summonedLine,
-    "",
-    "Adventurer profile (Chapter I):",
-    `Class: ${profile.class}`,
-    `Weapon: ${profile.weapon}`,
-    `Companion: ${profile.companion}`,
-    "",
+    ...buildCertificateProfileSection(profile),
     "Official notes from the realm:",
     ...buildRealmCertificateNotes().map((n) => `• ${n}`),
     "",

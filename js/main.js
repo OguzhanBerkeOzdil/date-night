@@ -1,22 +1,22 @@
-import { BG_BY_SCREEN, SCREENS } from "./config.js?v=20261212";
-import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js?v=20261212";
-import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js?v=20261212";
-import { flushFeedbackQueue } from "./feedback.js?v=20261212";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
-import { initBardQuill, syncBardQuill } from "./bard.js?v=20261212";
-import { initEpigraphs, updateEpigraph } from "./epigraph.js?v=20261212";
-import { initHud, updateHud } from "./hud.js?v=20261212";
-import { hideDialogue, initDialogue } from "./dialogue.js?v=20261212";
-import { initParticles } from "./particles.js?v=20261212";
-import { initScreens, onScreenEnter, resumeTarget } from "./screens.js?v=20261212";
-import { syncContinueButton } from "./app-chrome.js?v=20261212";
-import { initQuestSync } from "./sync.js?v=20261212";
-import { syncEveHonestButton } from "./eve-prelude.js?v=20261212";
-import { chapterOneIsArchived, isArchivedChapterOneScreen } from "./quest-phase.js?v=20261212";
+import { BG_BY_SCREEN, SCREENS } from "./config.js?v=20261213";
+import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js?v=20261213";
+import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js?v=20261213";
+import { flushFeedbackQueue } from "./feedback.js?v=20261213";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261213";
+import { initBardQuill, syncBardQuill } from "./bard.js?v=20261213";
+import { initEpigraphs, updateEpigraph } from "./epigraph.js?v=20261213";
+import { initHud, updateHud } from "./hud.js?v=20261213";
+import { hideDialogue, initDialogue } from "./dialogue.js?v=20261213";
+import { initParticles } from "./particles.js?v=20261213";
+import { initScreens, onScreenEnter, resumeTarget } from "./screens.js?v=20261213";
+import { syncContinueButton } from "./app-chrome.js?v=20261213";
+import { initQuestSync } from "./sync.js?v=20261213";
+import { syncEveHonestButton } from "./eve-prelude.js?v=20261213";
+import { chapterOneIsArchived, isArchivedChapterOneScreen } from "./quest-phase.js?v=20261213";
 
 export { syncContinueButton };
-import { applyQuestSeedFromUrl } from "./seed-link.js?v=20261212";
-import { questOfTitle, saveState, state } from "./state.js?v=20261212";
+import { applyQuestSeedFromUrl } from "./seed-link.js?v=20261213";
+import { questOfTitle, saveState, state } from "./state.js?v=20261213";
 
 let current = "title";
 

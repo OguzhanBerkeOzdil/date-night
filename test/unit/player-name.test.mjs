@@ -6,7 +6,7 @@ beforeEach(() => {
 });
 
 test("empty and reserved names resolve to Jonata for quest titles", async () => {
-  const S = await import("../../js/state.js?v=20261212");
+  const S = await import("../../js/state.js?v=20261213");
   S.__resetModuleForTest();
   S.__setStateForTest({ eveAdventurerName: "" });
   assert.equal(S.questOfTitle(), "Jonata");
@@ -19,7 +19,7 @@ test("empty and reserved names resolve to Jonata for quest titles", async () => 
 });
 
 test("letter salutation uses Jonata when no saved name", async () => {
-  const S = await import("../../js/state.js?v=20261212");
+  const S = await import("../../js/state.js?v=20261213");
   S.__resetModuleForTest();
   S.__setStateForTest({ eveAdventurerName: "" });
   assert.equal(S.letterSalutation(), "Dear Jonata,");

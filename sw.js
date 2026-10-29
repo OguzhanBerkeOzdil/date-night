@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261212";
+const APP_CACHE_VERSION = "20261213";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -175,6 +175,12 @@ async function matchInAssetCache(request) {
 }
 
 async function networkFirst(request) {
+  const url = new URL(request.url);
+  const isDocumentRequest =
+    request.mode === "navigate" ||
+    request.destination === "document" ||
+    url.pathname.endsWith(".html") ||
+    url.pathname.endsWith("/");
   try {
     const res = await fetch(request);
     if (res.ok) {
@@ -185,6 +191,11 @@ async function networkFirst(request) {
   } catch (err) {
     const cached = await caches.match(request);
     if (cached) return cached;
+    if (!isDocumentRequest) {
+      const asset = await matchInAssetCache(request);
+      if (asset) return asset;
+      throw err;
+    }
     const index = await caches.match("./index.html");
     if (index) return index;
     throw err;
@@ -220,21 +231,22 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (
-    url.pathname.endsWith("/index.html") ||
-    url.pathname.endsWith("/") ||
-    url.pathname.includes("/today/")
-  ) {
-    event.respondWith(networkFirst(request));
-    return;
-  }
-
-  if (
     url.pathname.includes("/css/") ||
     url.pathname.includes("/js/") ||
     url.pathname.includes("/assets/") ||
     url.pathname.endsWith(".webmanifest")
   ) {
     event.respondWith(versionedAsset(request));
+    return;
+  }
+
+  if (
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/") ||
+    url.pathname.endsWith("/today/index.html") ||
+    url.pathname.endsWith("/today/")
+  ) {
+    event.respondWith(networkFirst(request));
     return;
   }
 });

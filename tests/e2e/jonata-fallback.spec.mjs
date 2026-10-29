@@ -92,6 +92,7 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await page.locator("#carrotBtn").click();
     await page.locator("#btnSteedNext").click();
     await page.locator("#btnRoll").click();
+    await page.locator('#classPick button[data-class="Knight of the Wildflowers"]').click();
     await page.locator("#btnSheetNext").click();
     await page.locator(".journal-entry").first().click();
     await page.locator("#btnYes").click();

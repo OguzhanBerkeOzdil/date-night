@@ -17,8 +17,8 @@ globalThis.addEventListener = (type, handler) => listeners.set(type, handler);
 globalThis.dispatchEvent = () => true;
 globalThis.CustomEvent = class CustomEvent { constructor(type) { this.type = type; } };
 
-const S = await import("../../js/state.js?v=20261212");
-const Sync = await import("../../js/sync.js?v=20261212");
+const S = await import("../../js/state.js?v=20261213");
+const Sync = await import("../../js/sync.js?v=20261213");
 
 beforeEach(() => {
   store.clear();
