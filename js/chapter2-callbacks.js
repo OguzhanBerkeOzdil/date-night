@@ -1,5 +1,7 @@
 /** Data-driven Chapter I callbacks for Chapter II (no hardcoded guest answers). */
 
+import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261211";
+
 const FALLBACK = {
   class: "an unclassified adventurer",
   weapon: "mysterious intent",
@@ -63,12 +65,8 @@ const COMPANION_RECAP = {
 
 export function adventurerDisplayName(state) {
   const fromSave = (state?.eveAdventurerName || state?.chapter1SealedName || "").trim();
-  if (/^(berke|o[gğ]uzhan(?:\s+berke)?|o[gğ]uzhan\s+berke\s+[oö]zdil)$/i.test(fromSave)) {
-    return "Adventurer";
-  }
-  if (fromSave && !/^adventurer$/i.test(fromSave)) return fromSave;
-  if (fromSave) return "Adventurer";
-  return "Adventurer";
+  if (fromSave) return resolvePlayerDisplayName(fromSave);
+  return defaultPlayerDisplayName();
 }
 
 const LEGACY_EVE_LABELS = {

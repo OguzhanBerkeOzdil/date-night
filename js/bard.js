@@ -1,7 +1,7 @@
-import { COPY } from "./config.js?v=20261210";
-import { hideDialogue, say, setPortrait, setSteedName } from "./dialogue.js?v=20261210";
-import { unlock } from "./achievements.js?v=20261210";
-import { state } from "./state.js?v=20261210";
+import { COPY } from "./config.js?v=20261211";
+import { hideDialogue, say, setPortrait, setSteedName } from "./dialogue.js?v=20261211";
+import { unlock } from "./achievements.js?v=20261211";
+import { state } from "./state.js?v=20261211";
 
 const BARD_SCREENS = new Set([
   "summons",

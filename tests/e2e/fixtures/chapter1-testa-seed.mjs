@@ -1,7 +1,7 @@
 import {
   buildWireSeedFromOwnerJson,
   encodeSeedToBase64Url,
-} from "../../../js/seed-link.js?v=20261210";
+} from "../../../js/seed-link.js?v=20261211";
 
 /** Complete Chapter I fixture for Chapter II callback screenshots (no real player data). */
 export const CHAPTER_I_TESTA_OWNER = {

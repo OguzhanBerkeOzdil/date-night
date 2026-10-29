@@ -5,7 +5,7 @@ let sanitizeGuestName;
 
 beforeEach(async () => {
   globalThis.location = { search: "", pathname: "/", href: "http://localhost/" };
-  const S = await import("../../js/state.js?v=20261210");
+  const S = await import("../../js/state.js?v=20261211");
   sanitizeGuestName = S.sanitizeGuestName;
 });
 
@@ -28,7 +28,7 @@ test("sanitizeGuestName strips lady prefix", () => {
 });
 
 test("Adventurer display name is not titled Lady", async () => {
-  const { isAdventurerDisplayName } = await import("../../js/state.js?v=20261210");
+  const { isAdventurerDisplayName } = await import("../../js/state.js?v=20261211");
   assert.equal(isAdventurerDisplayName("Adventurer"), true);
   assert.equal(isAdventurerDisplayName("Ayse"), false);
 });

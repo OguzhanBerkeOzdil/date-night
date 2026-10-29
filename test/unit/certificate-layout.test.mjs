@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 test("certificate header bodyStart clears subtitle at high scale", async () => {
-  const { certificateHeaderLayout, CERT_TOP_RESERVE } = await import("../../js/certificate.js?v=20261210");
+  const { certificateHeaderLayout, CERT_TOP_RESERVE } = await import("../../js/certificate.js?v=20261211");
   for (const scale of [1, 1.2, 1.38]) {
     const hdr = certificateHeaderLayout(scale);
     assert.ok(hdr.bodyStart > hdr.subtitleBottom + 6, `scale ${scale}`);
@@ -12,7 +12,7 @@ test("certificate header bodyStart clears subtitle at high scale", async () => {
 
 test("validateCertificateLayout rejects overlapping boxes", async () => {
   const { validateCertificateLayout, CERT_MIN_HEIGHT, CERT_BOTTOM_RESERVE } = await import(
-    "../../js/certificate.js?v=20261210"
+    "../../js/certificate.js?v=20261211"
   );
   const bottomLimit = CERT_MIN_HEIGHT - CERT_BOTTOM_RESERVE;
   const good = validateCertificateLayout({
