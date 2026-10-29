@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261204";
+const APP_CACHE_VERSION = "20261205";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;

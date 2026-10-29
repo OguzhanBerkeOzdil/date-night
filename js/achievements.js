@@ -33,7 +33,7 @@ const DEFS = {
 
 const MAX_ACHIEVEMENT_TOASTS = 1;
 const TOAST_VISIBLE_MS = 2500;
-const SUPPRESS_TOAST_SCREENS = new Set(["chapter-two-finish", "honest-no"]);
+const SUPPRESS_TOAST_SCREENS = new Set(["chapter-two-finish", "quest-complete", "honest-no"]);
 const toastQueue = [];
 let toastDrainActive = false;
 let toastPausedForChoices = false;

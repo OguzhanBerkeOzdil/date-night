@@ -200,6 +200,7 @@ for (const project of ["mobile-390", "desktop-1440"]) {
     });
     await expect(page.getByText("Your reward is virtual—for now.")).toBeVisible();
     await expect(page.locator("#finalFeedbackStatus")).toContainText("sent to Berke");
+    await expect(page.locator("#achievementToasts")).toBeEmpty();
     await captureShot(page, testInfo, "06-virtual-bouquet");
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
