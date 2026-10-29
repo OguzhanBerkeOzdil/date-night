@@ -1048,6 +1048,9 @@ function completionFeedbackCopy(status) {
   if (["sent", "duplicate"].includes(status)) {
     return "Quest notes sent to Berke. (The horse successfully filed one form.)";
   }
+  if (status === "local") {
+    return "Local playtest only — no email was sent. (The horse never left the stable.)";
+  }
   if (status === "queued") {
     return "Quest notes are saved and will retry automatically. (The carrier pigeon hit traffic.)";
   }

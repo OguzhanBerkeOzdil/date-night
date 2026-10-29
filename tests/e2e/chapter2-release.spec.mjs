@@ -133,6 +133,25 @@ test("rate-limited completion is visibly queued and retryable", async ({ page })
   expect(queued[0].part).toBe("completion");
 });
 
+test("local playtest never claims that an email was delivered", async ({ page }) => {
+  await page.addInitScript(() => {
+    globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = false;
+  });
+  let formSubmitRequests = 0;
+  page.on("request", (request) => {
+    if (request.url().includes("formsubmit.co")) formSubmitRequests += 1;
+  });
+
+  await startFullQuest(page);
+  await page.evaluate(() => window.__questNavigate("chapter-two-pause"));
+  await page.locator("#btnFinishQuest").click();
+  await page.locator('[data-future="maybe"]').click();
+  await page.locator("#btnCompleteQuest").click();
+
+  await expect(page.locator("#finalFeedbackStatus")).toContainText("no email was sent");
+  expect(formSubmitRequests).toBe(0);
+});
+
 test("legacy mid-game saves resume at their exact full-quest screen", async ({ page }) => {
   await page.addInitScript(() => {
     const saved = JSON.parse(localStorage.getItem("questLady_v3"));
