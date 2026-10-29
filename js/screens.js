@@ -1,5 +1,5 @@
-import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261212";
-import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261212";
+import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261213";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261213";
 import {
   duckMusic,
   isSoundOn,
@@ -10,18 +10,18 @@ import {
   startAmbience,
   unlockAudio,
   vibrate,
-} from "./audio.js?v=20261212";
-import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261212";
-import { hydrateLazyImages } from "./image-utils.js?v=20261212";
-import { iconFood } from "./icons.js?v=20261212";
-import { spawnSparkles, boostEmbers } from "./particles.js?v=20261212";
-import { downloadCertificatePng } from "./certificate.js?v=20261212";
+} from "./audio.js?v=20261213";
+import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261213";
+import { hydrateLazyImages } from "./image-utils.js?v=20261213";
+import { iconFood } from "./icons.js?v=20261213";
+import { spawnSparkles, boostEmbers } from "./particles.js?v=20261213";
+import { downloadCertificatePng } from "./certificate.js?v=20261213";
 import {
   buildCompletionText,
   buildSummaryText,
   downloadDecreePng,
   shareDecree,
-} from "./decree.js?v=20261212";
+} from "./decree.js?v=20261213";
 import {
   horseById,
   horseFedImageUrl,
@@ -29,13 +29,13 @@ import {
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
   selectableHorseBreeds,
-} from "./horses.js?v=20261212";
+} from "./horses.js?v=20261213";
 import {
   adventurerDisplayName,
   buildChapter2RecapRowsForState,
   chapter2BriefingLine,
   chapter2FieldQuestLine,
-  chapter1Label,
+  chapter1AnswerLabel,
   chapter1Id,
   chapter1TavernDrinkItem,
   ensureChapter1TavernPreselect,
@@ -48,17 +48,17 @@ import {
   sheetClassPrefillLine,
   steedHorseColorNote,
   tavernMartaTestimonyLine,
-} from "./chapter2-callbacks.js?v=20261212";
-import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261212";
-import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261212";
-import { updateEpigraph } from "./epigraph.js?v=20261212";
-import { syncContinueButton } from "./app-chrome.js?v=20261212";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261212";
-import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261212";
+} from "./chapter2-callbacks.js?v=20261213";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261213";
+import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261213";
+import { updateEpigraph } from "./epigraph.js?v=20261213";
+import { syncContinueButton } from "./app-chrome.js?v=20261213";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261213";
+import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261213";
 import {
   feedbackDeliveryStatus,
   flushFeedbackQueue,
-} from "./feedback.js?v=20261212";
+} from "./feedback.js?v=20261213";
 import {
   chapterLockButtonLabel,
   chapterLockKicker,
@@ -67,13 +67,13 @@ import {
   chapterLockTitle,
   chapterTwoIsAvailable,
   todayQuestDateLabel,
-} from "./quest-date.js?v=20261212";
+} from "./quest-date.js?v=20261213";
 import {
   chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
   reportChapter2HonestNoFeedback,
-} from "./chapter2-feedback.js?v=20261212";
-import { queueQuestSync } from "./sync.js?v=20261212";
+} from "./chapter2-feedback.js?v=20261213";
+import { queueQuestSync } from "./sync.js?v=20261213";
 import {
   letterSalutation,
   beginNewQuest,
@@ -83,7 +83,7 @@ import {
   saveState,
   state,
   undoLastNewQuest,
-} from "./state.js?v=20261212";
+} from "./state.js?v=20261213";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A dependable classic with heroic cheese" },
@@ -540,7 +540,7 @@ export function onEnterSteed() {
 function renderClassPickGrid() {
   const grid = $("classPick");
   if (!grid) return;
-  const ch1Label = chapter1Label(state.chapter1Answers, "class", "");
+  const ch1Label = chapter1AnswerLabel(state.chapter1Answers, "class");
   const esc = (value) => value.replace(/"/g, "&quot;");
   const ch1Button = ch1Label
     ? `<button type="button" data-class="${esc(ch1Label)}"><strong>${ch1Label}</strong><em>From your Chapter I census</em></button>`
@@ -555,19 +555,22 @@ function renderClassPickGrid() {
 
 function applySheetClassUi() {
   const grid = $("classPick");
-  if (!state.steedClass) return;
+  const cls = (state.steedClass || "").trim();
+  if (!cls || cls === "—") return;
   const match = [...(grid?.querySelectorAll("[data-class]") || [])].find(
-    (el) => el.dataset.class === state.steedClass
+    (el) => el.dataset.class === cls
   );
   if (match) selectChip(grid, match);
-  $("classChosen").textContent = state.steedClassPicked
-    ? `Class chosen: ${state.steedClass}.`
-    : `Class on file: ${state.steedClass} (from Chapter I). Pick below to change.`;
+  const ch1Class = chapter1AnswerLabel(state.chapter1Answers, "class");
+  $("classChosen").textContent =
+    state.steedClassPicked || !ch1Class || cls !== ch1Class
+      ? `Class chosen: ${cls}.`
+      : `Class on file: ${cls} (from Chapter I). Pick below to change.`;
   show($("btnSheetNext"));
 }
 
 function prefillSheetClassFromChapter1() {
-  const label = chapter1Label(state.chapter1Answers, "class", "");
+  const label = chapter1AnswerLabel(state.chapter1Answers, "class");
   if (!label || state.steedClassPicked) return;
   state.steedClass = label;
   saveState();
@@ -575,9 +578,13 @@ function prefillSheetClassFromChapter1() {
 }
 
 function onEnterSheet() {
+  if (state.steedClass === "—") {
+    state.steedClass = "";
+    saveState();
+  }
   renderClassPickGrid();
   prefillSheetClassFromChapter1();
-  if (state.steedClass) applySheetClassUi();
+  if (state.steedClass && state.steedClass !== "—") applySheetClassUi();
 }
 
 function initSheet() {

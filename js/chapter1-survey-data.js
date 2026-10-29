@@ -160,7 +160,13 @@ export const CHAPTER1_QUESTIONS = [
 
 export function adventurerProfileFromAnswers(answers) {
   const a = answers || {};
-  const pick = (key) => a[key]?.label || a[key]?.value || "—";
+  const pick = (key) => {
+    const raw = a[key];
+    if (!raw || raw.skipped) return "";
+    const text = raw.label ?? raw.value;
+    if (text === undefined || text === null) return "";
+    return String(text).trim();
+  };
   return {
     class: pick("class"),
     weapon: pick("weapon"),

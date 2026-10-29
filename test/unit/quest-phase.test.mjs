@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {
   chapterOneIsArchived,
   isArchivedChapterOneScreen,
-} from "../../js/quest-phase.js?v=20261212";
+} from "../../js/quest-phase.js?v=20261213";
 
 test("Chapter I is archived in production", () => {
   delete globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__;

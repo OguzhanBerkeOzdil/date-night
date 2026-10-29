@@ -1,13 +1,13 @@
-import { CONFIG, tarotForKey } from "./config.js?v=20261212";
+import { CONFIG, tarotForKey } from "./config.js?v=20261213";
 import {
   adventurerDisplayName,
   adventurerLineWithOptionalClass,
   decreeCompanionLogLine,
   provisionsForDecree,
-} from "./chapter2-callbacks.js?v=20261212";
-import { state } from "./state.js?v=20261212";
-import { achievementCount } from "./achievements.js?v=20261212";
-import { showAppToast } from "./ui-feedback.js?v=20261212";
+} from "./chapter2-callbacks.js?v=20261213";
+import { state } from "./state.js?v=20261213";
+import { achievementCount } from "./achievements.js?v=20261213";
+import { showAppToast } from "./ui-feedback.js?v=20261213";
 
 function questAnswerLine(questState = state) {
   const answers = {

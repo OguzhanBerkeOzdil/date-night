@@ -1,5 +1,5 @@
-import { CONFIG } from "./config.js?v=20261212";
-import { CHAPTER_TWO_RELEASED, QUEST_DATE_ISO, QUEST_DATE_LABEL } from "./app-config.js?v=20261212";
+import { CONFIG } from "./config.js?v=20261213";
+import { CHAPTER_TWO_RELEASED, QUEST_DATE_ISO, QUEST_DATE_LABEL } from "./app-config.js?v=20261213";
 
 export function dateKeyInTimeZone(date = new Date(), timeZone = CONFIG.timeZone) {
   const parts = new Intl.DateTimeFormat("en-CA", {

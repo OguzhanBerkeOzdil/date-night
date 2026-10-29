@@ -2,7 +2,7 @@ import {
   PASS_BOTTOM_ROLL_SAMPLE,
   PASS_ROLL_REGION_TOP,
   passSealRect,
-} from "./quest-pass-layout.js?v=20261212";
+} from "./quest-pass-layout.js?v=20261213";
 
 const BURGUNDY_FRAME = { r: 107, g: 45, b: 58 };
 
