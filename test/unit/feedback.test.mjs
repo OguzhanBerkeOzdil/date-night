@@ -17,7 +17,7 @@ beforeEach(async () => {
       this._m.delete(k);
     },
   };
-  feedback = await import("../../js/feedback.js?v=20261211");
+  feedback = await import("../../js/feedback.js?v=20261212");
   feedback.__resetFeedbackForTest();
 });
 

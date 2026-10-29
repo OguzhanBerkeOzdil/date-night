@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { completeEveName } from "./helpers/eve-path.mjs";
-import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js?v=20261211";
+import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js?v=20261212";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {

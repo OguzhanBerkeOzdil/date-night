@@ -1,5 +1,5 @@
-import { COPY } from "./config.js?v=20261211";
-import { state } from "./state.js?v=20261211";
+import { COPY } from "./config.js?v=20261212";
+import { state } from "./state.js?v=20261212";
 
 const EPIGRAPH_SCREENS = new Set([
   "title",

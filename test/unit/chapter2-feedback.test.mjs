@@ -18,9 +18,9 @@ beforeEach(async () => {
   store.clear();
   installMocks();
   globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "https://docs.google.com/forms/d/e/test/formResponse";
-  feedback = await import("../../js/feedback.js?v=20261211");
+  feedback = await import("../../js/feedback.js?v=20261212");
   feedback.__resetFeedbackForTest();
-  chapter2 = await import("../../js/chapter2-feedback.js?v=20261211");
+  chapter2 = await import("../../js/chapter2-feedback.js?v=20261212");
 });
 
 function sampleState(overrides = {}) {
@@ -89,6 +89,7 @@ test("completion marks delivery after Google Forms accepts the network request",
   assert.equal(state.feedbackCompleteStatus, "sent");
   assert.equal(posts.length, 1);
   assert.equal(posts[0].part, "completion");
+  assert.match(posts[0].questLog, /Issued to: Test Knight, Knight/);
   assert.equal(JSON.parse(posts[0].choices).debrief.futureQuest, "yes");
 });
 

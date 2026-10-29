@@ -1,7 +1,8 @@
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261211";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261211";
-import { submitFeedback } from "./feedback.js?v=20261211";
-import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261211";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261212";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261212";
+import { submitFeedback } from "./feedback.js?v=20261212";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261212";
+import { buildPassText } from "./decree.js?v=20261212";
 
 function guestSlug(state) {
   return adventurerDisplayName(state).replace(/\s+/g, "-").toLowerCase();
@@ -72,6 +73,7 @@ export function buildChapter2CompletionFeedbackPayload(state) {
     }),
     horse: state.horseId || "",
     steedName: state.steedName || "",
+    questLog: buildPassText(state),
     timestamp: new Date().toISOString(),
     outcome: "quest-complete",
   };

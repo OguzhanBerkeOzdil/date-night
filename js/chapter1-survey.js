@@ -1,6 +1,6 @@
-import { CHAPTER1_QUESTIONS, CHAPTER1_SURVEY_STEPS } from "./chapter1-survey-data.js?v=20261211";
-import { paintSirBerkeCameo } from "./sir-berke-cameo.js?v=20261211";
-import { saveState, state } from "./state.js?v=20261211";
+import { CHAPTER1_QUESTIONS, CHAPTER1_SURVEY_STEPS } from "./chapter1-survey-data.js?v=20261212";
+import { paintSirBerkeCameo } from "./sir-berke-cameo.js?v=20261212";
+import { saveState, state } from "./state.js?v=20261212";
 
 let navigate;
 

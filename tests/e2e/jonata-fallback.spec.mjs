@@ -5,6 +5,26 @@ import { fileURLToPath } from "node:url";
 const workspace = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const ARTIFACT_DIR = join(workspace, "tests/e2e/artifacts/jonata-fallback");
 
+import { CHAPTER_I_TESTA_OWNER } from "./fixtures/chapter1-testa-seed.mjs";
+
+const DECREE_SEED_SAVE = {
+  schemaVersion: 3,
+  chapter: "chapter-two-active",
+  chapterOneComplete: true,
+  chapterTwoStarted: true,
+  chapterTwoComplete: false,
+  chapter1Answers: CHAPTER_I_TESTA_OWNER.survey,
+  eveAdventurerName: "Testa",
+  steedName: "Clover",
+  secondDate: "yes",
+  rating: 4,
+  steedClass: "Knight of the Wildflowers",
+  steedClassPicked: false,
+  scheduledDate: "2020-01-01",
+  timeZone: "Europe/Warsaw",
+  lastScreen: "decree",
+};
+
 const PLAIN_CH2_SAVE = {
   schemaVersion: 3,
   chapter: "chapter-one-complete",
@@ -89,8 +109,25 @@ for (const vp of ["mobile-390", "desktop-1440"]) {
     await page.locator("#btnRatingNext").click();
     await page.waitForSelector('section[data-screen="decree"].screen--active');
     await expect(page.locator("#decreePreview")).toContainText("Issued to: Jonata");
+    await expect(page.locator("#decreePreview")).not.toContainText(", —");
     await expect(page.locator("#decreePreview")).not.toContainText("Oğuzhan");
-    await captureShot(page, testInfo, vp, "03-decree");
+    await captureShot(page, testInfo, vp, "03-decree-plain");
+  });
+}
+
+for (const vp of ["mobile-390", "desktop-1440"]) {
+  test(`seed class appears on decree Issued to line @ ${vp}`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== vp);
+    await page.addInitScript((save) => {
+      localStorage.setItem("questLady_v3", JSON.stringify(save));
+    }, DECREE_SEED_SAVE);
+    await page.goto("/");
+    await page.evaluate(() => window.__questNavigate("decree"));
+    await page.waitForSelector('section[data-screen="decree"].screen--active');
+    await expect(page.locator("#decreePreview")).toContainText(
+      "Issued to: Testa, Pacifist potato farmer"
+    );
+    await captureShot(page, testInfo, vp, "04-decree-with-class");
   });
 }
 

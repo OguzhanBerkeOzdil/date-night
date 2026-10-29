@@ -1,6 +1,6 @@
-import { CONFIG } from "./config.js?v=20261211";
-import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261211";
-import { showSaveWarningToast } from "./ui-feedback.js?v=20261211";
+import { CONFIG } from "./config.js?v=20261212";
+import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261212";
+import { showSaveWarningToast } from "./ui-feedback.js?v=20261212";
 
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";

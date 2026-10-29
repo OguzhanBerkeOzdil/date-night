@@ -1,78 +1,92 @@
-import { CONFIG, tarotForKey } from "./config.js?v=20261211";
+import { CONFIG, tarotForKey } from "./config.js?v=20261212";
 import {
   adventurerDisplayName,
+  adventurerLineWithOptionalClass,
   decreeCompanionLogLine,
-  decreeSteedClassLine,
   provisionsForDecree,
-} from "./chapter2-callbacks.js?v=20261211";
-import { state } from "./state.js?v=20261211";
-import { achievementCount } from "./achievements.js?v=20261211";
-import { showAppToast } from "./ui-feedback.js?v=20261211";
+} from "./chapter2-callbacks.js?v=20261212";
+import { state } from "./state.js?v=20261212";
+import { achievementCount } from "./achievements.js?v=20261212";
+import { showAppToast } from "./ui-feedback.js?v=20261212";
 
-function questAnswerLine() {
+function questAnswerLine(questState = state) {
   const answers = {
     yes: "Quest invitation: accepted",
     maybe: "Quest invitation: accepted, with sensible curiosity",
     no: "Quest invitation: respectfully declined",
   };
-  return answers[state.secondDate] || "Quest invitation: accepted";
+  return answers[questState.secondDate] || "Quest invitation: accepted";
 }
 
-function futureQuestLine() {
+function futureQuestLine(questState = state) {
   const answers = {
     yes: "Another side quest: yes",
     maybe: "Another side quest: maybe — ask later",
     "not-now": "Another side quest: not right now",
   };
-  return answers[state.futureQuest] || "Another side quest: no answer recorded";
+  return answers[questState.futureQuest] || "Another side quest: no answer recorded";
 }
 
-export function dayLabelForDecree() {
-  const raw = (state.day || "").trim();
+export function dayLabelForDecree(questState = state) {
+  const raw = (questState.day || "").trim();
   if (!raw) return "";
   const sep = raw.indexOf(" · ");
   return sep > 0 ? raw.slice(0, sep).trim() : raw;
 }
 
-export function whenWeRideLine() {
-  const day = dayLabelForDecree() || "—";
-  const time = (state.time || "").trim();
-  if (!time || day === "—" || day.includes(time)) return `When we ride: ${day}`;
+export function whenWeRideLine(questState = state) {
+  const day = dayLabelForDecree(questState);
+  if (!day) return "";
+  const time = (questState.time || "").trim();
+  if (!time || day.includes(time)) return `When we ride: ${day}`;
   return `When we ride: ${day} · ${time}`;
 }
 
-export function buildPassText() {
-  const tarotMeta = state.tarotKey ? tarotForKey(state.tarotKey) : null;
-  return [
-    "QUEST PLAN READY · LOG NO. 002",
-    `Issued to: ${adventurerDisplayName(state)}, ${decreeSteedClassLine(state)}`,
-    decreeCompanionLogLine(state.chapter1Answers),
-    `Steed: ${state.steedName}`,
-    `Adventure energy: ${state.rating || 3}/5${state.ratingChip ? ` · ${state.ratingChip}` : ""}`,
-    `The quest could feel like: ${state.todayVibe || "—"}`,
-    questAnswerLine(),
-    `Provisions: ${provisionsForDecree(state).join("; ") || "—"}`,
-    `Activities: ${state.activities.join("; ") || "—"}`,
-    `Potion: ${state.potionName || "—"}`,
-    whenWeRideLine(),
-    ...(state.tarotCard
-      ? [`Oracle's clue: ${state.tarotCard} (${tarotMeta?.short || "—"})`]
-      : []),
-    `Note for the quest: ${state.notes || "—"}`,
-    `Achievements found: ${achievementCount()}`,
-    "Quest plan sealed. Details may still change without angering the horse.",
-  ].join("\n");
+function hasLogValue(value) {
+  const text = (value ?? "").trim();
+  return Boolean(text && text !== "—");
 }
 
-export function buildCompletionText() {
+export function buildPassText(questState = state) {
+  const tarotMeta = questState.tarotKey ? tarotForKey(questState.tarotKey) : null;
+  const lines = [
+    "QUEST PLAN READY · LOG NO. 002",
+    adventurerLineWithOptionalClass("Issued to", adventurerDisplayName(questState), questState),
+    decreeCompanionLogLine(questState.chapter1Answers),
+    `Steed: ${questState.steedName}`,
+    `Adventure energy: ${questState.rating || 3}/5${questState.ratingChip ? ` · ${questState.ratingChip}` : ""}`,
+  ];
+  if (hasLogValue(questState.todayVibe)) {
+    lines.push(`The quest could feel like: ${questState.todayVibe.trim()}`);
+  }
+  lines.push(questAnswerLine(questState));
+  const provisions = provisionsForDecree(questState).join("; ");
+  if (provisions) lines.push(`Provisions: ${provisions}`);
+  const activities = (questState.activities || []).join("; ");
+  if (activities) lines.push(`Activities: ${activities}`);
+  if (hasLogValue(questState.potionName)) lines.push(`Potion: ${questState.potionName.trim()}`);
+  const whenLine = whenWeRideLine(questState);
+  if (whenLine) lines.push(whenLine);
+  if (questState.tarotCard) {
+    lines.push(`Oracle's clue: ${questState.tarotCard} (${tarotMeta?.short || "—"})`);
+  }
+  if (hasLogValue(questState.notes)) lines.push(`Note for the quest: ${questState.notes.trim()}`);
+  const achievementTotal =
+    questState === state ? achievementCount() : (questState.achievements || []).length;
+  lines.push(`Achievements found: ${achievementTotal}`);
+  lines.push("Quest plan sealed. Details may still change without angering the horse.");
+  return lines.join("\n");
+}
+
+export function buildCompletionText(questState = state) {
   return [
     "SECOND QUEST COMPLETE · LOG NO. 002",
-    `Adventurer: ${adventurerDisplayName(state)}, ${decreeSteedClassLine(state)}`,
-    `Steed: ${state.steedName}`,
-    `Party buff: ${state.partyBuff || "Improvised courage"}`,
-    `Favourite moment: ${state.favoriteMoment || "Not recorded"}`,
-    `Quest badge: ${state.questBadge || "Quest completed"}`,
-    futureQuestLine(),
+    adventurerLineWithOptionalClass("Adventurer", adventurerDisplayName(questState), questState),
+    `Steed: ${questState.steedName}`,
+    `Party buff: ${questState.partyBuff || "Improvised courage"}`,
+    `Favourite moment: ${questState.favoriteMoment || "Not recorded"}`,
+    `Quest badge: ${questState.questBadge || "Quest completed"}`,
+    futureQuestLine(questState),
     "Final status: the sequel was survived.",
     "No dragons were harmed. One horse remains opinionated.",
   ].join("\n");
