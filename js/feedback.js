@@ -1,7 +1,6 @@
 import {
   FORM_SOURCE_URL,
   FORM_SUBMIT_ENDPOINT,
-  FORM_SUBMIT_FALLBACK_ENDPOINT,
 } from "./app-config.js";
 
 const QUEUE_KEY = "questFeedbackQueue_v1";
@@ -105,34 +104,6 @@ function basePayload(fields) {
     _url: FORM_SOURCE_URL,
     ...fields,
   };
-}
-
-/**
- * Open FormSubmit's normal CAPTCHA-protected flow from a direct user gesture.
- * This deliberately omits `_captcha=false`, so the service can verify a human
- * when its AJAX bot filter has rate-limited the automatic delivery route.
- */
-export function openVerifiedFeedbackFallback(fields) {
-  if (typeof document === "undefined") return false;
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = FORM_SUBMIT_FALLBACK_ENDPOINT;
-  form.target = "_blank";
-  form.hidden = true;
-  const body = basePayload(fields);
-  delete body._captcha;
-  for (const [name, rawValue] of Object.entries(body)) {
-    if (rawValue === undefined || rawValue === null) continue;
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = name;
-    input.value = typeof rawValue === "string" ? rawValue : JSON.stringify(rawValue);
-    form.append(input);
-  }
-  document.body.append(form);
-  form.submit();
-  form.remove();
-  return true;
 }
 
 function isLocalPreview() {
