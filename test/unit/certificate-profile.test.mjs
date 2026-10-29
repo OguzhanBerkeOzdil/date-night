@@ -18,18 +18,18 @@ beforeEach(async () => {
 });
 
 test("certificate omits Chapter I profile block when answers are missing", async () => {
-  const stateMod = await import("../../js/state.js?v=20261213");
+  const stateMod = await import("../../js/state.js?v=20261214");
   stateMod.__resetModuleForTest();
   stateMod.__setStateForTest({ chapter1Answers: {}, steedName: "Clover" });
-  const { buildCertificateLines } = await import("../../js/certificate.js?v=20261213");
-  const lines = buildCertificateLines("pass");
+  const { buildCertificateLines } = await import("../../js/certificate.js?v=20261214");
+  const lines = buildCertificateLines("pass", { persistIssueDate: false, now: new Date("2026-10-29T10:00:00+02:00") });
   assert.doesNotMatch(lines.join("\n"), /Class:/);
   assert.doesNotMatch(lines.join("\n"), /Weapon:/);
   assert.doesNotMatch(lines.join("\n"), /Adventurer profile \(Chapter I\)/);
 });
 
 test("certificate keeps profile lines when Chapter I class is on file", async () => {
-  const stateMod = await import("../../js/state.js?v=20261213");
+  const stateMod = await import("../../js/state.js?v=20261214");
   stateMod.__resetModuleForTest();
   stateMod.__setStateForTest({
     chapter1Answers: {
@@ -39,8 +39,8 @@ test("certificate keeps profile lines when Chapter I class is on file", async ()
     },
     steedName: "Clover",
   });
-  const { buildCertificateLines } = await import("../../js/certificate.js?v=20261213");
-  const text = buildCertificateLines("completion").join("\n");
+  const { buildCertificateLines } = await import("../../js/certificate.js?v=20261214");
+  const text = buildCertificateLines("completion", { persistIssueDate: false }).join("\n");
   assert.match(text, /Class: Pacifist potato farmer/);
   assert.match(text, /Weapon: Sword/);
   assert.match(text, /Companion: Goose/);

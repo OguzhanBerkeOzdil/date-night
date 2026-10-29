@@ -1,6 +1,6 @@
 /** Data-driven Chapter I callbacks for Chapter II (no hardcoded guest answers). */
 
-import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261213";
+import { defaultPlayerDisplayName, resolvePlayerDisplayName } from "./state.js?v=20261214";
 
 const FALLBACK = {
   class: "an unclassified adventurer",

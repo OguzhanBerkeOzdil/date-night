@@ -1,8 +1,12 @@
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261213";
-import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261213";
-import { submitFeedback } from "./feedback.js?v=20261213";
-import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261213";
-import { buildPassText } from "./decree.js?v=20261213";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261214";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261214";
+import { submitFeedback } from "./feedback.js?v=20261214";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261214";
+import { buildPassText } from "./decree.js?v=20261214";
+import {
+  certificateSummonedForIssueLine,
+  pinCertificateIssueDate,
+} from "./quest-date.js?v=20261214";
 
 function guestSlug(state) {
   return adventurerDisplayName(state).replace(/\s+/g, "-").toLowerCase();
@@ -55,6 +59,8 @@ export function buildChapter2ChoicesSnapshot(state) {
 }
 
 export function buildChapter2CompletionFeedbackPayload(state) {
+  pinCertificateIssueDate(state, "pass");
+  const summonedFor = certificateSummonedForIssueLine(state, "pass");
   return {
     _subject: "Chapter II campfire debrief",
     idempotencyId: chapter2CompletionFeedbackId(state),
@@ -73,7 +79,8 @@ export function buildChapter2CompletionFeedbackPayload(state) {
     }),
     horse: state.horseId || "",
     steedName: state.steedName || "",
-    questLog: buildPassText(state),
+    summonedFor,
+    questLog: buildPassText(state, { persistIssueDate: false }),
     timestamp: new Date().toISOString(),
     outcome: "quest-complete",
   };

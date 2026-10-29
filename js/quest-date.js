@@ -1,5 +1,5 @@
-import { CONFIG } from "./config.js?v=20261213";
-import { CHAPTER_TWO_RELEASED, QUEST_DATE_ISO, QUEST_DATE_LABEL } from "./app-config.js?v=20261213";
+import { CONFIG } from "./config.js?v=20261214";
+import { CHAPTER_TWO_RELEASED, QUEST_DATE_ISO, QUEST_DATE_LABEL } from "./app-config.js?v=20261214";
 
 export function dateKeyInTimeZone(date = new Date(), timeZone = CONFIG.timeZone) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -53,6 +53,43 @@ export function questPassPresentLine(opts) {
 
 export function questPassSealUntilLine(opts) {
   return questDayHasArrived(opts) ? "Seal it for today's quest" : "Seal it until tomorrow";
+}
+
+export function certificateIssueDateField(mode = "pass") {
+  return mode === "completion" ? "certificateCompletionIssuedAt" : "certificatePassIssuedAt";
+}
+
+/** Warsaw calendar date (YYYY-MM-DD) for certificate issue, pinned in save state when persist is set. */
+export function pinCertificateIssueDate(
+  questState,
+  mode = "pass",
+  { now = new Date(), save } = {}
+) {
+  const field = certificateIssueDateField(mode);
+  if (questState[field]) return questState[field];
+  const timeZone = questState.timeZone || CONFIG.timeZone;
+  questState[field] = dateKeyInTimeZone(now, timeZone);
+  save?.();
+  return questState[field];
+}
+
+export function getCertificateIssueDateIso(questState, mode = "pass", { now = new Date(), timeZone } = {}) {
+  const field = certificateIssueDateField(mode);
+  if (questState[field]) return questState[field];
+  const tz = timeZone || questState.timeZone || CONFIG.timeZone;
+  return dateKeyInTimeZone(now, tz);
+}
+
+export function certificateIssuedDayLabel(questState, mode = "pass", opts = {}) {
+  const tz = opts.timeZone || questState.timeZone || CONFIG.timeZone;
+  const iso = getCertificateIssueDateIso(questState, mode, opts);
+  return formatQuestDate(iso, tz);
+}
+
+/** Certificate / quest-log summoned line using the issue date (not configured quest day). */
+export function certificateSummonedForIssueLine(questState, mode = "pass", opts = {}) {
+  const label = certificateIssuedDayLabel(questState, mode, opts);
+  return `Summoned for today's quest (${label})`;
 }
 
 export function certificateSummonedForLine({
@@ -157,12 +194,16 @@ export function formatQuestDate(
 ) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(scheduledDate || "")) return "the scheduled day";
   const [year, month, day] = scheduledDate.split("-").map(Number);
-  return new Intl.DateTimeFormat(locale, {
+  const anchor = new Date(Date.UTC(year, month - 1, day, 12));
+  const parts = new Intl.DateTimeFormat(locale, {
     timeZone,
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(new Date(Date.UTC(year, month - 1, day, 12)));
+    year: "numeric",
+  }).formatToParts(anchor);
+  const pick = (type) => parts.find((p) => p.type === type)?.value || "";
+  return `${pick("weekday")} ${pick("day")} ${pick("month")} ${pick("year")}`.trim();
 }
 
 export function todayQuestDateLabel({

@@ -1,13 +1,17 @@
-import { CONFIG, tarotForKey } from "./config.js?v=20261213";
+import { CONFIG, tarotForKey } from "./config.js?v=20261214";
 import {
   adventurerDisplayName,
   adventurerLineWithOptionalClass,
   decreeCompanionLogLine,
   provisionsForDecree,
-} from "./chapter2-callbacks.js?v=20261213";
-import { state } from "./state.js?v=20261213";
-import { achievementCount } from "./achievements.js?v=20261213";
-import { showAppToast } from "./ui-feedback.js?v=20261213";
+} from "./chapter2-callbacks.js?v=20261214";
+import { state, saveState } from "./state.js?v=20261214";
+import { achievementCount } from "./achievements.js?v=20261214";
+import { showAppToast } from "./ui-feedback.js?v=20261214";
+import {
+  certificateSummonedForIssueLine,
+  pinCertificateIssueDate,
+} from "./quest-date.js?v=20261214";
 
 function questAnswerLine(questState = state) {
   const answers = {
@@ -47,10 +51,15 @@ function hasLogValue(value) {
   return Boolean(text && text !== "—");
 }
 
-export function buildPassText(questState = state) {
+export function buildPassText(questState = state, opts = {}) {
+  const now = opts.now ?? new Date();
+  if (questState === state && opts.persistIssueDate !== false) {
+    pinCertificateIssueDate(questState, "pass", { now, save: saveState });
+  }
   const tarotMeta = questState.tarotKey ? tarotForKey(questState.tarotKey) : null;
   const lines = [
     "QUEST PLAN READY · LOG NO. 002",
+    certificateSummonedForIssueLine(questState, "pass", { now }),
     adventurerLineWithOptionalClass("Issued to", adventurerDisplayName(questState), questState),
     decreeCompanionLogLine(questState.chapter1Answers),
     `Steed: ${questState.steedName}`,
@@ -78,9 +87,14 @@ export function buildPassText(questState = state) {
   return lines.join("\n");
 }
 
-export function buildCompletionText(questState = state) {
+export function buildCompletionText(questState = state, opts = {}) {
+  const now = opts.now ?? new Date();
+  if (questState === state && opts.persistIssueDate !== false) {
+    pinCertificateIssueDate(questState, "completion", { now, save: saveState });
+  }
   return [
     "SECOND QUEST COMPLETE · LOG NO. 002",
+    certificateSummonedForIssueLine(questState, "completion", { now }),
     adventurerLineWithOptionalClass("Adventurer", adventurerDisplayName(questState), questState),
     `Steed: ${questState.steedName}`,
     `Party buff: ${questState.partyBuff || "Improvised courage"}`,
@@ -92,9 +106,9 @@ export function buildCompletionText(questState = state) {
   ].join("\n");
 }
 
-export function buildSummaryText(mode = "auto") {
+export function buildSummaryText(mode = "auto", opts = {}) {
   const resolved = mode === "auto" ? (state.chapterTwoComplete ? "completion" : "pass") : mode;
-  return resolved === "completion" ? buildCompletionText() : buildPassText();
+  return resolved === "completion" ? buildCompletionText(state, opts) : buildPassText(state, opts);
 }
 
 function wrapLines(ctx, text, maxWidth) {
