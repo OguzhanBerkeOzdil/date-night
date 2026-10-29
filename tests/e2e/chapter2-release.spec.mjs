@@ -189,6 +189,19 @@ for (const project of ["mobile-390", "desktop-1440"]) {
     await expect(page.locator('section[data-screen="chapter-two-finish"]')).toHaveClass(/screen--active/);
     await captureShot(page, testInfo, "05-debrief");
 
+    await page.locator('[data-badge="Best banter"]').click();
+    await page.locator('[data-future="yes"]').click();
+    await page.locator("#btnCompleteQuest").click();
+    await expect(page.locator('section[data-screen="quest-complete"]')).toHaveClass(/screen--active/);
+    await expect(page.locator(".virtual-bouquet__image")).toBeVisible();
+    await page.waitForFunction(() => {
+      const image = document.querySelector(".virtual-bouquet__image");
+      return image?.complete && image.naturalWidth > 0;
+    });
+    await expect(page.getByText("Your reward is virtual—for now.")).toBeVisible();
+    await expect(page.locator("#finalFeedbackStatus")).toContainText("sent to Berke");
+    await captureShot(page, testInfo, "06-virtual-bouquet");
+
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
   });
