@@ -1,5 +1,5 @@
 /* Classic service worker — version must match js/cache-version.js (see test/unit/cache-version.test.mjs). */
-const APP_CACHE_VERSION = "20261205";
+const APP_CACHE_VERSION = "20261206";
 
 const SHELL_CACHE = `quest-shell-${APP_CACHE_VERSION}`;
 const ASSET_CACHE = `quest-assets-${APP_CACHE_VERSION}`;
@@ -66,7 +66,7 @@ const ASSET_PRECACHE = [
   "./assets/images/bg-title.jpg",
   "./assets/images/horse-idle.webp",
   "./assets/images/dragon-doubt.webp",
-  "./assets/images/dried-purple-bouquet.png",
+  "./assets/images/single-purple-lisianthus.png",
   "./assets/horses/chestnut.webp",
   "./assets/horses/palomino.webp",
   "./assets/horses/dapple-grey.webp",

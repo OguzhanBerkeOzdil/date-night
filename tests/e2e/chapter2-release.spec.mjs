@@ -193,15 +193,15 @@ for (const project of ["mobile-390", "desktop-1440"]) {
     await page.locator('[data-future="yes"]').click();
     await page.locator("#btnCompleteQuest").click();
     await expect(page.locator('section[data-screen="quest-complete"]')).toHaveClass(/screen--active/);
-    await expect(page.locator(".virtual-bouquet__image")).toBeVisible();
+    await expect(page.locator(".virtual-flower__image")).toBeVisible();
     await page.waitForFunction(() => {
-      const image = document.querySelector(".virtual-bouquet__image");
+      const image = document.querySelector(".virtual-flower__image");
       return image?.complete && image.naturalWidth > 0;
     });
-    await expect(page.getByText("Your reward is virtual—for now.")).toBeVisible();
+    await expect(page.getByText("One flower. The horse finally learned restraint.")).toBeVisible();
     await expect(page.locator("#finalFeedbackStatus")).toContainText("sent to Berke");
     await expect(page.locator("#achievementToasts")).toBeEmpty();
-    await captureShot(page, testInfo, "06-virtual-bouquet");
+    await captureShot(page, testInfo, "06-virtual-flower");
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(overflow).toBe(false);
