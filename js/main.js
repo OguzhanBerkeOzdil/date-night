@@ -1,22 +1,22 @@
-import { BG_BY_SCREEN, SCREENS } from "./config.js";
-import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js";
-import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js";
-import { flushFeedbackQueue } from "./feedback.js";
-import { RUNTIME_CONFIG } from "./runtime-config.js";
-import { initBardQuill, syncBardQuill } from "./bard.js";
-import { initEpigraphs, updateEpigraph } from "./epigraph.js";
-import { initHud, updateHud } from "./hud.js";
-import { hideDialogue, initDialogue } from "./dialogue.js";
-import { initParticles } from "./particles.js";
-import { initScreens, onScreenEnter, resumeTarget } from "./screens.js";
-import { syncContinueButton } from "./app-chrome.js";
-import { initQuestSync } from "./sync.js";
-import { syncEveHonestButton } from "./eve-prelude.js";
-import { chapterOneIsArchived, isArchivedChapterOneScreen } from "./quest-phase.js";
+import { BG_BY_SCREEN, SCREENS } from "./config.js?v=20261209";
+import { pickBgWebpUrl, preloadTarotAssets, preloadUrl } from "./image-utils.js?v=20261209";
+import { loadSoundPref, setSoundOn, isSoundOn } from "./audio.js?v=20261209";
+import { flushFeedbackQueue } from "./feedback.js?v=20261209";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261209";
+import { initBardQuill, syncBardQuill } from "./bard.js?v=20261209";
+import { initEpigraphs, updateEpigraph } from "./epigraph.js?v=20261209";
+import { initHud, updateHud } from "./hud.js?v=20261209";
+import { hideDialogue, initDialogue } from "./dialogue.js?v=20261209";
+import { initParticles } from "./particles.js?v=20261209";
+import { initScreens, onScreenEnter, resumeTarget } from "./screens.js?v=20261209";
+import { syncContinueButton } from "./app-chrome.js?v=20261209";
+import { initQuestSync } from "./sync.js?v=20261209";
+import { syncEveHonestButton } from "./eve-prelude.js?v=20261209";
+import { chapterOneIsArchived, isArchivedChapterOneScreen } from "./quest-phase.js?v=20261209";
 
 export { syncContinueButton };
-import { applyQuestSeedFromUrl } from "./seed-link.js";
-import { questOfTitle, saveState, state } from "./state.js";
+import { applyQuestSeedFromUrl } from "./seed-link.js?v=20261209";
+import { questOfTitle, saveState, state } from "./state.js?v=20261209";
 
 let current = "title";
 

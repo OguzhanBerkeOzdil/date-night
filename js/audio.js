@@ -1,4 +1,4 @@
-import { MUSIC_SRC } from "./app-config.js";
+import { MUSIC_SRC } from "./app-config.js?v=20261209";
 
 let ctx = null;
 let sfxGain = null;

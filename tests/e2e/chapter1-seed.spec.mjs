@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import {
   buildWireSeedFromOwnerJson,
   encodeSeedToBase64Url,
-} from "../../js/seed-link.js";
+} from "../../js/seed-link.js?v=20261209";
 
 const FAKE = {
   name: "Seed Adventurer",

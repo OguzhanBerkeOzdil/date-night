@@ -1,5 +1,5 @@
-import { CONFIG, COPY, tarotForKey } from "./config.js";
-import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js";
+import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261209";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261209";
 import {
   duckMusic,
   isSoundOn,
@@ -10,18 +10,18 @@ import {
   startAmbience,
   unlockAudio,
   vibrate,
-} from "./audio.js";
-import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js";
-import { hydrateLazyImages } from "./image-utils.js";
-import { iconFood } from "./icons.js";
-import { spawnSparkles, boostEmbers } from "./particles.js";
-import { downloadCertificatePng } from "./certificate.js";
+} from "./audio.js?v=20261209";
+import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261209";
+import { hydrateLazyImages } from "./image-utils.js?v=20261209";
+import { iconFood } from "./icons.js?v=20261209";
+import { spawnSparkles, boostEmbers } from "./particles.js?v=20261209";
+import { downloadCertificatePng } from "./certificate.js?v=20261209";
 import {
   buildCompletionText,
   buildSummaryText,
   downloadDecreePng,
   shareDecree,
-} from "./decree.js";
+} from "./decree.js?v=20261209";
 import {
   horseById,
   horseFedImageUrl,
@@ -29,7 +29,7 @@ import {
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
   selectableHorseBreeds,
-} from "./horses.js";
+} from "./horses.js?v=20261209";
 import {
   adventurerDisplayName,
   buildChapter2RecapRowsForState,
@@ -48,17 +48,17 @@ import {
   sheetClassPrefillLine,
   steedHorseColorNote,
   tavernMartaTestimonyLine,
-} from "./chapter2-callbacks.js";
-import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js";
-import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js";
-import { updateEpigraph } from "./epigraph.js";
-import { syncContinueButton } from "./app-chrome.js";
-import { chapterOneIsArchived } from "./quest-phase.js";
-import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js";
+} from "./chapter2-callbacks.js?v=20261209";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261209";
+import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261209";
+import { updateEpigraph } from "./epigraph.js?v=20261209";
+import { syncContinueButton } from "./app-chrome.js?v=20261209";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261209";
+import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261209";
 import {
   feedbackDeliveryStatus,
   flushFeedbackQueue,
-} from "./feedback.js";
+} from "./feedback.js?v=20261209";
 import {
   chapterLockButtonLabel,
   chapterLockKicker,
@@ -67,13 +67,13 @@ import {
   chapterLockTitle,
   chapterTwoIsAvailable,
   todayQuestDateLabel,
-} from "./quest-date.js";
+} from "./quest-date.js?v=20261209";
 import {
   chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
   reportChapter2HonestNoFeedback,
-} from "./chapter2-feedback.js";
-import { queueQuestSync } from "./sync.js";
+} from "./chapter2-feedback.js?v=20261209";
+import { queueQuestSync } from "./sync.js?v=20261209";
 import {
   letterSalutation,
   beginNewQuest,
@@ -83,7 +83,7 @@ import {
   saveState,
   state,
   undoLastNewQuest,
-} from "./state.js";
+} from "./state.js?v=20261209";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A dependable classic with heroic cheese" },

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_QUESTIONS,
-} from "../../js/chapter1-survey-data.js";
+} from "../../js/chapter1-survey-data.js?v=20261209";
 
 test("adventurerProfileFromAnswers picks class, weapon, companion labels", () => {
   const profile = adventurerProfileFromAnswers({

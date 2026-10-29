@@ -1,32 +1,32 @@
-import { FEEDBACK_HONESTY_NOTE } from "./app-config.js";
-import { chapterOneIsArchived } from "./quest-phase.js";
+import { FEEDBACK_HONESTY_NOTE } from "./app-config.js?v=20261209";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261209";
 import {
   adventurerProfileFromAnswers,
   CHAPTER1_SURVEY_STEPS,
-} from "./chapter1-survey-data.js";
-import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js";
-import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js";
-import { submitFeedback } from "./feedback.js";
-import { RUNTIME_CONFIG } from "./runtime-config.js";
+} from "./chapter1-survey-data.js?v=20261209";
+import { onEnterSurvey, initChapter1Survey } from "./chapter1-survey.js?v=20261209";
+import { paintSirBerkeCameo, hideSirBerkeCameo } from "./sir-berke-cameo.js?v=20261209";
+import { submitFeedback } from "./feedback.js?v=20261209";
+import { RUNTIME_CONFIG } from "./runtime-config.js?v=20261209";
 import {
   sanitizeHeraldName,
   resetChapterOneProgress,
   saveState,
   setGuestName,
   state,
-} from "./state.js";
-import { queueQuestSync } from "./sync.js";
-import { showAppToast } from "./ui-feedback.js";
+} from "./state.js?v=20261209";
+import { queueQuestSync } from "./sync.js?v=20261209";
+import { showAppToast } from "./ui-feedback.js?v=20261209";
 import {
   EXCITEMENT_TIERS,
   PACKING_ITEMS,
   passClosingLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
-} from "./today/copy.js";
-import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js";
-import { downloadQuestPassPng } from "./today/pass.js";
-import { APP_CACHE_VERSION } from "./cache-version.js";
+} from "./today/copy.js?v=20261209";
+import { chapterTwoIsAvailable, questPassSealUntilLine, questPassSummonSubtitle } from "./quest-date.js?v=20261209";
+import { downloadQuestPassPng } from "./today/pass.js?v=20261209";
+import { APP_CACHE_VERSION } from "./cache-version.js?v=20261209";
 
 let navigate;
 

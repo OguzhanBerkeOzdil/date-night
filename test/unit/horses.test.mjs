@@ -6,7 +6,7 @@ import {
   horseFedImageUrl,
   horseImageUrl,
   horseHasArt,
-} from "../../js/horses.js";
+} from "../../js/horses.js?v=20261209";
 
 test("has ten horse breeds including joke steed", () => {
   assert.equal(HORSE_BREEDS.length, 10);

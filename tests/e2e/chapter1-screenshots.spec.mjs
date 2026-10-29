@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js";
+import { CHAPTER1_QUESTIONS } from "../../js/chapter1-survey-data.js?v=20261209";
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {

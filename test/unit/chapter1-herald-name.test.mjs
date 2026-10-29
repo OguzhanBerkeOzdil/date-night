@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sanitizeHeraldName } from "../../js/state.js";
+import { sanitizeHeraldName } from "../../js/state.js?v=20261209";
 
 test("sanitizeHeraldName trims and strips Lady prefix", () => {
   assert.equal(sanitizeHeraldName("   Lady Ayse  "), "Ayse");

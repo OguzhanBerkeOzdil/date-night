@@ -17,7 +17,7 @@ let S;
 beforeEach(async () => {
   store.clear();
   installMocks();
-  S = await import("../../js/state.js");
+  S = await import("../../js/state.js?v=20261209");
   S.__resetModuleForTest();
 });
 

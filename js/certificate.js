@@ -1,13 +1,13 @@
-import { QUEST_DATE_LABEL } from "./app-config.js";
-import { adventurerDisplayName } from "./chapter2-callbacks.js";
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js";
-import { layoutBulletNoteRows } from "./certificate-bullet.js";
-import { buildRealmCertificateNotes } from "./certificate-notes.js";
-import { horseById } from "./horses.js";
-import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js";
-import { state } from "./state.js";
-import { dayLabelForDecree } from "./decree.js";
-import { showAppToast } from "./ui-feedback.js";
+import { QUEST_DATE_LABEL } from "./app-config.js?v=20261209";
+import { adventurerDisplayName } from "./chapter2-callbacks.js?v=20261209";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261209";
+import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261209";
+import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261209";
+import { horseById } from "./horses.js?v=20261209";
+import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261209";
+import { state } from "./state.js?v=20261209";
+import { dayLabelForDecree } from "./decree.js?v=20261209";
+import { showAppToast } from "./ui-feedback.js?v=20261209";
 
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;

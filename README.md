@@ -59,7 +59,7 @@ GitHub Pages → `main` / root. `.nojekyll` included.
 
 ### Cache version (required on every deploy)
 
-Bump **`APP_CACHE_VERSION`** in `js/cache-version.js` (single source of truth). Match that value on every `?v=` query in `index.html` (CSS, `main.js`, manifest). Copy the same string into **`sw.js`** (classic worker — no `import`/`export`; `test/unit/cache-version.test.mjs` enforces parity). Register **`./sw.js`** as a classic script (stable URL, no `?v=` on the worker; use `updateViaCache: 'none'`). Legacy `sw.js?v=…` registrations are unregistered on load. Install precaches those versioned URLs plus the JS module graph into `quest-assets-*`; offline fallback may use `ignoreSearch` only inside that cache. On activate, delete **only** stale `quest-shell-*` / `quest-assets-*` names (not other apps on the same GitHub Pages origin).
+Bump **`APP_CACHE_VERSION`** in `js/cache-version.js` (single source of truth). Match that value on every `?v=` query in `index.html` (CSS, `main.js`, manifest) and on every relative JavaScript module import. Copy the same string into **`sw.js`** (classic worker — no `import`/`export`; `test/unit/cache-version.test.mjs` enforces parity across all three surfaces). Register **`./sw.js`** as a classic script (stable URL, no `?v=` on the worker; use `updateViaCache: 'none'`). Legacy `sw.js?v=…` registrations are unregistered on load. Install precaches those versioned URLs plus the JS module graph into `quest-assets-*`; offline fallback may use `ignoreSearch` only inside that cache. On activate, delete **only** stale `quest-shell-*` / `quest-assets-*` names (not other apps on the same GitHub Pages origin).
 
 ## Quality checks
 

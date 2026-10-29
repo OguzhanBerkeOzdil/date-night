@@ -1,4 +1,4 @@
-import { playBlip } from "./audio.js";
+import { playBlip } from "./audio.js?v=20261209";
 
 let queue = [];
 let typing = false;
