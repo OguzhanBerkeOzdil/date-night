@@ -198,7 +198,7 @@ for (const project of ["mobile-390", "desktop-1440"]) {
       const image = document.querySelector(".virtual-flower__image");
       return image?.complete && image.naturalWidth > 0;
     });
-    await expect(page.getByText("One flower. The horse finally learned restraint.")).toBeVisible();
+    await expect(page.getByText("You made it all the way through.")).toBeVisible();
     await expect(page.locator("#finalFeedbackStatus")).toContainText("sent to Berke");
     await expect(page.locator("#achievementToasts")).toBeEmpty();
     await captureShot(page, testInfo, "06-virtual-flower");

@@ -1260,6 +1260,28 @@ body[data-screen="sheet"] .achievement-wrap {
   box-shadow: 0 16px 38px rgba(18, 8, 18, 0.32), inset 0 0 32px rgba(238, 205, 115, 0.08);
 }
 
+.screen--active .virtual-flower {
+  animation: flowerRewardReveal 650ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+.virtual-flower::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(circle at 13% 23%, rgba(255, 232, 155, 0.95) 0 2px, transparent 3px),
+    radial-gradient(circle at 34% 13%, rgba(228, 190, 255, 0.9) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 46% 35%, rgba(255, 242, 190, 0.78) 0 1px, transparent 2px),
+    radial-gradient(circle at 22% 71%, rgba(236, 207, 255, 0.82) 0 1.5px, transparent 2.5px);
+}
+
+.screen--active .virtual-flower::after {
+  animation: flowerRewardSparkles 1600ms 300ms ease-out both;
+}
+
 .virtual-flower__glow {
   position: absolute;
   z-index: -1;
@@ -1280,10 +1302,18 @@ body[data-screen="sheet"] .achievement-wrap {
   filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.34));
 }
 
+.screen--active .virtual-flower__image {
+  animation: flowerBloomReveal 700ms 120ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
 .virtual-flower__copy {
   min-width: 0;
   color: #fff7e8;
   text-align: left;
+}
+
+.screen--active .virtual-flower__copy {
+  animation: flowerCopyReveal 650ms 220ms cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 .virtual-flower__copy .kicker {
@@ -1309,6 +1339,59 @@ body[data-screen="sheet"] .achievement-wrap {
   color: #e8d5b9;
   font-size: 0.9rem;
   font-style: italic;
+}
+
+@keyframes flowerRewardReveal {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(14px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes flowerBloomReveal {
+  from {
+    opacity: 0;
+    filter: blur(4px) drop-shadow(0 14px 18px rgba(0, 0, 0, 0));
+    transform: translateY(10px) scale(0.9) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0) drop-shadow(0 14px 18px rgba(0, 0, 0, 0.34));
+    transform: translateY(0) scale(1) rotate(0);
+  }
+}
+
+@keyframes flowerCopyReveal {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes flowerRewardSparkles {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  38% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.45;
+    transform: scale(1.03);
+  }
 }
 
 @media (max-width: 520px) {
