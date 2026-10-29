@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
   });
-  await page.route("**/formsubmit.co/**", (route) =>
+  await page.route("**/docs.google.com/forms/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
   );
   await page.emulateMedia({ reducedMotion: "reduce" });

@@ -17,6 +17,7 @@ let chapter2;
 beforeEach(async () => {
   store.clear();
   installMocks();
+  globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "https://docs.google.com/forms/d/e/test/formResponse";
   feedback = await import("../../js/feedback.js");
   feedback.__resetFeedbackForTest();
   chapter2 = await import("../../js/chapter2-feedback.js");
@@ -71,12 +72,13 @@ test("buildChapter2ChoicesSnapshot includes steed, tavern, oracle, and rating", 
   assert.equal(snap.chapter1.horsePreset, "chestnut");
 });
 
-test("completion marks delivery only after FormSubmit accepts it", async () => {
+test("completion marks delivery after Google Forms accepts the network request", async () => {
   const state = sampleState();
   const posts = [];
   globalThis.fetch = async (_url, init) => {
-    posts.push(JSON.parse(init.body));
-    return { ok: true };
+    const params = new URLSearchParams(init.body);
+    posts.push(JSON.parse(params.get("entry.698061730")));
+    return { type: "opaque" };
   };
   globalThis.location = { hostname: "example.com" };
   globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
@@ -92,6 +94,7 @@ test("completion marks delivery only after FormSubmit accepts it", async () => {
 
 test("rate-limited completion stays queued instead of pretending it was sent", async () => {
   const state = sampleState();
+  globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "formsubmit";
   globalThis.fetch = async () => ({ ok: false, status: 429 });
   globalThis.location = { hostname: "example.com" };
   globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;

@@ -4,6 +4,12 @@
 export const FORM_SUBMIT_ENDPOINT =
   "https://formsubmit.co/ajax/2ee0a4c67c7dbdb0028492bf48d9df9a";
 
+/** Primary feedback receiver: private Google Form + linked private Sheet. */
+export const GOOGLE_FORMS_ENDPOINT =
+  "https://docs.google.com/forms/d/e/1FAIpQLSd9ua2POthtcotBBDNcqY_hWf2f7UPRvQpahANfXinNui22UQ/formResponse";
+export const GOOGLE_FORMS_ENTRY = "entry.698061730";
+export const FEEDBACK_APP_ID = "date-night-quest-v1";
+
 /** Explicit source avoids FormSubmit mistaking a local preview for the live form. */
 export const FORM_SOURCE_URL =
   "https://oguzhanberkeozdil.github.io/date-night/";

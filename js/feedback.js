@@ -1,6 +1,9 @@
 import {
+  FEEDBACK_APP_ID,
   FORM_SOURCE_URL,
   FORM_SUBMIT_ENDPOINT,
+  GOOGLE_FORMS_ENDPOINT,
+  GOOGLE_FORMS_ENTRY,
 } from "./app-config.js";
 
 const QUEUE_KEY = "questFeedbackQueue_v1";
@@ -115,6 +118,24 @@ function isLocalPreview() {
 async function postPayload(body) {
   // Local development and Playwright runs must never email the real recipient.
   if (isLocalPreview()) return { local: true };
+  const googleFormsEndpoint = globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ === "formsubmit"
+    ? ""
+    : globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ || GOOGLE_FORMS_ENDPOINT;
+  if (googleFormsEndpoint) {
+    // Google Forms accepts a simple form-encoded request without a CORS
+    // preflight. The response is intentionally opaque; network failures still
+    // reject and remain in the local retry queue.
+    const params = new URLSearchParams({
+      [GOOGLE_FORMS_ENTRY]: JSON.stringify({ appId: FEEDBACK_APP_ID, ...body }),
+    });
+    await fetch(googleFormsEndpoint, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: params.toString(),
+    });
+    return { local: false };
+  }
   const res = await fetch(FORM_SUBMIT_ENDPOINT, {
     method: "POST",
     headers: {

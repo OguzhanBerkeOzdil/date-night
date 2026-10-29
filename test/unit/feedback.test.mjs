@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 let feedback;
 
 beforeEach(async () => {
+  globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "formsubmit";
   globalThis.localStorage = {
     _m: new Map(),
     getItem(k) {
@@ -18,6 +19,32 @@ beforeEach(async () => {
   };
   feedback = await import("../../js/feedback.js");
   feedback.__resetFeedbackForTest();
+});
+
+test("Google Forms delivery uses an automatic form-encoded no-cors request", async () => {
+  const original = globalThis.fetch;
+  globalThis.__FEEDBACK_PROVIDER_FOR_TEST__ = "https://docs.google.com/forms/d/e/test/formResponse";
+  let request;
+  globalThis.fetch = async (url, init) => {
+    request = { url, init };
+    return { type: "opaque" };
+  };
+
+  const result = await feedback.submitFeedback({
+    _subject: "Complete",
+    idempotencyId: "apps-script-delivery",
+    part: "completion",
+  });
+
+  const params = new URLSearchParams(request.init.body);
+  const payload = JSON.parse(params.get("entry.698061730"));
+  assert.equal(result.status, "sent");
+  assert.equal(request.url, "https://docs.google.com/forms/d/e/test/formResponse");
+  assert.equal(request.init.mode, "no-cors");
+  assert.equal(request.init.headers["Content-Type"], "application/x-www-form-urlencoded;charset=UTF-8");
+  assert.equal(payload.appId, "date-night-quest-v1");
+  assert.equal(payload.idempotencyId, "apps-script-delivery");
+  globalThis.fetch = original;
 });
 
 test("submitFeedback queues when fetch fails", async () => {

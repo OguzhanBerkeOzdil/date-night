@@ -27,7 +27,7 @@ for (const project of ["mobile-390", "desktop-1440"]) {
       globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
       localStorage.setItem("questLady_v3", JSON.stringify(save));
     }, SAVE);
-    await page.route("**/formsubmit.co/**", (route) =>
+    await page.route("**/docs.google.com/forms/**", (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
     );
 

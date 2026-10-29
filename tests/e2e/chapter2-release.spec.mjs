@@ -38,10 +38,11 @@ test.beforeEach(async ({ page }) => {
   }, LEGACY_FEEDBACK_SAVE);
 });
 
-async function stubFormSubmit(page) {
+async function stubGoogleForms(page) {
   const payloads = [];
-  await page.route("**/formsubmit.co/**", async (route) => {
-    payloads.push(route.request().postDataJSON());
+  await page.route("**/docs.google.com/forms/**", async (route) => {
+    const params = new URLSearchParams(route.request().postData() || "");
+    payloads.push(JSON.parse(params.get("entry.698061730")));
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -85,7 +86,7 @@ test("a party buff is required before the real-world quest starts", async ({ pag
 });
 
 test("completion sends one consolidated feedback payload with the real context", async ({ page }) => {
-  const payloads = await stubFormSubmit(page);
+  const payloads = await stubGoogleForms(page);
   await startFullQuest(page);
   expect(payloads).toHaveLength(0);
 
@@ -111,14 +112,8 @@ test("completion sends one consolidated feedback payload with the real context",
   expect(payloads).toHaveLength(1);
 });
 
-test("rate-limited completion is visibly queued and retryable", async ({ page }) => {
-  await page.route("**/formsubmit.co/**", (route) =>
-    route.fulfill({
-      status: 429,
-      contentType: "application/json",
-      body: '{"success":false,"message":"Rate limit exceeded"}',
-    })
-  );
+test("network-failed completion is visibly queued and retryable", async ({ page }) => {
+  await page.route("**/docs.google.com/forms/**", (route) => route.abort("failed"));
   await startFullQuest(page);
   await page.evaluate(() => window.__questNavigate("chapter-two-pause"));
   await page.locator("#btnFinishQuest").click();
@@ -138,9 +133,9 @@ test("local playtest never claims that an email was delivered", async ({ page })
   await page.addInitScript(() => {
     globalThis.__ALLOW_LOCAL_FEEDBACK_TEST__ = false;
   });
-  let formSubmitRequests = 0;
+  let googleFormsRequests = 0;
   page.on("request", (request) => {
-    if (request.url().includes("formsubmit.co")) formSubmitRequests += 1;
+    if (request.url().includes("docs.google.com/forms")) googleFormsRequests += 1;
   });
 
   await startFullQuest(page);
@@ -150,7 +145,7 @@ test("local playtest never claims that an email was delivered", async ({ page })
   await page.locator("#btnCompleteQuest").click();
 
   await expect(page.locator("#finalFeedbackStatus")).toContainText("no email was sent");
-  expect(formSubmitRequests).toBe(0);
+  expect(googleFormsRequests).toBe(0);
 });
 
 test("legacy mid-game saves resume at their exact full-quest screen", async ({ page }) => {

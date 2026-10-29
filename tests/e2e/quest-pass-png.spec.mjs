@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
-  await page.route("**/formsubmit.co/**", (route) =>
+  await page.route("**/docs.google.com/forms/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
   );
   await page.emulateMedia({ reducedMotion: "reduce" });

@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
     globalThis.__CHAPTER_ONE_ARCHIVED_OVERRIDE__ = false;
     window.__ALLOW_LOCAL_FEEDBACK_TEST__ = true;
   });
-  await page.route("**/formsubmit.co/**", (route) =>
+  await page.route("**/docs.google.com/forms/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: '{"success":true}' })
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
