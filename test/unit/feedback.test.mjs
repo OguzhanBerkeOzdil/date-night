@@ -128,6 +128,25 @@ test("an application-level rejection stays queued even when HTTP is successful",
   globalThis.fetch = original;
 });
 
+test("automatic feedback identifies the canonical live form URL", async () => {
+  const original = globalThis.fetch;
+  let payload;
+  globalThis.fetch = async (_url, init) => {
+    payload = JSON.parse(init.body);
+    return { ok: true, status: 200 };
+  };
+
+  const result = await feedback.submitFeedback({
+    _subject: "Complete",
+    idempotencyId: "canonical-source",
+    part: "completion",
+  });
+
+  assert.equal(result.status, "sent");
+  assert.equal(payload._url, "https://oguzhanberkeozdil.github.io/date-night/");
+  globalThis.fetch = original;
+});
+
 test("rate limiting persists a long cooldown and automatic flush respects it", async () => {
   const original = globalThis.fetch;
   let calls = 0;

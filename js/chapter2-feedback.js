@@ -52,9 +52,8 @@ export function buildChapter2ChoicesSnapshot(state) {
   };
 }
 
-export function reportChapter2CompletionFeedback(state, saveState) {
-  if (RUNTIME_CONFIG.questApiUrl) return Promise.resolve({ status: "external" });
-  return submitFeedback({
+export function buildChapter2CompletionFeedbackPayload(state) {
+  return {
     _subject: "Chapter II campfire debrief",
     idempotencyId: chapter2CompletionFeedbackId(state),
     part: "completion",
@@ -74,7 +73,12 @@ export function reportChapter2CompletionFeedback(state, saveState) {
     steedName: state.steedName || "",
     timestamp: new Date().toISOString(),
     outcome: "quest-complete",
-  }).then((result) => {
+  };
+}
+
+export function reportChapter2CompletionFeedback(state, saveState) {
+  if (RUNTIME_CONFIG.questApiUrl) return Promise.resolve({ status: "external" });
+  return submitFeedback(buildChapter2CompletionFeedbackPayload(state)).then((result) => {
     state.feedbackCompleteStatus = result.status;
     state.feedbackCompleteSent = ["sent", "duplicate"].includes(result.status);
     saveState();
