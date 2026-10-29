@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { questProgressBlocksEveDecline } from "../../js/eve-prelude.js?v=20261213";
-import { __setStateForTest } from "../../js/state.js?v=20261213";
+import { questProgressBlocksEveDecline } from "../../js/eve-prelude.js?v=20261214";
+import { __setStateForTest } from "../../js/state.js?v=20261214";
 
 test("questProgressBlocksEveDecline when chapter I complete", () => {
   __setStateForTest({ chapterOneComplete: true, honestNo: false });

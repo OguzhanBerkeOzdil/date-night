@@ -13,8 +13,8 @@ import {
   passTitleLine,
   HONEST_EXIT_LABEL,
   HONEST_EXIT_BODY,
-} from "./copy.js?v=20261213";
-import { downloadQuestPassPng } from "./pass.js?v=20261213";
+} from "./copy.js?v=20261214";
+import { downloadQuestPassPng } from "./pass.js?v=20261214";
 import { APP_CACHE_VERSION } from "../cache-version.js";
 import { chapterOneIsArchived } from "../quest-phase.js";
 

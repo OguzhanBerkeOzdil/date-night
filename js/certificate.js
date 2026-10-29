@@ -1,13 +1,11 @@
-import { QUEST_DATE_LABEL } from "./app-config.js?v=20261213";
-import { adventurerDisplayName, adventurerLineWithOptionalClass } from "./chapter2-callbacks.js?v=20261213";
-import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261213";
-import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261213";
-import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261213";
-import { horseById } from "./horses.js?v=20261213";
-import { certificatePassSubtitle, certificateSummonedForLine } from "./quest-date.js?v=20261213";
-import { state } from "./state.js?v=20261213";
-import { dayLabelForDecree } from "./decree.js?v=20261213";
-import { showAppToast } from "./ui-feedback.js?v=20261213";
+import { adventurerDisplayName, adventurerLineWithOptionalClass } from "./chapter2-callbacks.js?v=20261214";
+import { adventurerProfileFromAnswers } from "./chapter1-survey-data.js?v=20261214";
+import { layoutBulletNoteRows } from "./certificate-bullet.js?v=20261214";
+import { buildRealmCertificateNotes } from "./certificate-notes.js?v=20261214";
+import { horseById } from "./horses.js?v=20261214";
+import { certificatePassSubtitle, certificateSummonedForIssueLine, pinCertificateIssueDate } from "./quest-date.js?v=20261214";
+import { state, saveState } from "./state.js?v=20261214";
+import { showAppToast } from "./ui-feedback.js?v=20261214";
 
 export const CERT_WIDTH = 1080;
 export const CERT_MIN_HEIGHT = 1120;
@@ -32,16 +30,18 @@ export function buildCertificateProfileSection(profile) {
   return ["", "Adventurer profile (Chapter I):", ...rows, ""];
 }
 
-export function buildCertificateLines(mode = "pass") {
+export function buildCertificateLines(mode = "pass", { now = new Date(), persistIssueDate = true } = {}) {
+  if (persistIssueDate) {
+    pinCertificateIssueDate(state, mode, { now, save: saveState });
+  }
   const horse = horseById(state.horseId || "chestnut");
-  const rideDay = dayLabelForDecree() || QUEST_DATE_LABEL;
   const profile = adventurerProfileFromAnswers(state.chapter1Answers);
   const adventurer = adventurerDisplayName(state);
   const subtitle =
     mode === "completion"
       ? "Second quest: survived (snacks included)"
       : certificatePassSubtitle();
-  const summonedLine = certificateSummonedForLine({ rideDayLabel: rideDay });
+  const summonedLine = certificateSummonedForIssueLine(state, mode, { now });
   return [
     "ROYAL QUEST CERTIFICATE",
     subtitle,

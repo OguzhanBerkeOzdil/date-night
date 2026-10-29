@@ -14,8 +14,8 @@ beforeEach(async () => {
     removeItem: (k) => store.delete(k),
   };
   globalThis.location = { search: "?name=Elif", pathname: "/", href: "http://localhost/" };
-  S = await import("../../js/state.js?v=20261213");
-  decree = await import("../../js/decree.js?v=20261213");
+  S = await import("../../js/state.js?v=20261214");
+  decree = await import("../../js/decree.js?v=20261214");
   S.__resetModuleForTest();
 });
 

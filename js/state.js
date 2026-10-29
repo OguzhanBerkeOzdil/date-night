@@ -1,6 +1,6 @@
-import { CONFIG } from "./config.js?v=20261213";
-import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261213";
-import { showSaveWarningToast } from "./ui-feedback.js?v=20261213";
+import { CONFIG } from "./config.js?v=20261214";
+import { DEFAULT_PLAYER_NAME } from "./app-config.js?v=20261214";
+import { showSaveWarningToast } from "./ui-feedback.js?v=20261214";
 
 const KEY = "questLady_v3";
 const LEGACY_KEY = "questLady_v2";
@@ -181,6 +181,8 @@ export function defaultState() {
     favoriteMoment: "",
     questBadge: "",
     futureQuest: "",
+    certificatePassIssuedAt: "",
+    certificateCompletionIssuedAt: "",
     lastScreen: "title",
     stats: {},
   };

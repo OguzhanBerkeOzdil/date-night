@@ -4,7 +4,7 @@ import {
   FORM_SUBMIT_ENDPOINT,
   GOOGLE_FORMS_ENDPOINT,
   GOOGLE_FORMS_ENTRY,
-} from "./app-config.js?v=20261213";
+} from "./app-config.js?v=20261214";
 
 const QUEUE_KEY = "questFeedbackQueue_v1";
 const SENT_IDS_KEY = "questFeedbackSentIds_v1";

@@ -1,5 +1,5 @@
-import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261213";
-import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261213";
+import { CONFIG, COPY, tarotForKey } from "./config.js?v=20261214";
+import { clearAchievementToasts, syncAchievementToastsForScreen, unlock } from "./achievements.js?v=20261214";
 import {
   duckMusic,
   isSoundOn,
@@ -10,18 +10,18 @@ import {
   startAmbience,
   unlockAudio,
   vibrate,
-} from "./audio.js?v=20261213";
-import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261213";
-import { hydrateLazyImages } from "./image-utils.js?v=20261213";
-import { iconFood } from "./icons.js?v=20261213";
-import { spawnSparkles, boostEmbers } from "./particles.js?v=20261213";
-import { downloadCertificatePng } from "./certificate.js?v=20261213";
+} from "./audio.js?v=20261214";
+import { say, setSteedName, setPortrait, attachSteedDialogue } from "./dialogue.js?v=20261214";
+import { hydrateLazyImages } from "./image-utils.js?v=20261214";
+import { iconFood } from "./icons.js?v=20261214";
+import { spawnSparkles, boostEmbers } from "./particles.js?v=20261214";
+import { downloadCertificatePng } from "./certificate.js?v=20261214";
 import {
   buildCompletionText,
   buildSummaryText,
   downloadDecreePng,
   shareDecree,
-} from "./decree.js?v=20261213";
+} from "./decree.js?v=20261214";
 import {
   horseById,
   horseFedImageUrl,
@@ -29,7 +29,7 @@ import {
   horseHasArt,
   HORSE_PLACEHOLDER_SRC,
   selectableHorseBreeds,
-} from "./horses.js?v=20261213";
+} from "./horses.js?v=20261214";
 import {
   adventurerDisplayName,
   buildChapter2RecapRowsForState,
@@ -48,17 +48,17 @@ import {
   sheetClassPrefillLine,
   steedHorseColorNote,
   tavernMartaTestimonyLine,
-} from "./chapter2-callbacks.js?v=20261213";
-import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261213";
-import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261213";
-import { updateEpigraph } from "./epigraph.js?v=20261213";
-import { syncContinueButton } from "./app-chrome.js?v=20261213";
-import { chapterOneIsArchived } from "./quest-phase.js?v=20261213";
-import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261213";
+} from "./chapter2-callbacks.js?v=20261214";
+import { paintSirBerkeCameo, hideSirBerkeCameo, whenSirBerkeCameoReady } from "./sir-berke-cameo.js?v=20261214";
+import { initEvePrelude, onEnterEve, syncEveHonestButton } from "./eve-prelude.js?v=20261214";
+import { updateEpigraph } from "./epigraph.js?v=20261214";
+import { syncContinueButton } from "./app-chrome.js?v=20261214";
+import { chapterOneIsArchived } from "./quest-phase.js?v=20261214";
+import { showNewQuestConfirm, showUndoToast } from "./ui-feedback.js?v=20261214";
 import {
   feedbackDeliveryStatus,
   flushFeedbackQueue,
-} from "./feedback.js?v=20261213";
+} from "./feedback.js?v=20261214";
 import {
   chapterLockButtonLabel,
   chapterLockKicker,
@@ -66,14 +66,15 @@ import {
   chapterLockSubline,
   chapterLockTitle,
   chapterTwoIsAvailable,
+  pinCertificateIssueDate,
   todayQuestDateLabel,
-} from "./quest-date.js?v=20261213";
+} from "./quest-date.js?v=20261214";
 import {
   chapter2CompletionFeedbackId,
   reportChapter2CompletionFeedback,
   reportChapter2HonestNoFeedback,
-} from "./chapter2-feedback.js?v=20261213";
-import { queueQuestSync } from "./sync.js?v=20261213";
+} from "./chapter2-feedback.js?v=20261214";
+import { queueQuestSync } from "./sync.js?v=20261214";
 import {
   letterSalutation,
   beginNewQuest,
@@ -83,7 +84,7 @@ import {
   saveState,
   state,
   undoLastNewQuest,
-} from "./state.js?v=20261213";
+} from "./state.js?v=20261214";
 
 const FOOD = [
   { id: "pizza", name: "Pizza", line: "A dependable classic with heroic cheese" },
@@ -1222,6 +1223,7 @@ export function onScreenEnter(id) {
     $("favoriteMoment").value = state.favoriteMoment || "";
   }
   if (id === "quest-complete") {
+    pinCertificateIssueDate(state, "completion", { save: saveState });
     $("finalPreview").textContent = buildCompletionText();
     boostEmbers();
   }
