@@ -161,7 +161,9 @@ export function submitFeedback(fields) {
   if (!id) return Promise.resolve({ status: "invalid" });
 
   const sent = readSentIds();
-  if (sent.has(id)) return Promise.resolve({ status: "duplicate" });
+  if (sent.has(id)) {
+    return Promise.resolve({ status: isLocalPreview() ? "local" : "duplicate" });
+  }
   if (inFlight.has(id)) return inFlight.get(id);
 
   const body = basePayload(fields);
@@ -170,13 +172,13 @@ export function submitFeedback(fields) {
   }
   const task = (async () => {
     try {
-      await postPayload(body);
+      const delivery = await postPayload(body);
       sent.add(id);
       writeSentIds(sent);
       const q = readQueue().filter((item) => item.idempotencyId !== id);
       writeQueue(q);
       if (q.length === 0) clearRetryMeta();
-      return { status: "sent" };
+      return { status: delivery.local ? "local" : "sent" };
     } catch (error) {
       const q = readQueue();
       if (!q.some((item) => item.idempotencyId === id)) {
@@ -220,7 +222,7 @@ export function flushFeedbackQueue({ force = false } = {}) {
 
 export function feedbackDeliveryStatus(id) {
   if (!id) return "missing";
-  if (readSentIds().has(id)) return "sent";
+  if (readSentIds().has(id)) return isLocalPreview() ? "local" : "sent";
   if (readQueue().some((item) => item.idempotencyId === id)) return "queued";
   if (inFlight.has(id)) return "sending";
   return "missing";

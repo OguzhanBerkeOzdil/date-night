@@ -59,9 +59,14 @@ test("local previews never contact FormSubmit or queue test feedback", async () 
     contacted = true;
     throw new Error("local preview must not reach the network");
   };
-  feedback.submitFeedback({ _subject: "T", idempotencyId: "local-1", part: "eve" });
-  await new Promise((r) => setTimeout(r, 20));
+  const result = await feedback.submitFeedback({
+    _subject: "T",
+    idempotencyId: "local-1",
+    part: "eve",
+  });
   assert.equal(contacted, false);
+  assert.equal(result.status, "local");
+  assert.equal(feedback.feedbackDeliveryStatus("local-1"), "local");
   assert.equal(feedback.__getFeedbackQueueForTest().length, 0);
   assert.equal(feedback.__getSentIdsForTest().has("local-1"), true);
   globalThis.fetch = originalFetch;
